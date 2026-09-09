@@ -183,6 +183,10 @@
                     @if ($order->payment_status === \App\Models\Order::PAYMENT_PAID)
                         <a href="{{ route('cashier.receipt.show', $order) }}" class="btn btn-secondary">Lihat Struk</a>
                         <a href="{{ route('cashier.receipt.print', $order) }}" target="_blank" rel="noopener" class="btn btn-secondary">Cetak Struk</a>
+                        @php $paidPayment = $order->payments->first(fn ($p) => $p->status === \App\Models\Payment::STATUS_PAID) @endphp
+                        @if ($paidPayment && auth()->user()?->can('payment.refund'))
+                            <a href="{{ route('admin.refunds.create', $paidPayment) }}" class="btn btn-secondary">Refund</a>
+                        @endif
                     @endif
 
                     @if (in_array(\App\Models\Order::STATUS_CANCELLED, \App\Models\Order::$orderFlow[$order->order_status] ?? [], true))

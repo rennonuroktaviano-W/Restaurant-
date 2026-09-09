@@ -7,6 +7,7 @@ use App\Models\Area;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Models\Refund;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -32,6 +33,8 @@ class ReportController extends Controller
 
         // Keep aggregates OUTSIDE the paginated orders query to match Table 21.
         $grossSales = (float) (clone $base)->where('order_status', Order::STATUS_COMPLETED)->sum('grand_total');
+        $refundTotal = $this->refundTotal($filters);
+        $netSales = round($grossSales - $refundTotal, 2);
 
         $orderCount = (clone $base)->where('order_status', Order::STATUS_COMPLETED)->count();
         $cancelledCount = (clone $base)->where('order_status', Order::STATUS_CANCELLED)->count();
@@ -61,6 +64,8 @@ class ReportController extends Controller
         return view('admin.reports.index', compact(
             'orders',
             'grossSales',
+            'netSales',
+            'refundTotal',
             'orderCount',
             'cancelledCount',
             'avgOrderValue',
@@ -123,8 +128,10 @@ class ReportController extends Controller
         $filters = $this->filters($request);
         $orders = $this->baseQuery($filters)->orderByDesc('ordered_at')->get();
         $grossSales = (float) $orders->where('order_status', Order::STATUS_COMPLETED)->sum('grand_total');
+        $refundTotal = $this->refundTotal($filters);
+        $netSales = round($grossSales - $refundTotal, 2);
 
-        $html = view('admin.reports.print', compact('orders', 'grossSales') + ['filters' => $filters])->render();
+        $html = view('admin.reports.print', compact('orders', 'grossSales', 'netSales', 'refundTotal') + ['filters' => $filters])->render();
 
         return response($html)->header('Content-Type', 'text/html');
     }
@@ -139,6 +146,20 @@ class ReportController extends Controller
             ->when($filters['status'], fn ($q, $v) => $q->where('order_status', $v))
             ->when($filters['cashier_id'], fn ($q, $v) => $q->where('created_by', $v))
             ->when($filters['payment_method_id'], fn ($q, $v) => $q->whereHas('payments', fn ($p) => $p->where('payment_method_id', $v)->where('status', 'paid')));
+    }
+
+    private function refundTotal(array $filters): float
+    {
+        return (float) Refund::query()
+            ->join('orders', 'orders.id', '=', 'refunds.order_id')
+            ->where('refunds.status', Refund::STATUS_SUCCEEDED)
+            ->when($filters['date_from'], fn ($q, $v) => $q->whereDate('refunds.created_at', '>=', $v))
+            ->when($filters['date_to'], fn ($q, $v) => $q->whereDate('refunds.created_at', '<=', $v))
+            ->when($filters['area_id'], fn ($q, $v) => $q->where('orders.area_id', $v))
+            ->when($filters['order_type'], fn ($q, $v) => $q->where('orders.order_type', $v))
+            ->when($filters['status'], fn ($q, $v) => $q->where('orders.order_status', $v))
+            ->when($filters['cashier_id'], fn ($q, $v) => $q->where('orders.created_by', $v))
+            ->sum('refunds.amount');
     }
 
     private function paymentMix(array $filters)

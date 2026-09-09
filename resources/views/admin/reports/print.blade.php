@@ -25,6 +25,8 @@
 
     <div class="summary">
         <div><div class="label">Penjualan Kotor</div><div class="value">Rp {{ number_format($grossSales, 0, ',', '.') }}</div></div>
+        <div><div class="label">Refund</div><div class="value">- Rp {{ number_format($refundTotal, 0, ',', '.') }}</div></div>
+        <div><div class="label">Penjualan Bersih</div><div class="value">Rp {{ number_format($netSales, 0, ',', '.') }}</div></div>
         <div><div class="label">Jumlah Order</div><div class="value">{{ $orders->count() }}</div></div>
     </div>
 

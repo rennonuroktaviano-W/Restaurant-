@@ -158,8 +158,12 @@ class PaymentService
 
     private function assertSettlable(Order $order): void
     {
-        if ($order->payment_status === Order::PAYMENT_PAID) {
-            throw new RuntimeException('Order sudah lunas');
+        if (in_array($order->payment_status, [
+            Order::PAYMENT_PAID,
+            Order::PAYMENT_REFUNDED,
+            Order::PAYMENT_PARTIALLY_REFUNDED,
+        ], true)) {
+            throw new RuntimeException('Order sudah lunas atau di-refund');
         }
 
         if ($order->isTerminal()) {

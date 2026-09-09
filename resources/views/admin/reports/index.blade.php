@@ -74,10 +74,18 @@
         </form>
     </div>
 
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <div class="card p-4">
             <p class="text-xs text-gray-500">Penjualan Kotor</p>
             <p class="mt-1 text-lg font-bold text-gray-900">Rp {{ number_format($grossSales, 0, ',', '.') }}</p>
+        </div>
+        <div class="card p-4">
+            <p class="text-xs text-gray-500">Refund</p>
+            <p class="mt-1 text-lg font-bold text-red-600">- Rp {{ number_format($refundTotal, 0, ',', '.') }}</p>
+        </div>
+        <div class="card p-4">
+            <p class="text-xs text-gray-500">Penjualan Bersih</p>
+            <p class="mt-1 text-lg font-bold text-emerald-700">Rp {{ number_format($netSales, 0, ',', '.') }}</p>
         </div>
         <div class="card p-4">
             <p class="text-xs text-gray-500">Order Selesai</p>

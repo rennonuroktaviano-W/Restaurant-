@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\InventoryController;
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\RefundController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\SettingController;
@@ -122,6 +123,10 @@ Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(fu
     Route::get('/reports/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
 
     Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+
+    Route::get('/refunds', [RefundController::class, 'index'])->name('refunds.index');
+    Route::get('/refunds/{payment}/create', [RefundController::class, 'create'])->name('refunds.create');
+    Route::post('/refunds/{payment}', [RefundController::class, 'store'])->name('refunds.store');
 
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');

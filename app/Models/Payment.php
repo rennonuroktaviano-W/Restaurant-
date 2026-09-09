@@ -49,6 +49,11 @@ class Payment extends Model
         return $this->belongsTo(PaymentMethod::class);
     }
 
+    public function refunds()
+    {
+        return $this->hasMany(Refund::class);
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

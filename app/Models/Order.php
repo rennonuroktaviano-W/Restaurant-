@@ -114,6 +114,11 @@ class Order extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function refunds()
+    {
+        return $this->hasMany(Refund::class);
+    }
+
     public function statusHistories()
     {
         return $this->hasMany(OrderStatusHistory::class);
