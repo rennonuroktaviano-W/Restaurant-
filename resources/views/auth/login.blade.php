@@ -36,6 +36,10 @@
                         Ingat saya
                     </label>
 
+                    <div class="text-right">
+                        <a href="{{ route('password.forgot') }}" class="text-sm font-medium text-brand-600 hover:text-brand-700">Lupa password?</a>
+                    </div>
+
                     <div>
                         <button type="submit" class="btn btn-primary w-full">Masuk</button>
                     </div>
