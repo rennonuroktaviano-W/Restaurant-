@@ -60,6 +60,7 @@
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-2">
+                                <a href="{{ route('admin.rooms.qr', $room) }}" class="btn btn-secondary !px-3 !py-1 text-xs">QR</a>
                                 <a href="{{ route('admin.rooms.edit', $room) }}" class="btn btn-secondary !px-3 !py-1 text-xs">Edit</a>
                                 <form method="POST" action="{{ route('admin.rooms.destroy', $room) }}" onsubmit="return confirm('Yakin ingin menghapus?')">
                                     @csrf

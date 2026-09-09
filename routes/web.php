@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DiningTableController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Admin\InventoryController;
+use App\Http\Controllers\Admin\LocationQrController;
 use App\Http\Controllers\Admin\PaymentMethodController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RefundController;
@@ -119,6 +120,9 @@ Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(fu
     Route::get('/dining-tables/{table}/edit', [DiningTableController::class, 'edit'])->name('dining-tables.edit');
     Route::put('/dining-tables/{table}', [DiningTableController::class, 'update'])->name('dining-tables.update');
     Route::delete('/dining-tables/{table}', [DiningTableController::class, 'destroy'])->name('dining-tables.destroy');
+    Route::get('/dining-tables/{table}/qr-code', [LocationQrController::class, 'table'])->name('tables.qr');
+
+    Route::get('/rooms/{room}/qr-code', [LocationQrController::class, 'room'])->name('rooms.qr');
 
     Route::resource('payment-methods', PaymentMethodController::class)->except('show');
     Route::resource('discounts', DiscountController::class)->except('show');

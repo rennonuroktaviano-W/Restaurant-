@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Services\CartService;
+use App\Services\LocationTokenService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -15,6 +16,8 @@ class MenuController extends Controller
 
     public function index(Request $request): View
     {
+        $this->handleLocationToken($request);
+
         $categories = Category::withCount('activeProducts')
             ->whereHas('products', fn ($q) => $q->visible())
             ->orderBy('sort_order')
@@ -48,6 +51,21 @@ class MenuController extends Controller
             ->paginate(12);
 
         return view('customer.menu', $this->viewData($categories, $products));
+    }
+
+    private function handleLocationToken(Request $request): void
+    {
+        if (! $request->filled('location_token')) {
+            return;
+        }
+
+        $location = app(LocationTokenService::class)->verify($request->string('location_token'));
+
+        if ($location !== null) {
+            session(['location.token' => $request->string('location_token')]);
+        } else {
+            session()->forget('location.token');
+        }
     }
 
     private function viewData($categories, $products): array
