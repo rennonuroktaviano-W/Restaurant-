@@ -19,6 +19,24 @@
     body {
         @apply bg-gray-50 text-gray-900 antialiased;
     }
+
+    /* WCAG 2.2 - visual focus indicator for keyboard navigation */
+    :focus-visible {
+        outline: 2px solid var(--color-brand-600);
+        outline-offset: 2px;
+    }
+
+    /* WCAG 2.3.3 - respect reduced motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        ::before,
+        ::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+    }
 }
 
 @layer components {

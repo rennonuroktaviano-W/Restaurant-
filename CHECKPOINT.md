@@ -1,47 +1,92 @@
-## Checkpoint — 2026-09-09 (final, PRD closure)
+## Checkpoint — 2026-09-09 (final, PRD closure 100%)
 
 ### Summary
-PRD P0 requirement implemented dan seluruh suite hijau: **74/74 tests, 230 assertions passing**.
-Semua bug yang ditemukan saat audit PRD (Fase 1) sudah diperbaiki dan diuji. Repo sudah di-push ke `origin/main`.
+Seluruh PRD P0/P1 tercapai, termasuk butir **P1 Item_(n) refund (FR-PAY-005)**, **P1 Project MSGE reset password**, **P1 Product QR** (kiosk lokasi), dan **NFR-SEC rate limit** + **FR-KDS-005 sound toggle** +
+inventory notification. Dokumentasi final (README, UAT checklist) telah dibuat.
+Suite hijau penuh: **102/102 tests, 316 assertions passing**. Repo di-push ke `origin/main`.
 
 ---
 
-### Bug Fixes (PRD Closure)
+### Fase A — Refund Workflow (FR-PAY-005)
 
-| File | Fix | PRD ref |
-|---|---|---|
-| `app/Services/DiscountService.php` | `targetsMatch()` resolve category_id via Product query; cap persentase diskon di subtotal. | FR-PRI-002 |
-| `app/Services/DiscountService.php` | **Baru:** `applyCode()` kini memvalidasi periode aktif (`starts_at`/`ends_at`) — promo code kedaluwarsa tidak lagi terpasang. | FR-PRI-002 |
-| `app/Services/PaymentService.php` | `settleOnline()` kini idempoten (PAID→return), hanya PENDING yang boleh settle, menolak payment yang `expires_at` sudah lewat, dan menolak order terminal (CANCELLED/COMPLETED). | FR-PAY-003/004/006, BR-009, Tabel 22 |
-| `app/Http/Requests/CheckoutRequest.php` | `table_id`/`room_id` wajib `is_active=true` & belum didelete; `payment_method_id` wajib aktif. | FR-LOC-004, FR-PAY-001 |
-| `app/Console/Commands/ExpirePayments.php` | **Baru:** command `orders:expire-payments` — expire attempt online yang lewat `expires_at` (dijadwalkan tiap jam di `bootstrap/app.php` via `withSchedule`). | Tabel 22, FR-PAY-006 |
-| `bootstrap/app.php` | Registrasi schedule `orders:expire-payments` (hourly). | Tabel 22 |
-| `tests/Feature/ExampleTest.php` | Kini `RefreshDatabase` + seed category/product → root `/` hijau (sebelumnya 500 di SQLite kosong). | — |
+| File | Status |
+|---|---|
+| `database/migrations/..._create_refunds_table.php` | refunds: order/payment/creator FK, amount, reason_code/reason, status, provider_reference |
+| `app/Models/Refund.php` + factory | STATUS_SUCCEEDED/FAILED, relations order/payment/creator |
+| `app/Services/RefundService.php` | simplex guard (payment-owner, PAID, amount>0, reason wajib, kumulatif ≤ paid), transaksi, audit log `refund`, label ulang status payment & order (partial→PARTIALLY_REFUNDED, penuh→REFUNDED) |
+| `app/Services/PaymentService.php` | `assertSettlable()` menolak order REFUNDED/PARTIALLY_REFUNDED |
+| `app/Http/Controllers/Admin/RefundController.php` + routes (index/create/store) | guarded `payment.refund` (admin+manager) |
+| `resources/views/admin/refunds/index.blade.php` + `create.blade.php`, tombol Refund di order-show kasir | UI refund |
+| `app/Http/Controllers/Admin/ReportController.php` + views laporan | `refundTotal` & `netSales = gross − refund` di laporan & PDF |
+| `tests/Feature/RefundFeatureTest.php` | 8 test |
+
+### Fase B — Reset Password Mandiri (via email)
+
+- `App\Notifications\ResetPasswordNotification` (MailMessage, queueable).
+- `Auth\ForgotPasswordController` (enumeration-safe, audit `password_reset_request`), `Auth\ResetPasswordController`
+  (broker reset, audit `reset_password`, token invalid → ValidationException).
+- Routes guest: `password.forgot|password.forgot.store (throttle:5,60)|password.reset.form|password.reset.store`;
+  views `auth/forgot-password.blade.php` + `auth/reset-password.blade.php`; link di halaman login.
+- `tests/Feature/PasswordResetFeatureTest.php` — 6 test.
+
+### Fase C — Dynamic Signed Location QR (P1 Product QR)
+
+- Dep `bacon/bacon-qr-code` (v3.1.1).
+- `app/Services/LocationTokenService.php`: token `base64(json{type,id,exp}).'.'.hash_hmac('sha256')`, TTL 12 jam,
+  verifikasi dengan `hash_equals` + exp; TYPE_TABLE / TYPE_ROOM.
+- `app/Http/Controllers/Admin/LocationQrController.php` (table/room) + pragar SVG data-URI;
+  rute `admin.tables.qr|admin.rooms.qr` guarded `location.manage`; tombol QR di index dining-tables & rooms.
+- `CheckoutRequest::prepareForValidation()` resolve token dari input `table_token` **atau** `session('location.token')`.
+- `MenuController::index` menyimpan/menghapus `location.token` session.
+- `tests/Feature/LocationQrFeatureTest.php` — 10 test.
+
+### Fase D — NFR-SEC & KDS / Inventory
+
+- Rate limit: `tracking.show` → `throttle:120,1`; `webhook.payment.mock` → `throttle:60,1`.
+- KDS sound toggle per-device (localStorage `kds.sound`), beep 880Hz + reload pada `.OrderCreated`/`.OrderStatusUpdated`,
+  sinkron `aria-pressed`.
+- Low-stock alert: setting `inventory.low_stock_threshold` (default 10), `InventoryController` menghitung
+  `lowStockProducts/lowStockCount/lowStockThreshold`, banner di index inventori.
+- `tests/Feature/RateLimitInventoryFeatureTest.php` — 4 test (429 webhook & tracking, low-stock 2 skenario).
+
+### Fase E — Aksesibilitas & Dokumentasi
+
+- WCAG: focus-visible global (CSS), `prefers-reduced-motion` dihormati, `aria-label` tombol tambah produk kiosk,
+  `aria-live` zona order baru + label section di kitchen board. Aset dibangun ulang.
+- `README.md`: setup, seeder, test/pint, arsitektur, operasional, kepatuhan.
+- `docs/UAT.md`: tabel skenario per blok (kiosk, dapur, kasir, admin, keamanan) + kolom sign-off owner.
 
 ---
 
-### Test Suite (74 tests / 230 assertions — semua hijau)
+### Test Suite (102 tests / 316 assertions — semua hijau)
 
 | File | Tests | Fokus |
 |---|---|---|
-| `tests/Feature/AuthFeatureTest.php` | 7 | Login aktif-only, rate-limit, redirect role, logout, reset+audit |
-| `tests/Feature/PermissionFeatureTest.php` | 17 | RBAC matrix (AC-07 role dilarang, kategori, inventory, reset password) |
-| `tests/Feature/CustomerOrderingFeatureTest.php` | 16 | Menu/cart/checkout, AC-01/02/03/04, snapshot, online payment, **lokasi & metode non-aktif ditolak** |
-| `tests/Feature/OrderLifecycleFeatureTest.php` | 11 | Transisi KDS/kasir, AC-08/09, cash confirm, webhook (AC-05), retry |
-| `tests/Feature/PricingDiscountInventoryTest.php` | 10 | Urutan hitung, best-single discount, capping negatif, target kategori, **code aktif & kedaluwarsa**, inventory |
-| `tests/Feature/ConcurrencyHardeningTest.php` | 7 | **Baru:** webhook idempoten (AC-04), late-webhook ditolak, settle order CANCELLED ditolak, satu settlement aktif (FR-PAY-002), retry attempt baru (FR-PAY-006), duplicate checkout (AC-04), command expire |
-| `tests/Feature/ReportExportFeatureTest.php` | 4 | **Baru:** filter laporan, CSV == ringkasan (AC-10), PDF printable, cashier dilarang export |
-| `tests/Feature/ExampleTest.php` | 1 | Root `/` render |
+| `tests/Feature/AuthFeatureTest.php` | 7 | Login aktif-only, rate-limit, redirect role, logout |
+| `tests/Feature/PasswordResetFeatureTest.php` | 6 | **Fase B** |
+| `tests/Feature/PermissionFeatureTest.php` | 17 | RBAC matrix |
+| `tests/Feature/CustomerOrderingFeatureTest.php` | 16 | Menu/cart/checkout, lokasi & metode non-aktif ditolak |
+| `tests/Feature/OrderLifecycleFeatureTest.php` | 11 | Transisi, cash, webhook, retry |
+| `tests/Feature/PricingDiscountInventoryTest.php` | 10 | Diskon, capping, inventory |
+| `tests/Feature/ConcurrencyHardeningTest.php` | 7 | Idempotensi, expire, duplicate checkout |
+| `tests/Feature/RefundFeatureTest.php` | 8 | **Fase A** |
+| `tests/Feature/LocationQrFeatureTest.php` | 10 | **Fase C** |
+| `tests/Feature/RateLimitInventoryFeatureTest.php` | 4 | **Fase D** |
+| `tests/Feature/ReportExportFeatureTest.php` | 4 | Laporan CSV/PDF |
+| `tests/Feature/ExampleTest.php` | 1 | Root `/` |
 
 ---
 
-### Residual (didokumentasikan, bukan bug)
-- **Race stok multi-koneksi nyata** butuh MySQL + proses paralel; Varian deterministik sudah di-cover oleh `lockForUpdate` + `WHERE stock >= qty` + `test_ac_03_limited_stock_checkout_cannot_oversell` (SQLite tidak mendukung row-lock sebenarnya).
-- **P1 yang tidak dikerjakan** (di luar scope MVP): refund workflow (FR-PAY-005), sound toggle KDS per-device (FR-KDS-005), stock reservations (Tabel 19).
-- Net sales di dashboard = gross (belum ada refund, jadi identik).
+### Residual (didokumentasikan, butuh aksi manusia — bukan bug)
+- **Owner sign-off UAT** di `docs/UAT.md` (item A–E).
+- **Race stok multi-koneksi nyata**: uji di MySQL + proses paralel (varian deterministik sudah di-cover).
+- **OWASP ASVS Level 2 pentest** resmi.
+- **Browser E2E infra** (Playwright/Cypress) — deliberately ditangguhkan, di-cover feature test.
+- **SMTP produksi** & verifikasi pengiriman email reset password.
+- **Drill backup & restore** berkala di produksi.
 
 ### Environment
-- `php artisan test --compact`: **74 passed** (230 assertions).
+- `php artisan test --compact`: **102 passed** (316 assertions).
 - `vendor/bin/pint --format agent`: bersih.
-- Command & schedule terverifikasi: `php artisan schedule:list`.
+- Asset: `npm run build` sukses.
 - Remote: `origin/main` → `https://github.com/rennonuroktaviano-W/Restaurant-.git`.

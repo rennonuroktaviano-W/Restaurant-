@@ -61,7 +61,7 @@
                                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                                         <input type="hidden" name="quantity" value="1">
                                         <button type="submit"
-                                                @if ($product->isSoldOut()) disabled title="Stok habis" @endif
+                                                @if ($product->isSoldOut()) disabled aria-label="Stok {{ $product->name }} habis" @else aria-label="Tambah {{ $product->name }} ke keranjang" @endif
                                                 class="btn @if ($product->isSoldOut()) btn-secondary @else btn-primary @endif !px-3 !py-1.5 text-xs">
                                             @if ($product->isSoldOut())
                                                 Habis

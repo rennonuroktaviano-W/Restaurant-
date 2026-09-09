@@ -13,10 +13,10 @@
     </div>
 
     <div class="grid gap-4 lg:grid-cols-3">
-        <section>
+        <section aria-label="Order menunggu">
             <div class="mb-3 flex items-center justify-between rounded-t-lg bg-amber-500 px-4 py-2">
                 <h2 class="text-sm font-bold uppercase text-white">Menunggu</h2>
-                <span class="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-amber-600">{{ $newOrders->count() }}</span>
+                <span class="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-amber-600" aria-live="polite">{{ $newOrders->count() }}</span>
             </div>
             <div class="space-y-3">
                 @forelse ($newOrders as $order)

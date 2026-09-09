@@ -1,58 +1,99 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# POS Restoran Resort
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem Point of Sale terintegrasi untuk restoran & resort: kiosk mandiri, Kitchen Display System (KDS),
+kasir, admin manajemen, pembayaran online, dan laporan. Dibangun dengan Laravel 13, Alpine.js, Tailwind CSS,
+Reverb (realtime), dan Spatie Permission.
 
-## About Laravel
+## Fitur Utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Kiosk / Customer**: menu publik, keranjang, checkout dengan tipe dine-in / take-away / room service,
+  diskon kode, lokasi via QR dinamis bertanda tangan (HMAC).
+- **Kitchen Display (KDS)**: papan order realtime (Reverb + polling fallback), update status, notifikasi suara per perangkat.
+- **Kasir**: terima/selesaikan/batalkan order, tunai & online, cetak struk, shift.
+- **Admin**: katalog, lokasi (area/table/room), promo, stok & peringatan stok rendah, laporan (CSV/PDF),
+  refund, audit log, pengguna & role, pengaturan.
+- **Pembayaran online**: gateway pluggable (mock default, verifikasi webhook + idempotency + kedaluwarsa order),
+  refund parsial/penuh.
+- **Keamanan**: RBAC granular, audit trail, rate limit, reset password mandiri via email, token lokasi bertanda tangan.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.3, Laravel 13
+- MySQL (produksi) / SQLite in-memory (test)
+- Tailwind CSS v4 (Vite), Alpine.js, Laravel Echo
+- Laravel Reverb, Spatie Laravel Permission
+- bacon/bacon-qr-code (QR dinamis)
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Persiapan Local
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
+# sesuaikan kredensial DB di .env
+php artisan migrate --seed
+npm install
+npm run build        # atau: npm run dev (mode develop)
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Konten file `.env` yang penting:
 
-## Contributing
+| Key | Nilai contoh | Keterangan |
+| --- | --- | --- |
+| `APP_NAME` | `POS Restoran Resort` | Nama aplikasi |
+| `BROADCAST_CONNECTION` | `reverb` | Aktifkan realtime (Reverb) |
+| `REVERB_*` | - | Kredensial Reverb |
+| `QUEUE_CONNECTION` | `database` | Antrian notifikasi email, dll |
+| `MAIL_*` | SMTP | untuk reset password via email |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+> Catatan: `npm run dev` tidak diperlukan untuk menjalankan test; aset dibangun dengan `npm run build`.
 
-## Code of Conduct
+## Akun Default (Seeder)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Role | Email | Password default |
+| --- | --- | --- |
+| Admin | `admin@pos.local` | `ChangeMe-1234!` |
+| Manager | `manager@pos.local` | `ChangeMe-1234!` |
+| Kasir | `cashier@pos.local` | `ChangeMe-1234!` |
+| Dapur | `kitchen@pos.local` | `ChangeMe-1234!` |
 
-## Security Vulnerabilities
+Password dapat diubah via `SEED_*_PASSWORD` di `.env`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Menjalankan Test & Lint
 
-## License
+```bash
+php artisan test --compact          # seluruh suite (feature test, in-memory SQLite)
+vendor/bin/pint --format agent      # perbaiki gaya PHP otomatis
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Arsitektur ringkas
+
+- **Services** (`app/Services`): `CheckoutService` (transaksi order), `PaymentService` (settle/fail/expire,
+  idempotensi), `RefundService` (refund parsial/penuh + label ulang status), `InventoryService`
+  (pengurangan stok atomik + reversal saat cancel), `DiscountService`, `SettingsService`, `LocationTokenService`
+  (token HMAC ber-TTL utk QR meja/room).
+- **Payment Gateway** (`app/PaymentGateway`): driver berbasis `PaymentGateway` interface; `mock` bawaan
+  dengan verifikasi tanda tangan webhook.
+- **RBAC** (`app/Support/Permissions.php`): matriks role→permission, seeder di
+  `database/seeders/RolePermissionSeeder.php`. Middleware: `active`, `role`, `permission`.
+- **Realtime**: event broadcast ke channel publik (`order.new`, `order.{id}`, `cooking`, `kitchen`);
+  tidak memerlukan `routes/channels.php`. Board KDS punya fallback polling bila Reverb mati.
+- **Scheduling**: `orders:expire-payments` berjalan tiap jam (lihat `bootstrap/app.php`).
+
+## Operasional
+
+- **Scheduler**: jalankan `php artisan schedule:work` (atau cron `* * * * * php artisan schedule:run`).
+- **Broadcast**: jalankan `php artisan reverb:start` (atau kelola via supervisor) bila `BROADCAST_CONNECTION=reverb`.
+- **Backup**: backup database & `storage/app` (gambar produk) secara berkala.
+- **Deploy produksi**: `composer install --no-dev`, `npm ci && npm run build`, `php artisan migrate --force`,
+  `php artisan config:cache`, `php artisan optimize`.
+- Checklist UAT & tanda tangan owner ada di `docs/UAT.md`.
+
+## Keamanan & Kepatuhan
+
+- Staff diwajibkan mereset password default; reset password mandiri via email tersedia publik.
+- Endpoint webhook & tracking diberi rate limit (NFR-SEC).
+- Alur pembayaran & refund dicatat di audit log.
+- Aspek yang memerlukan tanda tangan/pemeriksaan manual: UAT owner, scan OWASP / pentest resmi,
+  uji ras perlombaan (race) di MySQL produksi, dan drill backup/restore.
