@@ -1,0 +1,71 @@
+@extends('layouts.app')
+
+@section('title', 'Edit Meja - ' . config('app.name'))
+@section('header', 'Edit Meja')
+
+@section('content')
+    <div class="mb-5 flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">Edit Meja</h1>
+        <a href="{{ route('admin.dining-tables.index') }}" class="btn btn-secondary">Kembali</a>
+    </div>
+
+    <form method="POST" action="{{ route('admin.dining-tables.update', $table) }}" class="card p-6">
+        @csrf
+        @method('PUT')
+
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+                <label for="area_id" class="label">Area</label>
+                <select name="area_id" id="area_id" class="select @error('area_id') border-red-400 @enderror" required>
+                    <option value="">Pilih Area</option>
+                    @foreach ($areas as $area)
+                        <option value="{{ $area->id }}" @selected(old('area_id', $table->area_id) == $area->id)>{{ $area->name }}</option>
+                    @endforeach
+                </select>
+                @error('area_id')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="table_number" class="label">Nomor Meja</label>
+                <input type="text" name="table_number" id="table_number" value="{{ old('table_number', $table->table_number) }}" class="input @error('table_number') border-red-400 @enderror" required>
+                @error('table_number')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="name" class="label">Nama</label>
+                <input type="text" name="name" id="name" value="{{ old('name', $table->name) }}" class="input @error('name') border-red-400 @enderror">
+                @error('name')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="status" class="label">Status</label>
+                <select name="status" id="status" class="select @error('status') border-red-400 @enderror" required>
+                    <option value="available" @selected(old('status', $table->status) === 'available')>Tersedia</option>
+                    <option value="occupied" @selected(old('status', $table->status) === 'occupied')>Terisi</option>
+                    <option value="reserved" @selected(old('status', $table->status) === 'reserved')>Dipesan</option>
+                </select>
+                @error('status')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="sm:col-span-2">
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $table->is_active)) class="rounded border-gray-300 text-brand-600 focus:ring-brand-500">
+                    <span class="text-sm text-gray-700">Aktif</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="mt-6 flex items-center gap-2">
+            <button type="submit" class="btn btn-primary">Simpan</button>
+            <a href="{{ route('admin.dining-tables.index') }}" class="btn btn-secondary">Batal</a>
+        </div>
+    </form>
+@endsection

@@ -1,0 +1,32 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends Factory<OrderItem>
+ */
+class OrderItemFactory extends Factory
+{
+    public function definition(): array
+    {
+        $product = Product::factory()->create();
+        $quantity = fake()->numberBetween(1, 5);
+        $price = fake()->randomFloat(2, 5000, 100000);
+
+        return [
+            'order_id' => Order::factory(),
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'product_sku' => $product->sku,
+            'price' => $price,
+            'quantity' => $quantity,
+            'subtotal' => round($price * $quantity, 2),
+            'notes' => fake()->optional()->sentence(),
+        ];
+    }
+}
