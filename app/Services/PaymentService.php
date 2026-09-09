@@ -90,8 +90,22 @@ class PaymentService
     public function settleOnline(Payment $payment): Payment
     {
         return DB::transaction(function () use ($payment) {
+            $payment->refresh();
+
             if ($payment->status === Payment::STATUS_PAID) {
                 return $payment;
+            }
+
+            if ($payment->status !== Payment::STATUS_PENDING) {
+                throw new RuntimeException('Pembayaran tidak dalam status pending');
+            }
+
+            if ($payment->expires_at !== null && $payment->expires_at->isPast()) {
+                throw new RuntimeException('Pembayaran sudah kedaluwarsa. Silakan buat attempt baru.');
+            }
+
+            if ($payment->order->isTerminal()) {
+                throw new RuntimeException('Order tidak dapat dibayar pada status ini');
             }
 
             $payment->update([
