@@ -44,8 +44,8 @@ class CheckoutRequest extends FormRequest
             'table_id' => ['required_if:order_type,'.Order::TYPE_DINE_IN, 'nullable', Rule::exists('dining_tables', 'id')->where('is_active', true)->whereNull('deleted_at')],
             'room_id' => ['required_if:order_type,'.Order::TYPE_ROOM_SERVICE, 'nullable', Rule::exists('rooms', 'id')->where('is_active', true)->whereNull('deleted_at')],
             'table_token' => ['nullable', 'string', 'max:512'],
-            'customer_name' => ['nullable', 'string', 'max:100'],
-            'customer_phone' => ['nullable', 'string', 'max:30'],
+            'customer_name' => ['nullable', 'string', 'max:100', 'regex:/^[\p{L}\p{M}\s.,\'-]+$/u'],
+            'customer_phone' => ['nullable', 'regex:/^[0-9]{8,15}$/'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'discount_code' => ['nullable', 'string', 'max:50'],
             'idempotency_key' => ['nullable', 'string', 'max:191'],
@@ -60,6 +60,8 @@ class CheckoutRequest extends FormRequest
             'order_type.in' => 'Tipe order tidak valid',
             'table_id.required_if' => 'Meja wajib dipilih untuk dine-in',
             'room_id.required_if' => 'Room wajib dipilih untuk room service',
+            'customer_name.regex' => 'Nama hanya boleh berupa huruf',
+            'customer_phone.regex' => 'No. HP harus berupa angka (8–15 digit)',
         ];
     }
 }

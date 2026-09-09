@@ -56,7 +56,7 @@ Route::prefix('menu')->name('menu.')->group(function () {
     Route::get('/category/{category:slug}', [MenuController::class, 'category'])->name('category');
 });
 
-Route::get('/', [MenuController::class, 'index'])->name('home');
+Route::get('/', [MenuController::class, 'home'])->name('home');
 
 Route::prefix('cart')->name('cart.')->middleware('throttle:60,1')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');

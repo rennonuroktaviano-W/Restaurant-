@@ -8,6 +8,7 @@ use App\Models\PaymentMethod;
 use App\Models\Room;
 use App\Services\CartService;
 use App\Services\PricingService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -40,7 +41,7 @@ class CartController extends Controller
         return view('customer.cart', compact('lines', 'subtotal', 'pricing', 'areas', 'rooms', 'paymentMethods'));
     }
 
-    public function add(Request $request): RedirectResponse
+    public function add(Request $request): RedirectResponse|JsonResponse
     {
         $data = $request->validate([
             'product_id' => ['required', 'exists:products,id'],
@@ -51,13 +52,21 @@ class CartController extends Controller
         try {
             $this->cart->add((int) $data['product_id'], (int) ($data['quantity'] ?? 1), $data['notes'] ?? null);
         } catch (\RuntimeException $e) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => $e->getMessage()], 422);
+            }
+
             return back()->with('error', $e->getMessage());
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json($this->cartState());
         }
 
         return back()->with('success', 'Item ditambahkan ke keranjang.');
     }
 
-    public function update(Request $request, int $productId): RedirectResponse
+    public function update(Request $request, int $productId): RedirectResponse|JsonResponse
     {
         $data = $request->validate([
             'quantity' => ['required', 'integer', 'min:0', 'max:99'],
@@ -66,13 +75,34 @@ class CartController extends Controller
 
         $this->cart->update($productId, (int) $data['quantity'], $data['notes'] ?? null);
 
+        if ($request->wantsJson()) {
+            return response()->json($this->cartState());
+        }
+
         return redirect()->route('cart.index');
     }
 
-    public function remove(Request $request, int $productId): RedirectResponse
+    public function remove(Request $request, int $productId): RedirectResponse|JsonResponse
     {
         $this->cart->remove($productId);
 
+        if ($request->wantsJson()) {
+            return response()->json($this->cartState());
+        }
+
         return redirect()->route('cart.index');
+    }
+
+    private function cartState(): array
+    {
+        $lines = $this->cart->lines();
+        $subtotal = $this->cart->subtotal();
+
+        return [
+            'count' => $this->cart->count(),
+            'subtotal' => $subtotal,
+            'lines' => $lines,
+            'pricing' => $this->pricing->calculate($lines, $subtotal, session('cart.discount_code')),
+        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\PaymentMethod;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -9,6 +10,13 @@ use Tests\TestCase;
 class KioskUiFeatureTest extends TestCase
 {
     use RefreshDatabase;
+
+    private function seedPaymentMethods(): void
+    {
+        PaymentMethod::create(['name' => 'Tunai', 'code' => 'cash', 'type' => 'cash', 'is_active' => true, 'sort_order' => 1]);
+        PaymentMethod::create(['name' => 'QRIS', 'code' => 'qris', 'type' => 'online', 'is_active' => true, 'sort_order' => 2, 'config' => ['provider' => 'mock']]);
+        PaymentMethod::create(['name' => 'Kartu Debit', 'code' => 'debit_card', 'type' => 'online', 'is_active' => true, 'sort_order' => 3, 'config' => ['provider' => 'mock']]);
+    }
 
     public function test_menu_renders_product_photo(): void
     {
@@ -68,5 +76,62 @@ class KioskUiFeatureTest extends TestCase
             ->assertOk()
             ->assertSee('Habis')
             ->assertDontSee('+ Tambah');
+    }
+
+    public function test_cart_page_has_payment_radios_without_cashier_option(): void
+    {
+        $this->seedPaymentMethods();
+
+        Product::factory()->create(['name' => 'Es Kopi', 'stock_type' => 'unlimited', 'stock' => 99]);
+
+        $this->post(route('cart.add'), ['product_id' => Product::first()->id, 'quantity' => 1]);
+
+        $this->get(route('cart.index'))
+            ->assertOk()
+            ->assertSee('Tipe Order')
+            ->assertSee('Metode Pembayaran')
+            ->assertSee('Kartu Debit')
+            ->assertDontSee('Bayar di Kasir')
+            ->assertDontSee('Lanjut Isi Data');
+    }
+
+    public function test_customer_layout_has_no_cashier_or_account_links(): void
+    {
+        $home = $this->get('/');
+        $home->assertOk();
+        $home->assertDontSee('>Kasir<');
+        $home->assertDontSee('>Akun<');
+        $home->assertSee('Pengalaman');
+
+        $this->get(route('menu.index'))
+            ->assertOk()
+            ->assertDontSee('>Kasir<');
+    }
+
+    public function test_cart_actions_accept_ajax_json_requests(): void
+    {
+        $product = Product::factory()->create([
+            'name' => 'Kopi Tubruk',
+            'stock_type' => 'unlimited',
+            'stock' => 99,
+            'sale_price' => 15000,
+        ]);
+
+        $this->withHeader('Accept', 'application/json')
+            ->post(route('cart.add'), ['product_id' => $product->id, 'quantity' => 1])
+            ->assertOk()
+            ->assertJsonStructure(['count' => [], 'subtotal' => [], 'lines' => [], 'pricing' => []])
+            ->assertJsonPath('count', 1);
+
+        $this->withHeader('Accept', 'application/json')
+            ->post(route('cart.update', $product->id), ['quantity' => 3])
+            ->assertOk()
+            ->assertJsonPath('count', 3)
+            ->assertJsonPath('subtotal', 45000);
+
+        $this->withHeader('Accept', 'application/json')
+            ->post(route('cart.remove', $product->id))
+            ->assertOk()
+            ->assertJsonPath('count', 0);
     }
 }

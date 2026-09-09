@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Services\CartService;
 use App\Services\LocationTokenService;
 use Illuminate\Http\Request;
@@ -13,6 +14,43 @@ use Illuminate\View\View;
 class MenuController extends Controller
 {
     public function __construct(protected CartService $cart) {}
+
+    public function home(Request $request): View
+    {
+        $this->handleLocationToken($request);
+
+        $categories = Category::withCount('activeProducts')
+            ->whereHas('products', fn ($q) => $q->visible())
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $featured = Product::query()
+            ->with('category')
+            ->visible()
+            ->orderByDesc('is_featured')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->take(3)
+            ->get();
+
+        $setting = fn (string $key) => (string) (Setting::where('key', $key)->value('value') ?? '');
+
+        return view('customer.home', [
+            'siteName' => $setting('business.name') ?: config('app.name'),
+            'categories' => $categories,
+            'featured' => $featured,
+            'heroImages' => Product::query()->visible()->whereNotNull('image')->orderBy('sort_order')->limit(3)->pluck('image'),
+            'hasAddress' => $setting('business.address') !== '',
+            'hasPhone' => $setting('business.phone') !== '',
+            'address' => $setting('business.address'),
+            'phone' => $setting('business.phone'),
+            'cartCount' => $this->cart->count(),
+            'cartQuantities' => $this->cart->all()->pluck('quantity', 'product_id')->toArray(),
+            'drawerLines' => $this->cart->lines(),
+            'drawerSubtotal' => $this->cart->subtotal(),
+        ]);
+    }
 
     public function index(Request $request): View
     {

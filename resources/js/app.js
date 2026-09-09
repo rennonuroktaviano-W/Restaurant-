@@ -1,5 +1,6 @@
 import Alpine from 'alpinejs';
 import { initEcho } from './echo';
+import './cart';
 
 window.Alpine = Alpine;
 
@@ -13,5 +14,9 @@ document.addEventListener('alpine:init', () => {
 Alpine.start();
 
 if (window.EchoEnabled) {
-    initEcho();
+    try {
+        initEcho();
+    } catch (error) {
+        console.warn('Echo not available:', error);
+    }
 }

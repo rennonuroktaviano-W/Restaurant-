@@ -300,4 +300,26 @@ class CustomerOrderingFeatureTest extends TestCase
         $this->assertSame(Order::STATUS_NEW, $order->order_status);
         $this->assertSame(Order::PAYMENT_PENDING, $order->payment_status);
     }
+
+    public function test_customer_name_must_not_contain_digits(): void
+    {
+        $product = $this->product();
+        $this->addToCart($product->id);
+
+        $this->post(route('checkout.store'), [
+            'order_type' => Order::TYPE_TAKE_AWAY,
+            'customer_name' => 'Budi 123',
+        ])->assertSessionHasErrors('customer_name');
+    }
+
+    public function test_customer_phone_must_be_digits_only(): void
+    {
+        $product = $this->product();
+        $this->addToCart($product->id);
+
+        $this->post(route('checkout.store'), [
+            'order_type' => Order::TYPE_TAKE_AWAY,
+            'customer_phone' => '0812-3456',
+        ])->assertSessionHasErrors('customer_phone');
+    }
 }
