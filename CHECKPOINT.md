@@ -2,10 +2,11 @@
 
 ### Summary
 Seluruh PRD P0/P1 tercapai, termasuk butir **P1 Item_(n) refund (FR-PAY-005)**, **P1 Project MSGE reset password**, **P1 Product QR** (kiosk lokasi), dan **NFR-SEC rate limit** + **FR-KDS-005 sound toggle** +
-inventory notification. Fase F menambahkan **foto asli pada menu demo** (unduh-once dari TheMealDB/LoremFlickr)
-dan **beautifikasi UI kiosk** (hero, chip kategori, kartu bergambar, stepper qty, drawer & cart dengan thumbnail).
+inventory notification. Fase F menambahkan **foto asli pada menu demo** dan **beautifikasi UI kiosk**
+(hero, chip kategori, kartu bergambar, stepper qty, drawer & cart dengan thumbnail). Fase F2 mengganti sumber
+foto menu dengan **food photography Pexels premium** (service + command `products:refresh-images`, tanpa API key).
 Dokumentasi final (README, UAT checklist) telah dibuat.
-Suite hijau penuh: **106/106 tests, 330 assertions passing**. Repo di-push ke `origin/main`.
+Suite hijau penuh: **111/111 tests, 341 assertions passing**. Repo di-push ke `origin/main`.
 
 ---
 
@@ -60,10 +61,10 @@ Suite hijau penuh: **106/106 tests, 330 assertions passing**. Repo di-push ke `o
 
 ### Fase F — Kiosk UI & Foto Menu (improvement non-PRD)
 
-- `DemoMasterDataSeeder`: pemetaan per-SKU ke **foto asli** (TheMealDB statik: nasi goreng, ayam percik, sate, es krim;
-  LoremFlickr per-tag: iced-tea, orange-juice, coffee-latte, fried-banana). Unduh **sekali** ke
+- `DemoMasterDataSeeder` kini memakai `App\Support\DemoProductImages` (foto Pexels). Unduh **sekali** ke
   `storage/app/public/products/<sku>.jpg` via `Http::timeout(10)`, hanya saat `image` kosong, `try/catch` agar
   seed tetap jalan offline. `php artisan storage:link` dibuat (foto tampil via `/storage/...`).
+  Ganti foto DB lama tanpa migrate: `php artisan products:refresh-images`.
 - `customer/menu.blade.php`: hero banner bisnis, chip kategori scrollable (mobile) & active state, kartu
   `aspect-[4/3]` + hover zoom + overlay "Habis", stepper qty ± inline saat item sudah di keranjang
   (cap stok untuk produk limited), empty-state + hasil pencarian.
@@ -73,6 +74,18 @@ Suite hijau penuh: **106/106 tests, 330 assertions passing**. Repo di-push ke `o
 - `layouts/kiosk.blade.php`: footer.
 - `MenuController::viewData`: tambah `cartQuantities` (data untuk stepper).
 - `tests/Feature/KioskUiFeatureTest.php` — 4 test (foto di menu, thumbnail drawer+cart, stepper qty, overlay habis).
+
+### Fase F2 — Foto Menu Premium (Pexels, improvement non-PRD)
+
+- `app/Support/DemoProductImages.php`: pemetaan per-SKU ke **foto food photography Pexels** (CDN
+  `images.pexels.com`, tanpa API key) yang telah divertifikasi `200 image/jpeg`; `ensure(Product, force)`
+  mengunduh sekali ke `storage/app/public/products/<sku>.jpg`, validasi `Content-Type: image/*`, `try/catch`
+  offline-safe. Menggantikan TheMealDB/LoremFlickr (foto ayam "kuning jelek" dkk.) dengan nuansa fine-dining.
+- `DemoMasterDataSeeder`: pakai service di atas (hapus map & method unduh internal).
+- `app/Console/Commands/RefreshProductImages.php`: `php artisan products:refresh-images` — unduh ulang foto
+  untuk produk terpetakan (idempotent, tak butuh migrate ulang).
+- `tests/Feature/DemoProductImagesTest.php` — 5 test (`Http::fake` + `Storage::fake`): download+attach,
+  skip bila ada, force-refresh, toleransi gagal HTTP, SKU tak dikenal.
 
 ---
 
@@ -91,6 +104,7 @@ Suite hijau penuh: **106/106 tests, 330 assertions passing**. Repo di-push ke `o
 | `tests/Feature/LocationQrFeatureTest.php` | 10 | **Fase C** |
 | `tests/Feature/RateLimitInventoryFeatureTest.php` | 4 | **Fase D** |
 | `tests/Feature/KioskUiFeatureTest.php` | 4 | **Fase F** |
+| `tests/Feature/DemoProductImagesTest.php` | 5 | **Fase F2** |
 | `tests/Feature/ReportExportFeatureTest.php` | 4 | Laporan CSV/PDF |
 | `tests/Feature/ExampleTest.php` | 1 | Root `/` |
 
@@ -105,8 +119,8 @@ Suite hijau penuh: **106/106 tests, 330 assertions passing**. Repo di-push ke `o
 - **Drill backup & restore** berkala di produksi.
 
 ### Environment
-- `php artisan test --compact`: **106 passed** (330 assertions).
+- `php artisan test --compact`: **111 passed** (341 assertions).
 - `vendor/bin/pint --format agent`: bersih.
 - Asset: `npm run build` sukses.
-- Foto demo: 8 gambar di `storage/app/public/products`, `public/storage` symlink tersambung.
+- Foto demo: 8 gambar Pexels di `storage/app/public/products`, `public/storage` symlink tersambung.
 - Remote: `origin/main` → `https://github.com/rennonuroktaviano-W/Restaurant-.git`.

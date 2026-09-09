@@ -39,9 +39,10 @@ php artisan serve
 ```
 
 > Catatan: `php artisan migrate --seed` memanggil `DemoMasterDataSeeder` yang mengunduh foto
-> makanan asli (TheMealDB/LoremFlickr) **sekali** ke `storage/app/public/products` — butuh internet
-> saat seed perdana. Jika gagal/offline, produk dibuat tanpa foto dan bisa diisi lewat form produk
-> admin. Untuk memuat ulang foto di DB lama: `php artisan db:seed --class=DemoMasterDataSeeder`.
+> makanan asli (Pexels — food photography profesional) **sekali** ke `storage/app/public/products` —
+> butuh internet saat seed perdana. Jika gagal/offline, produk dibuat tanpa foto dan bisa diisi lewat form produk
+> admin. Untuk mengunduh ulang foto (mis. DB lama atau ganti kandidat foto):
+> `php artisan products:refresh-images`.
 
 Konten file `.env` yang penting:
 
