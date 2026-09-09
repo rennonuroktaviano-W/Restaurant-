@@ -1,61 +1,47 @@
-## Checkpoint — 2026-09-09
+## Checkpoint — 2026-09-09 (final, PRD closure)
 
 ### Summary
-Core ordering flow, payment, pricing, discount targeting, and RBAC authorization tests all passing.
-57/58 feature tests pass (only pre-existing `ExampleTest` fails: root `/` hits bare SQLite).
+PRD P0 requirement implemented dan seluruh suite hijau: **74/74 tests, 230 assertions passing**.
+Semua bug yang ditemukan saat audit PRD (Fase 1) sudah diperbaiki dan diuji. Repo sudah di-push ke `origin/main`.
 
 ---
 
-### Bug Fixes
+### Bug Fixes (PRD Closure)
 
-| File | Fix |
-|---|---|
-| `app/Services/DiscountService.php` | `targetsMatch()` now queries Product table to resolve category_id from product_id (was using null `product.category_id` on plain arrays). Percentage discounts are now capped at subtotal. |
-| `app/Services/CheckoutService.php` | Cart lines now include `subtotal` (NOT NULL in order_items). Product lock query selects `is_kitchen`. |
-| `app/Models/Order.php` | Added `has_kitchen_items` to `$casts` array. |
-| `app/Models/User.php` | Added `HasFactory` trait (was missing). |
-| `resources/views/kitchen/disabled.blade.php` | New view for KDS kill-switch (feature.kds_enabled setting). |
-
-### Authorization Changes
-
-| File | Change |
-|---|---|
-| `app/Http/Controllers/Admin/DashboardController.php` | Added `Gate::authorize('report.view')` in constructor. |
-| `app/Http/Controllers/Kitchen/KitchenController.php` | Added KDS feature flag guard (`feature.kds_enabled` setting). Returns `kitchen.disabled` view when false. |
-| `app/Http/Controllers/Admin/UserController.php` | Added `resetPassword()` method with `Gate::authorize('user.manage')`. |
-| `routes/web.php` | Added `admin.users.reset-password` route. |
-| `resources/views/admin/users/edit.blade.php` | Added password reset form section (`btn-danger` class). |
-
-### Test Infrastructure
-
-| File | Change |
-|---|---|
-| `tests/TestCase.php` | Rewritten with helpers: `seedStaffRolesAndSettings()`, `staffUser()`, `adminUser()`, `cashierUser()`, `kitchenUser()`, `managerUser()`, `actAsFresh()`. `actAsFresh()` avoids Laravel's session carry-over between sequential `actingAs()` calls. |
-
-### Test Files Created/Updated
-
-| File | Tests | Status |
+| File | Fix | PRD ref |
 |---|---|---|
-| `tests/Feature/AuthFeatureTest.php` | 7 tests, 32 assertions | All passing |
-| `tests/Feature/PermissionFeatureTest.php` | 17 tests, 25 assertions | All passing |
-| `tests/Feature/CustomerOrderingFeatureTest.php` | 13 tests, 52 assertions | All passing |
-| `tests/Feature/OrderLifecycleFeatureTest.php` | 11 tests, 38 assertions | All passing |
-| `tests/Feature/PricingDiscountInventoryTest.php` | 8 tests, 21 assertions | All passing |
-| `tests/Feature/ExampleTest.php` | 1 test | Pre-existing fail (no DB in bare SQLite) |
-
-**Total: 57 tests, 168 assertions**
+| `app/Services/DiscountService.php` | `targetsMatch()` resolve category_id via Product query; cap persentase diskon di subtotal. | FR-PRI-002 |
+| `app/Services/DiscountService.php` | **Baru:** `applyCode()` kini memvalidasi periode aktif (`starts_at`/`ends_at`) — promo code kedaluwarsa tidak lagi terpasang. | FR-PRI-002 |
+| `app/Services/PaymentService.php` | `settleOnline()` kini idempoten (PAID→return), hanya PENDING yang boleh settle, menolak payment yang `expires_at` sudah lewat, dan menolak order terminal (CANCELLED/COMPLETED). | FR-PAY-003/004/006, BR-009, Tabel 22 |
+| `app/Http/Requests/CheckoutRequest.php` | `table_id`/`room_id` wajib `is_active=true` & belum didelete; `payment_method_id` wajib aktif. | FR-LOC-004, FR-PAY-001 |
+| `app/Console/Commands/ExpirePayments.php` | **Baru:** command `orders:expire-payments` — expire attempt online yang lewat `expires_at` (dijadwalkan tiap jam di `bootstrap/app.php` via `withSchedule`). | Tabel 22, FR-PAY-006 |
+| `bootstrap/app.php` | Registrasi schedule `orders:expire-payments` (hourly). | Tabel 22 |
+| `tests/Feature/ExampleTest.php` | Kini `RefreshDatabase` + seed category/product → root `/` hijau (sebelumnya 500 di SQLite kosong). | — |
 
 ---
 
-### Known Issues
+### Test Suite (74 tests / 230 assertions — semua hijau)
 
-1. **`ExampleTest`** — hits `/` which loads `MenuController` (needs categories table). Pre-existing; not our scope.
-2. **Discount scoping** — category-targeted discounts currently apply to the full order subtotal (not per-line). This matches the app's current behavior; the DiscountService fix makes the targeting logic work at all.
+| File | Tests | Fokus |
+|---|---|---|
+| `tests/Feature/AuthFeatureTest.php` | 7 | Login aktif-only, rate-limit, redirect role, logout, reset+audit |
+| `tests/Feature/PermissionFeatureTest.php` | 17 | RBAC matrix (AC-07 role dilarang, kategori, inventory, reset password) |
+| `tests/Feature/CustomerOrderingFeatureTest.php` | 16 | Menu/cart/checkout, AC-01/02/03/04, snapshot, online payment, **lokasi & metode non-aktif ditolak** |
+| `tests/Feature/OrderLifecycleFeatureTest.php` | 11 | Transisi KDS/kasir, AC-08/09, cash confirm, webhook (AC-05), retry |
+| `tests/Feature/PricingDiscountInventoryTest.php` | 10 | Urutan hitung, best-single discount, capping negatif, target kategori, **code aktif & kedaluwarsa**, inventory |
+| `tests/Feature/ConcurrencyHardeningTest.php` | 7 | **Baru:** webhook idempoten (AC-04), late-webhook ditolak, settle order CANCELLED ditolak, satu settlement aktif (FR-PAY-002), retry attempt baru (FR-PAY-006), duplicate checkout (AC-04), command expire |
+| `tests/Feature/ReportExportFeatureTest.php` | 4 | **Baru:** filter laporan, CSV == ringkasan (AC-10), PDF printable, cashier dilarang export |
+| `tests/Feature/ExampleTest.php` | 1 | Root `/` render |
 
-### Dev DB
-MySQL `pos_restaurant` was `migrate:fresh --seed` seeded. SettingsSeeder, RolePermissionSeeder, DemoMasterDataSeeder all ran successfully.
+---
 
-### Next Steps (if continuing)
-- Write more granular unit tests for DiscountService (target-matching logic, expiry edge cases).
-- Write integration tests for the DemoMasterDataSeeder-driven admin CRUD (rooms, areas, dining-tables, payment-methods, shifts).
-- Add feature tests for export PDF route and inventory movement history view.
+### Residual (didokumentasikan, bukan bug)
+- **Race stok multi-koneksi nyata** butuh MySQL + proses paralel; Varian deterministik sudah di-cover oleh `lockForUpdate` + `WHERE stock >= qty` + `test_ac_03_limited_stock_checkout_cannot_oversell` (SQLite tidak mendukung row-lock sebenarnya).
+- **P1 yang tidak dikerjakan** (di luar scope MVP): refund workflow (FR-PAY-005), sound toggle KDS per-device (FR-KDS-005), stock reservations (Tabel 19).
+- Net sales di dashboard = gross (belum ada refund, jadi identik).
+
+### Environment
+- `php artisan test --compact`: **74 passed** (230 assertions).
+- `vendor/bin/pint --format agent`: bersih.
+- Command & schedule terverifikasi: `php artisan schedule:list`.
+- Remote: `origin/main` → `https://github.com/rennonuroktaviano-W/Restaurant-.git`.
