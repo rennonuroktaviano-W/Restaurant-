@@ -68,13 +68,16 @@ Route::prefix('cart')->name('cart.')->middleware('throttle:60,1')->group(functio
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store')->middleware('throttle:10,1');
 
 Route::get('/track/{order:order_number}', [OrderTrackingController::class, 'show'])
+    ->middleware('throttle:120,1')
     ->missing(fn () => redirect()->route('home')->with('error', 'Order tidak ditemukan.'))
     ->name('tracking.show');
 
 Route::get('/payment/mock/{payment}', [PaymentRedirectController::class, 'show'])->name('payment.mock.pay');
 Route::post('/payment/mock/{payment}/process', [PaymentRedirectController::class, 'process'])->name('payment.mock.process');
 
-Route::post('/webhook/payment/mock', [MockWebhookController::class, 'handle'])->name('webhook.payment.mock');
+Route::post('/webhook/payment/mock', [MockWebhookController::class, 'handle'])
+    ->middleware('throttle:60,1')
+    ->name('webhook.payment.mock');
 
 Route::middleware(['auth', 'active', 'role:cashier|manager|admin'])->prefix('cashier')->name('cashier.')->group(function () {
     Route::get('/', [CashierController::class, 'dashboard'])->name('dashboard');

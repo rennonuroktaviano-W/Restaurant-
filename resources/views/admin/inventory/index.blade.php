@@ -9,6 +9,24 @@
         <a href="{{ route('admin.inventory.movements') }}" class="btn btn-secondary">Riwayat Pergerakan</a>
     </div>
 
+    <div class="card mb-4 p-4">
+        <div class="flex items-start gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mt-0.5 h-5 w-5 shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M12 3a9 9 0 110 18 9 9 0 010-18z"/></svg>
+            <div class="text-sm">
+                @if ($lowStockCount > 0)
+                    <p class="font-semibold text-amber-800">{{ $lowStockCount }} produk di bawah ambang stok ({{ $lowStockThreshold }}).</p>
+                    <ul class="mt-2 space-y-1">
+                        @foreach ($lowStockProducts as $product)
+                            <li class="text-gray-700">{{ $product->name }} — sisa <span class="font-semibold text-red-600">{{ $product->stock }}</span></li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-gray-600">Semua stok di atas ambang minimum ({{ $lowStockThreshold }}).</p>
+                @endif
+            </div>
+        </div>
+    </div>
+
     <div class="card overflow-hidden">
         <form method="GET" action="{{ route('admin.inventory.index') }}" class="flex flex-wrap items-center gap-3 border-b border-gray-200 px-5 py-4">
             <input type="search" name="search" value="{{ request('search') }}" placeholder="Cari produk..." class="input max-w-56">

@@ -22,6 +22,7 @@ class SettingsSeeder extends Seeder
             ['pricing.pay_later', 'false', 'Izinkan bayar di kasir (pay-later)', 'pricing'],
             ['pricing.rounding', '0.01', 'Aturan pembulatan IDR', 'pricing'],
             ['order.timeout_minutes', '15', 'Batas waktu pembayaran online (menit)', 'general'],
+            ['inventory.low_stock_threshold', '10', 'Ambang stok rendah', 'inventory'],
             ['feature.kds_enabled', 'true', 'Aktifkan Kitchen Display', 'features'],
             ['feature.soldout_label_product', 'true', 'Tampilkan label sold out pada produk', 'features'],
             ['timezone', 'Asia/Jakarta', 'Zona waktu laporan', 'general'],

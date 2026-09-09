@@ -6,7 +6,10 @@
 @section('content')
     <div class="mb-5 flex items-center justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Kitchen Display</h1>
-        <span id="board-clock" class="text-xl font-semibold tabular-nums text-gray-600">{{ now()->format('H:i:s') }}</span>
+        <div class="flex items-center gap-3">
+            <button id="kds-sound-toggle" type="button" class="btn btn-secondary !px-3 !py-1 text-xs" aria-pressed="false">Suara</button>
+            <span id="board-clock" class="text-xl font-semibold tabular-nums text-gray-600">{{ now()->format('H:i:s') }}</span>
+        </div>
     </div>
 
     <div class="grid gap-4 lg:grid-cols-3">
@@ -60,9 +63,51 @@
                 if (el) el.textContent = new Date().toLocaleTimeString('id-ID', { hour12: false });
             }, 1000);
 
+            // FR-KDS-005 - per-device sound toggle; visual board always remains the primary indicator.
+            const soundKey = 'kds.sound';
+            const stored = localStorage.getItem(soundKey);
+            let soundEnabled = stored === null ? '1' : stored;
+            const btn = document.getElementById('kds-sound-toggle');
+
+            const syncSoundButton = () => {
+                if (!btn) { return; }
+                const on = soundEnabled === '1';
+                btn.textContent = on ? 'Suara: Nyala' : 'Suara: Mati';
+                btn.setAttribute('aria-pressed', String(on));
+            };
+
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    soundEnabled = soundEnabled === '1' ? '0' : '1';
+                    localStorage.setItem(soundKey, soundEnabled);
+                    syncSoundButton();
+                });
+            }
+
+            const beep = () => {
+                if (soundEnabled !== '1') { return; }
+                try {
+                    const Ctx = window.AudioContext || window.webkitAudioContext;
+                    const ctx = new Ctx();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = 880;
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.4);
+                } catch (e) { /* audio blocked/unavailable */ }
+            };
+
+            syncSoundButton();
+
             if (window.EchoEnabled && window.Echo) {
                 let reloadTimer = null;
                 const scheduleReload = () => {
+                    beep();
                     clearTimeout(reloadTimer);
                     reloadTimer = setTimeout(() => window.location.reload(), 800);
                 };

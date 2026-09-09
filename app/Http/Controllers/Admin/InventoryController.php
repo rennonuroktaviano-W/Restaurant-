@@ -7,6 +7,7 @@ use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Services\AuditLogger;
 use App\Services\InventoryService;
+use App\Services\SettingsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -14,7 +15,11 @@ use Illuminate\View\View;
 
 class InventoryController extends Controller
 {
-    public function __construct(protected InventoryService $inventory, protected AuditLogger $audit) {}
+    public function __construct(
+        protected InventoryService $inventory,
+        protected AuditLogger $audit,
+        protected SettingsService $settings,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -28,7 +33,18 @@ class InventoryController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.inventory.index', compact('products'));
+        $lowStockThreshold = (int) $this->settings->get('inventory.low_stock_threshold', 10);
+
+        $lowStockProducts = Product::query()
+            ->where('stock_type', 'limited')
+            ->where('is_active', true)
+            ->where('stock', '<=', $lowStockThreshold)
+            ->orderBy('stock')
+            ->get();
+
+        $lowStockCount = $lowStockProducts->count();
+
+        return view('admin.inventory.index', compact('products', 'lowStockProducts', 'lowStockCount', 'lowStockThreshold'));
     }
 
     public function movements(Request $request): View
