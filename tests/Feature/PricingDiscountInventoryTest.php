@@ -123,6 +123,50 @@ class PricingDiscountInventoryTest extends TestCase
         $this->assertGreaterThanOrEqual(0, $pricing['grand_total']);
     }
 
+    public function test_expired_discount_code_is_ignored(): void
+    {
+        Discount::create([
+            'name' => 'Code Expired',
+            'code' => 'EXPIRED10',
+            'type' => 'percentage',
+            'value' => 10,
+            'min_amount' => 0,
+            'is_automatic' => false,
+            'is_active' => true,
+            'starts_at' => now()->subDays(5),
+            'ends_at' => now()->subDay(),
+        ]);
+
+        $lines = $this->cartLines([[1, 100000.0, 1]]);
+
+        $pricing = app(PricingService::class)->calculate($lines, 100000.0, 'EXPIRED10');
+
+        $this->assertSame(0.0, $pricing['discount_amount']);
+        $this->assertNull($pricing['discount_code']);
+    }
+
+    public function test_active_discount_code_is_applied(): void
+    {
+        Discount::create([
+            'name' => 'Code Aktif',
+            'code' => 'SAVE10',
+            'type' => 'percentage',
+            'value' => 10,
+            'min_amount' => 0,
+            'is_automatic' => false,
+            'is_active' => true,
+            'starts_at' => now()->subDay(),
+            'ends_at' => now()->addDays(30),
+        ]);
+
+        $lines = $this->cartLines([[1, 100000.0, 1]]);
+
+        $pricing = app(PricingService::class)->calculate($lines, 100000.0, 'SAVE10');
+
+        $this->assertSame(10000.0, round($pricing['discount_amount'], 2));
+        $this->assertSame('SAVE10', $pricing['discount_code']);
+    }
+
     public function test_discount_targets_only_matching_category(): void
     {
         $category = Category::factory()->create();

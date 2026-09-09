@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\DiningTable;
 use App\Models\Discount;
 use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\Product;
+use App\Models\Room;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -84,6 +86,48 @@ class CustomerOrderingFeatureTest extends TestCase
         $this->post(route('checkout.store'), [
             'order_type' => Order::TYPE_TAKE_AWAY,
         ])->assertSessionHas('error');
+    }
+
+    public function test_fr_loc_004_checkout_rejects_inactive_table(): void
+    {
+        $table = DiningTable::factory()->create(['is_active' => false]);
+        $product = $this->product();
+        $this->addToCart($product->id);
+
+        $this->post(route('checkout.store'), [
+            'order_type' => Order::TYPE_DINE_IN,
+            'table_id' => $table->id,
+        ])->assertSessionHasErrors('table_id');
+
+        $this->assertSame(0, Order::count());
+    }
+
+    public function test_fr_loc_004_checkout_rejects_inactive_room(): void
+    {
+        $room = Room::factory()->create(['is_active' => false]);
+        $product = $this->product();
+        $this->addToCart($product->id);
+
+        $this->post(route('checkout.store'), [
+            'order_type' => Order::TYPE_ROOM_SERVICE,
+            'room_id' => $room->id,
+        ])->assertSessionHasErrors('room_id');
+
+        $this->assertSame(0, Order::count());
+    }
+
+    public function test_fr_pay_001_checkout_rejects_inactive_payment_method(): void
+    {
+        $method = PaymentMethod::factory()->create(['is_active' => false, 'type' => 'cash']);
+        $product = $this->product();
+        $this->addToCart($product->id);
+
+        $this->post(route('checkout.store'), [
+            'order_type' => Order::TYPE_TAKE_AWAY,
+            'payment_method_id' => $method->id,
+        ])->assertSessionHasErrors('payment_method_id');
+
+        $this->assertSame(0, Order::count());
     }
 
     public function test_ac_01_checkout_creates_single_order_with_snapshot_in_one_transaction(): void
