@@ -130,10 +130,10 @@
 
                         <template x-teleport="body">
                             <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="open = false">
-                                <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" @click.outside="open = false">
-                                    <h3 class="text-base font-semibold text-gray-900">Konfirmasi Bayar Tunai</h3>
-                                    <p class="mt-2 text-sm text-gray-600">Total: Rp {{ number_format($order->grand_total, 0, ',', '.') }} — Diterima: Rp <span x-text="Number(amount).toLocaleString('id-ID')"></span></p>
-                                    <p class="mt-1 text-sm text-gray-600">Kembalian: <span class="font-bold text-emerald-600" x-text="'Rp ' + Math.max(0, Number(amount) - {{ $order->grand_total }}).toLocaleString('id-ID')"></span></p>
+                                <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false">
+                                    <h3 class="text-base font-semibold text-stone-100">Konfirmasi Bayar Tunai</h3>
+                                    <p class="mt-2 text-sm text-stone-400">Total: Rp {{ number_format($order->grand_total, 0, ',', '.') }} — Diterima: Rp <span x-text="Number(amount).toLocaleString('id-ID')"></span></p>
+                                    <p class="mt-1 text-sm text-stone-400">Kembalian: <span class="font-bold text-emerald-400" x-text="'Rp ' + Math.max(0, Number(amount) - {{ $order->grand_total }}).toLocaleString('id-ID')"></span></p>
                                     <div class="mt-4 flex justify-end gap-2">
                                         <button type="button" @click="open = false" class="btn btn-secondary">Tutup</button>
                                         <button type="submit" class="btn btn-success">Konfirmasi</button>
@@ -195,8 +195,8 @@
                             <button type="button" @click="open = true" class="btn btn-danger">Batalkan</button>
                             <template x-teleport="body">
                                 <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="open = false">
-                                    <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" @click.outside="open = false">
-                                        <h3 class="text-base font-semibold text-gray-900">Batalkan {{ $order->order_number }}?</h3>
+                                    <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false">
+                                        <h3 class="text-base font-semibold text-stone-100">Batalkan {{ $order->order_number }}?</h3>
                                         <label class="label mt-4">Alasan pembatalan</label>
                                         <textarea name="reason" required rows="3" class="input w-full" placeholder="Contoh: pelanggan membatalkan pesanan"></textarea>
                                         <div class="mt-4 flex justify-end gap-2">

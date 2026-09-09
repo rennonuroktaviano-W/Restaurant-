@@ -8,21 +8,47 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
-    --color-brand-50: #eef2ff;
-    --color-brand-100: #e0e7ff;
-    --color-brand-500: #6366f1;
-    --color-brand-600: #4f46e5;
-    --color-brand-700: #4338ca;
+    /* Luxury hotel — gold "brand" palette */
+    --color-brand-50: #fbf7ec;
+    --color-brand-100: #f6edda;
+    --color-brand-200: #e9d7ae;
+    --color-brand-300: #dcc17f;
+    --color-brand-400: #d2ae59;
+    --color-brand-500: #c29b3f;
+    --color-brand-600: #a8862f;
+    --color-brand-700: #8a6d26;
+
+    /* Dark luxury surfaces (charcoal / night) */
+    --color-night-950: #0e0c0a;
+    --color-night-900: #171310;
+    --color-night-850: #1d1814;
+    --color-night-800: #241e19;
+    --color-night-750: #2b241e;
+    --color-night-700: #372e26;
+    --color-night-600: #4d4136;
+
+    /* Global gray ramp remapped to warm dark neutrals so every surface,
+       text, border and divider class resolves dark across the app. */
+    --color-gray-50: #241e18;
+    --color-gray-100: #2a241d;
+    --color-gray-200: #332b22;
+    --color-gray-300: #3f362b;
+    --color-gray-400: #82786a;
+    --color-gray-500: #a39b8d;
+    --color-gray-600: #bdb5a8;
+    --color-gray-700: #d3cbc0;
+    --color-gray-800: #e7e0d6;
+    --color-gray-900: #f4efe8;
 }
 
 @layer base {
     body {
-        @apply bg-gray-50 text-gray-900 antialiased;
+        @apply bg-night-950 text-stone-200 antialiased;
     }
 
     /* WCAG 2.2 - visual focus indicator for keyboard navigation */
     :focus-visible {
-        outline: 2px solid var(--color-brand-600);
+        outline: 2px solid var(--color-brand-400);
         outline-offset: 2px;
     }
 
@@ -45,23 +71,23 @@
     .btn-secondary,
     .btn-danger,
     .btn-success {
-        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50;
+        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
     }
 
-    .btn-primary {
-        @apply bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500;
+.btn-primary {
+        @apply bg-brand-600 text-night-950 hover:bg-brand-700 focus:ring-brand-400 focus:ring-offset-night-950;
     }
 
     .btn-secondary {
-        @apply border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-gray-300;
+        @apply border border-night-600 bg-night-800 text-stone-100 hover:bg-night-700 focus:ring-night-600;
     }
 
     .btn-danger {
-        @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+        @apply bg-red-700 text-white hover:bg-red-600 focus:ring-red-500;
     }
 
     .btn-success {
-        @apply bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500;
+        @apply bg-emerald-700 text-white hover:bg-emerald-600 focus:ring-emerald-500;
     }
 
     .btn-sm {
@@ -73,15 +99,15 @@
     }
 
     .label {
-        @apply mb-1 block text-sm font-medium text-gray-700;
+        @apply mb-1 block text-sm font-medium text-stone-300;
     }
 
     .input {
-        @apply block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
+        @apply block w-full rounded-lg border border-night-600 bg-night-900 px-3 py-2 text-sm text-stone-100 shadow-sm placeholder:text-stone-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
     }
 
     .select {
-        @apply block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
+        @apply block w-full rounded-lg border border-night-600 bg-night-900 px-3 py-2 text-sm text-stone-100 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
     }
 
     .table-w {
@@ -93,6 +119,6 @@
     }
 
     .card {
-        @apply rounded-xl border border-gray-200 bg-white shadow-sm;
+        @apply rounded-xl border border-night-700 bg-night-850 shadow-sm;
     }
 }

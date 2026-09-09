@@ -5,6 +5,7 @@ Seluruh PRD P0/P1 tercapai, termasuk butir **P1 Item_(n) refund (FR-PAY-005)**, 
 inventory notification. Fase F menambahkan **foto asli pada menu demo** dan **beautifikasi UI kiosk**
 (hero, chip kategori, kartu bergambar, stepper qty, drawer & cart dengan thumbnail). Fase F2 mengganti sumber
 foto menu dengan **food photography Pexels premium** (service + command `products:refresh-images`, tanpa API key).
+Fase F3 menerapkan **tema "luxury hotel" dark + gold** di seluruh aplikasi (admin + kiosk).
 Dokumentasi final (README, UAT checklist) telah dibuat.
 Suite hijau penuh: **111/111 tests, 341 assertions passing**. Repo di-push ke `origin/main`.
 
@@ -86,6 +87,20 @@ Suite hijau penuh: **111/111 tests, 341 assertions passing**. Repo di-push ke `o
   untuk produk terpetakan (idempotent, tak butuh migrate ulang).
 - `tests/Feature/DemoProductImagesTest.php` — 5 test (`Http::fake` + `Storage::fake`): download+attach,
   skip bila ada, force-refresh, toleransi gagal HTTP, SKU tak dikenal.
+
+### Fase F3 — Tema "Luxury Hotel" Dark + Gold (seluruh aplikasi)
+
+- `resources/css/app.css`: palet `brand-*` diarahkan ke **emas/honey** (gold #a8862f dkk.) dan ditambah palet
+  **night-* (charcoal hangat)**; skala `gray-*` di-remap global ke neuteral gelap hangat sehingga seluruh
+  `bg-gray-*`/`text-gray-*`/`border-gray-*` di semua view (admin, cashier, kitchen, auth, kiosk) otomatis gelap.
+- `body` kini `bg-night-950 text-stone-200`; `.card/.input/.select/.label/.btn-*` memakai var dark;
+  `.btn-primary` gold dengan teks gelap (kontras AAA) + `focus:ring` emas.
+- Layout & partial: sidebar/topbar/header-kiosk dark glass, logo & badge emas bergradien, footer dark.
+- View customer: menu (hero gelap + emas, chip kategori, kartu, stepper), drawer & cart dark, tracking
+  (progress emas), payment-mock/result (badge semantik translucent). Modal konfirmasi (kitchen/cashier)
+  diubah dari `bg-white` ke panel dark.
+- Semua halaman (admin & kiosk) kini konsisten **dark + gold**; badge semantik (emerald/amber/red) memakai
+  var translucent agar tetap terbaca di atas dark.
 
 ---
 

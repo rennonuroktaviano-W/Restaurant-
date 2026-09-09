@@ -3,7 +3,7 @@
 @section('title', 'Keranjang - '.config('app.name'))
 
 @section('content')
-    <a href="{{ route('menu.index') }}" class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-brand-600 hover:text-brand-700">
+    <a href="{{ route('menu.index') }}" class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-brand-400 hover:text-brand-300">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
         Kembali ke Menu
     </a>
@@ -12,54 +12,54 @@
         <div class="space-y-4">
             @if ($lines->isEmpty())
                 <div class="card p-12 text-center">
-                    <p class="text-gray-500">Keranjang masih kosong.</p>
+                    <p class="text-stone-400">Keranjang masih kosong.</p>
                     <a href="{{ route('menu.index') }}" class="btn btn-primary mt-4">Lihat Menu</a>
                 </div>
             @else
                 <div class="card overflow-hidden">
-                    <div class="border-b border-gray-200 px-5 py-4">
-                        <h2 class="text-base font-semibold text-gray-900">Pesanan Anda</h2>
+                    <div class="border-b border-night-700 px-5 py-4">
+                        <h2 class="text-base font-semibold text-stone-100">Pesanan Anda</h2>
                     </div>
 
-                    <ul class="divide-y divide-gray-100">
+                    <ul class="divide-y divide-night-700">
                         @foreach ($lines as $line)
                             <li class="flex items-center gap-4 px-5 py-4" @if (! $line['available']) :class="'opacity-50'" @endif>
-                                <div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                <div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-night-800">
                                     @if ($line['image'])
                                         <img src="{{ asset('storage/'.$line['image']) }}" alt="{{ $line['product_name'] }}" class="h-full w-full object-cover">
                                     @else
-                                        <div class="flex h-full w-full items-center justify-center text-gray-300">
+                                        <div class="flex h-full w-full items-center justify-center text-night-600">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                         </div>
                                     @endif
                                 </div>
 
                                 <div class="min-w-0 flex-1">
-                                    <p class="truncate text-sm font-medium text-gray-900">{{ $line['product_name'] }}</p>
+                                    <p class="truncate text-sm font-medium text-stone-100">{{ $line['product_name'] }}</p>
                                     @if ($line['notes'])
-                                        <p class="text-xs text-gray-500">Catatan: {{ $line['notes'] }}</p>
+                                        <p class="text-xs text-stone-500">Catatan: {{ $line['notes'] }}</p>
                                     @endif
                                     @if (! $line['available'])
-                                        <p class="text-xs font-medium text-red-600">Tidak tersedia</p>
+                                        <p class="text-xs font-medium text-red-400">Tidak tersedia</p>
                                     @elseif ($line['limited'] && $line['stock'] < $line['quantity'])
-                                        <p class="text-xs font-medium text-red-600">Stok tersisa {{ $line['stock'] }}</p>
+                                        <p class="text-xs font-medium text-red-400">Stok tersisa {{ $line['stock'] }}</p>
                                     @endif
                                 </div>
 
                                 <form method="POST" action="{{ route('cart.update', $line['product_id']) }}" class="flex items-center gap-1" aria-label="Ubah jumlah {{ $line['product_name'] }}">
                                     @csrf
-                                    <button type="submit" name="quantity" value="{{ $line['quantity'] - 1 }}" aria-label="Kurangi {{ $line['product_name'] }}" class="rounded-lg border border-gray-300 px-2 py-1 text-gray-600 hover:bg-gray-50">−</button>
+                                    <button type="submit" name="quantity" value="{{ $line['quantity'] - 1 }}" aria-label="Kurangi {{ $line['product_name'] }}" class="rounded-lg border border-night-600 bg-night-800 px-2 py-1 text-stone-300 hover:bg-night-700">−</button>
                                     <input type="number" name="quantity" value="{{ $line['quantity'] }}" min="1" max="99" aria-label="Jumlah {{ $line['product_name'] }}" class="input w-16 text-center">
-                                    <button type="submit" name="quantity" value="{{ $line['quantity'] + 1 }}" aria-label="Tambah {{ $line['product_name'] }}" class="rounded-lg border border-gray-300 px-2 py-1 text-gray-600 hover:bg-gray-50">+</button>
+                                    <button type="submit" name="quantity" value="{{ $line['quantity'] + 1 }}" aria-label="Tambah {{ $line['product_name'] }}" class="rounded-lg border border-night-600 bg-night-800 px-2 py-1 text-stone-300 hover:bg-night-700">+</button>
                                 </form>
 
-                                <div class="w-24 text-right text-sm font-semibold text-gray-900">
+                                <div class="w-24 text-right text-sm font-semibold text-stone-100">
                                     Rp {{ number_format($line['price'] * $line['quantity'], 0, ',', '.') }}
                                 </div>
 
                                 <form method="POST" action="{{ route('cart.remove', $line['product_id']) }}">
                                     @csrf
-                                    <button type="submit" class="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600" title="Hapus">
+                                    <button type="submit" class="rounded-lg p-1.5 text-stone-500 hover:bg-red-500/10 hover:text-red-400" title="Hapus">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </button>
                                 </form>
@@ -134,7 +134,7 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <p class="mt-1 text-xs text-gray-400">Jika memilih pembayaran online, Anda akan diarahkan ke halaman pembayaran setelah order dibuat.</p>
+                            <p class="mt-1 text-xs text-stone-500">Jika memilih pembayaran online, Anda akan diarahkan ke halaman pembayaran setelah order dibuat.</p>
                         </div>
 
                         <div class="mt-4">
@@ -150,16 +150,16 @@
 
         <aside class="lg:sticky lg:top-24 h-fit space-y-4">
             <div class="card p-5">
-                <h2 class="mb-4 text-base font-semibold text-gray-900">Ringkasan</h2>
+                <h2 class="mb-4 text-base font-semibold text-stone-100">Ringkasan</h2>
 
                 <dl class="space-y-2 text-sm">
                     <div class="flex justify-between">
-                        <dt class="text-gray-600">Subtotal</dt>
+                        <dt class="text-stone-400">Subtotal</dt>
                         <dd class="font-medium">Rp {{ number_format($pricing['subtotal'], 0, ',', '.') }}</dd>
                     </div>
 
                     @if ((float) $pricing['discount_amount'] > 0)
-                        <div class="flex justify-between text-emerald-600">
+                        <div class="flex justify-between text-emerald-400">
                             <dt>Diskon</dt>
                             <dd class="font-medium">− Rp {{ number_format($pricing['discount_amount'], 0, ',', '.') }}</dd>
                         </div>
@@ -167,21 +167,21 @@
 
                     @if ((float) $pricing['tax_amount'] > 0)
                         <div class="flex justify-between">
-                            <dt class="text-gray-600">Pajak</dt>
+                            <dt class="text-stone-400">Pajak</dt>
                             <dd class="font-medium">Rp {{ number_format($pricing['tax_amount'], 0, ',', '.') }}</dd>
                         </div>
                     @endif
 
                     @if ((float) $pricing['service_charge_amount'] > 0)
                         <div class="flex justify-between">
-                            <dt class="text-gray-600">Service Charge</dt>
+                            <dt class="text-stone-400">Service Charge</dt>
                             <dd class="font-medium">Rp {{ number_format($pricing['service_charge_amount'], 0, ',', '.') }}</dd>
                         </div>
                     @endif
 
-                    <div class="flex justify-between border-t border-gray-200 pt-3 text-base font-bold">
+                    <div class="flex justify-between border-t border-night-700 pt-3 text-base font-bold">
                         <dt>Total</dt>
-                        <dd class="text-brand-700">Rp {{ number_format($pricing['grand_total'], 0, ',', '.') }}</dd>
+                        <dd class="text-brand-400">Rp {{ number_format($pricing['grand_total'], 0, ',', '.') }}</dd>
                     </div>
                 </dl>
 
@@ -189,8 +189,8 @@
             </div>
 
             <div class="card p-5">
-                <h2 class="mb-3 text-base font-semibold text-gray-900">Metode Pembayaran</h2>
-                <ul class="space-y-2 text-sm text-gray-600">
+                <h2 class="mb-3 text-base font-semibold text-stone-100">Metode Pembayaran</h2>
+                <ul class="space-y-2 text-sm text-stone-400">
                     @foreach ($paymentMethods as $method)
                         <li class="flex items-center gap-2">
                             <span class="h-2 w-2 rounded-full {{ $method->type === 'online' ? 'bg-brand-500' : 'bg-emerald-500' }}"></span>
@@ -198,7 +198,7 @@
                         </li>
                     @endforeach
                 </ul>
-                <p class="mt-3 text-xs text-gray-400">Pilih metode saat checkout untuk pembayaran online otomatis.</p>
+                <p class="mt-3 text-xs text-stone-500">Pilih metode saat checkout untuk pembayaran online otomatis.</p>
             </div>
         </aside>
     </div>

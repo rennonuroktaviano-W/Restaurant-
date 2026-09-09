@@ -8,7 +8,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="min-h-screen bg-gray-100">
+<body class="min-h-screen bg-night-950">
     @include('partials.sidebar')
 
     <div class="lg:pl-64">
