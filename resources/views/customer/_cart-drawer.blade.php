@@ -12,10 +12,10 @@
     </template>
 
     <template x-teleport="body">
-        <aside x-show="open" x-transition class="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-white shadow-xl" role="dialog" aria-modal="true">
+        <aside x-show="open" x-transition class="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-white shadow-xl" role="dialog" aria-modal="true" aria-label="Keranjang Anda">
             <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4">
                 <h2 class="text-base font-semibold text-gray-900">Keranjang Anda</h2>
-                <button type="button" @click="open = false" class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+                <button type="button" @click="open = false" aria-label="Tutup keranjang" class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -28,15 +28,60 @@
                         <a href="{{ route('menu.index') }}" class="mt-3 text-sm font-medium text-brand-600 hover:text-brand-700">Lihat menu</a>
                     </div>
                 @else
-                    <ul class="space-y-4">
+                    <ul class="space-y-5">
                         @foreach ($lines as $line)
                             <li class="flex items-start gap-3">
-                                <div class="min-w-0 flex-1">
-                                    <p class="truncate text-sm font-medium text-gray-900">{{ $line['product_name'] }}</p>
-                                    <p class="text-xs text-gray-500">{{ $line['quantity'] }} &times; {{ number_format($line['price'], 0, ',', '.') }}</p>
+                                <div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                    @if ($line['image'])
+                                        <img src="{{ asset('storage/'.$line['image']) }}" alt="{{ $line['product_name'] }}" class="h-full w-full object-cover">
+                                    @else
+                                        <div class="flex h-full w-full items-center justify-center text-gray-300">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        </div>
+                                    @endif
                                 </div>
-                                <div class="text-sm font-semibold text-gray-900">
-                                    {{ number_format($line['price'] * $line['quantity'], 0, ',', '.') }}
+
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <p class="truncate text-sm font-medium text-gray-900">{{ $line['product_name'] }}</p>
+                                        <button type="submit" form="cart-remove-{{ $line['product_id'] }}" aria-label="Hapus {{ $line['product_name'] }} dari keranjang" class="rounded p-0.5 text-gray-400 hover:text-red-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                    </div>
+                                    @if (! $line['available'])
+                                        <p class="mt-0.5 text-xs font-medium text-red-600">Tidak tersedia</p>
+                                    @else
+                                        <p class="text-xs text-gray-500">{{ number_format($line['price'], 0, ',', '.') }} / item</p>
+                                    @endif
+                                    @if ($line['notes'])
+                                        <p class="mt-0.5 truncate text-xs italic text-gray-400">Catatan: {{ $line['notes'] }}</p>
+                                    @endif
+
+                                    <div class="mt-2 flex items-center justify-between gap-2">
+                                        @if ($line['available'])
+                                            <div class="flex items-center rounded-lg border border-gray-200">
+                                                @if ($line['quantity'] > 1)
+                                                    <form method="POST" action="{{ route('cart.update', $line['product_id']) }}">
+                                                        @csrf
+                                                        <button type="submit" name="quantity" value="{{ $line['quantity'] - 1 }}" aria-label="Kurangi {{ $line['product_name'] }}" class="px-2.5 py-1 text-xs font-semibold text-gray-600 hover:text-brand-600">−</button>
+                                                    </form>
+                                                @else
+                                                    <form method="POST" action="{{ route('cart.remove', $line['product_id']) }}" id="cart-remove-{{ $line['product_id'] }}">
+                                                        @csrf
+                                                        <button type="submit" aria-label="Kurangi {{ $line['product_name'] }}" class="px-2.5 py-1 text-xs font-semibold text-gray-600 hover:text-brand-600">−</button>
+                                                    </form>
+                                                @endif
+                                                <span class="min-w-6 text-center text-xs font-semibold text-gray-900">{{ $line['quantity'] }}</span>
+                                                <form method="POST" action="{{ route('cart.update', $line['product_id']) }}">
+                                                    @csrf
+                                                    <button type="submit" name="quantity" value="{{ $line['quantity'] + 1 }}"
+                                                            @if ($line['limited'] && $line['quantity'] >= $line['stock']) disabled @endif
+                                                            aria-label="Tambah {{ $line['product_name'] }}" class="px-2.5 py-1 text-xs font-semibold text-gray-600 hover:text-brand-600 disabled:opacity-40">+</button>
+                                                </form>
+                                            </div>
+                                        @endif
+                                        <span class="text-sm font-semibold text-gray-900">{{ number_format($line['price'] * $line['quantity'], 0, ',', '.') }}</span>
+                                    </div>
                                 </div>
                             </li>
                         @endforeach
@@ -49,7 +94,7 @@
                     <span class="text-sm text-gray-600">Subtotal</span>
                     <span class="text-base font-semibold text-gray-900">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                 </div>
-                <a href="{{ route('cart.index') }}" class="btn btn-primary w-full">Lanjut ke Pembayaran</a>
+                <a href="{{ route('cart.index') }}" class="btn btn-primary w-full" aria-label="Lanjut ke pembayaran">Lanjut ke Pembayaran</a>
             </div>
         </aside>
     </template>

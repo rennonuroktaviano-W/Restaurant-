@@ -24,6 +24,16 @@
                     <ul class="divide-y divide-gray-100">
                         @foreach ($lines as $line)
                             <li class="flex items-center gap-4 px-5 py-4" @if (! $line['available']) :class="'opacity-50'" @endif>
+                                <div class="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                    @if ($line['image'])
+                                        <img src="{{ asset('storage/'.$line['image']) }}" alt="{{ $line['product_name'] }}" class="h-full w-full object-cover">
+                                    @else
+                                        <div class="flex h-full w-full items-center justify-center text-gray-300">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        </div>
+                                    @endif
+                                </div>
+
                                 <div class="min-w-0 flex-1">
                                     <p class="truncate text-sm font-medium text-gray-900">{{ $line['product_name'] }}</p>
                                     @if ($line['notes'])
@@ -36,11 +46,11 @@
                                     @endif
                                 </div>
 
-                                <form method="POST" action="{{ route('cart.update', $line['product_id']) }}" class="flex items-center gap-1">
+                                <form method="POST" action="{{ route('cart.update', $line['product_id']) }}" class="flex items-center gap-1" aria-label="Ubah jumlah {{ $line['product_name'] }}">
                                     @csrf
-                                    <button type="submit" name="quantity" value="{{ $line['quantity'] - 1 }}" class="rounded-lg border border-gray-300 px-2 py-1 text-gray-600 hover:bg-gray-50">−</button>
-                                    <input type="number" name="quantity" value="{{ $line['quantity'] }}" min="1" max="99" class="input w-16 text-center">
-                                    <button type="submit" name="quantity" value="{{ $line['quantity'] + 1 }}" class="rounded-lg border border-gray-300 px-2 py-1 text-gray-600 hover:bg-gray-50">+</button>
+                                    <button type="submit" name="quantity" value="{{ $line['quantity'] - 1 }}" aria-label="Kurangi {{ $line['product_name'] }}" class="rounded-lg border border-gray-300 px-2 py-1 text-gray-600 hover:bg-gray-50">−</button>
+                                    <input type="number" name="quantity" value="{{ $line['quantity'] }}" min="1" max="99" aria-label="Jumlah {{ $line['product_name'] }}" class="input w-16 text-center">
+                                    <button type="submit" name="quantity" value="{{ $line['quantity'] + 1 }}" aria-label="Tambah {{ $line['product_name'] }}" class="rounded-lg border border-gray-300 px-2 py-1 text-gray-600 hover:bg-gray-50">+</button>
                                 </form>
 
                                 <div class="w-24 text-right text-sm font-semibold text-gray-900">

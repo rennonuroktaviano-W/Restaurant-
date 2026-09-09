@@ -2,8 +2,10 @@
 
 ### Summary
 Seluruh PRD P0/P1 tercapai, termasuk butir **P1 Item_(n) refund (FR-PAY-005)**, **P1 Project MSGE reset password**, **P1 Product QR** (kiosk lokasi), dan **NFR-SEC rate limit** + **FR-KDS-005 sound toggle** +
-inventory notification. Dokumentasi final (README, UAT checklist) telah dibuat.
-Suite hijau penuh: **102/102 tests, 316 assertions passing**. Repo di-push ke `origin/main`.
+inventory notification. Fase F menambahkan **foto asli pada menu demo** (unduh-once dari TheMealDB/LoremFlickr)
+dan **beautifikasi UI kiosk** (hero, chip kategori, kartu bergambar, stepper qty, drawer & cart dengan thumbnail).
+Dokumentasi final (README, UAT checklist) telah dibuat.
+Suite hijau penuh: **106/106 tests, 330 assertions passing**. Repo di-push ke `origin/main`.
 
 ---
 
@@ -56,9 +58,25 @@ Suite hijau penuh: **102/102 tests, 316 assertions passing**. Repo di-push ke `o
 - `README.md`: setup, seeder, test/pint, arsitektur, operasional, kepatuhan.
 - `docs/UAT.md`: tabel skenario per blok (kiosk, dapur, kasir, admin, keamanan) + kolom sign-off owner.
 
+### Fase F — Kiosk UI & Foto Menu (improvement non-PRD)
+
+- `DemoMasterDataSeeder`: pemetaan per-SKU ke **foto asli** (TheMealDB statik: nasi goreng, ayam percik, sate, es krim;
+  LoremFlickr per-tag: iced-tea, orange-juice, coffee-latte, fried-banana). Unduh **sekali** ke
+  `storage/app/public/products/<sku>.jpg` via `Http::timeout(10)`, hanya saat `image` kosong, `try/catch` agar
+  seed tetap jalan offline. `php artisan storage:link` dibuat (foto tampil via `/storage/...`).
+- `customer/menu.blade.php`: hero banner bisnis, chip kategori scrollable (mobile) & active state, kartu
+  `aspect-[4/3]` + hover zoom + overlay "Habis", stepper qty ± inline saat item sudah di keranjang
+  (cap stok untuk produk limited), empty-state + hasil pencarian.
+- `customer/_cart-drawer.blade.php`: thumbnail produk (dari `CartService::lines()`), stepper qty + hapus, catatan,
+  badge "Tidak tersedia".
+- `customer/cart.blade.php`: thumbnail konsisten + `aria-label` pada kontrol qty.
+- `layouts/kiosk.blade.php`: footer.
+- `MenuController::viewData`: tambah `cartQuantities` (data untuk stepper).
+- `tests/Feature/KioskUiFeatureTest.php` — 4 test (foto di menu, thumbnail drawer+cart, stepper qty, overlay habis).
+
 ---
 
-### Test Suite (102 tests / 316 assertions — semua hijau)
+### Test Suite (106 tests / 330 assertions — semua hijau)
 
 | File | Tests | Fokus |
 |---|---|---|
@@ -72,6 +90,7 @@ Suite hijau penuh: **102/102 tests, 316 assertions passing**. Repo di-push ke `o
 | `tests/Feature/RefundFeatureTest.php` | 8 | **Fase A** |
 | `tests/Feature/LocationQrFeatureTest.php` | 10 | **Fase C** |
 | `tests/Feature/RateLimitInventoryFeatureTest.php` | 4 | **Fase D** |
+| `tests/Feature/KioskUiFeatureTest.php` | 4 | **Fase F** |
 | `tests/Feature/ReportExportFeatureTest.php` | 4 | Laporan CSV/PDF |
 | `tests/Feature/ExampleTest.php` | 1 | Root `/` |
 
@@ -86,7 +105,8 @@ Suite hijau penuh: **102/102 tests, 316 assertions passing**. Repo di-push ke `o
 - **Drill backup & restore** berkala di produksi.
 
 ### Environment
-- `php artisan test --compact`: **102 passed** (316 assertions).
+- `php artisan test --compact`: **106 passed** (330 assertions).
 - `vendor/bin/pint --format agent`: bersih.
 - Asset: `npm run build` sukses.
+- Foto demo: 8 gambar di `storage/app/public/products`, `public/storage` symlink tersambung.
 - Remote: `origin/main` → `https://github.com/rennonuroktaviano-W/Restaurant-.git`.

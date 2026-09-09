@@ -10,6 +10,9 @@ use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\Room;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -17,6 +20,21 @@ use Illuminate\Support\Str;
  */
 class DemoMasterDataSeeder extends Seeder
 {
+    /**
+     * Real food photos (TheMealDB static assets / LoremFlickr keyword photos).
+     * Downloaded once into storage; replaceable via admin product form.
+     */
+    protected array $productImages = [
+        'NASGOR' => 'https://www.themealdb.com/images/media/meals/wuyd2h1765655837.jpg',
+        'AYAM' => 'https://www.themealdb.com/images/media/meals/020z181619788503.jpg',
+        'SATE' => 'https://www.themealdb.com/images/media/meals/dqxtlh1780153831.jpg',
+        'ESTEH' => 'https://loremflickr.com/640/480/iced-tea',
+        'ESJER' => 'https://loremflickr.com/640/480/orange-juice',
+        'KOPISUSU' => 'https://loremflickr.com/640/480/coffee-latte',
+        'PISGOR' => 'https://loremflickr.com/640/480/fried-banana',
+        'ESKRIM' => 'https://www.themealdb.com/images/media/meals/1xscby1764790242.jpg',
+    ];
+
     public function run(): void
     {
         if (app()->environment('production')) {
@@ -54,7 +72,7 @@ class DemoMasterDataSeeder extends Seeder
                 $category = Category::where('slug', 'dessert')->first();
             }
 
-            Product::firstOrCreate(
+            $product = Product::firstOrCreate(
                 ['sku' => $sku],
                 [
                     'category_id' => $category->id,
@@ -68,6 +86,8 @@ class DemoMasterDataSeeder extends Seeder
                     'is_available' => true,
                 ]
             );
+
+            $this->downloadProductImage($product);
         }
 
         $area = Area::firstOrCreate(
@@ -115,5 +135,38 @@ class DemoMasterDataSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+    }
+
+    /**
+     * Seed a real food photo for the product. Skips when an image already
+     * exists; seed stays functional offline (product simply has no photo).
+     */
+    private function downloadProductImage(Product $product): void
+    {
+        $url = $this->productImages[$product->sku] ?? null;
+
+        if (! $url || $product->image) {
+            return;
+        }
+
+        $filename = Str::lower($product->sku).'.jpg';
+        $relative = "products/$filename";
+
+        if (Storage::disk('public')->exists($relative)) {
+            $product->update(['image' => $relative]);
+
+            return;
+        }
+
+        try {
+            $response = Http::timeout(10)->get($url);
+
+            if ($response->ok() && str_starts_with((string) $response->header('Content-Type'), 'image/')) {
+                Storage::disk('public')->put($relative, $response->body());
+                $product->update(['image' => $relative]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning("Gagal mengunduh gambar produk {$product->sku}: {$e->getMessage()}");
+        }
     }
 }

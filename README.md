@@ -32,10 +32,16 @@ cp .env.example .env
 php artisan key:generate
 # sesuaikan kredensial DB di .env
 php artisan migrate --seed
+php artisan storage:link
 npm install
 npm run build        # atau: npm run dev (mode develop)
 php artisan serve
 ```
+
+> Catatan: `php artisan migrate --seed` memanggil `DemoMasterDataSeeder` yang mengunduh foto
+> makanan asli (TheMealDB/LoremFlickr) **sekali** ke `storage/app/public/products` — butuh internet
+> saat seed perdana. Jika gagal/offline, produk dibuat tanpa foto dan bisa diisi lewat form produk
+> admin. Untuk memuat ulang foto di DB lama: `php artisan db:seed --class=DemoMasterDataSeeder`.
 
 Konten file `.env` yang penting:
 

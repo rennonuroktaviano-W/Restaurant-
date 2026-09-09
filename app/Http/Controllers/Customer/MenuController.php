@@ -75,6 +75,7 @@ class MenuController extends Controller
             'products' => $products,
             'category' => request()->route('category'),
             'cartCount' => $this->cart->count(),
+            'cartQuantities' => $this->cart->all()->pluck('quantity', 'product_id')->toArray(),
             'drawerLines' => $this->cart->lines(),
             'drawerSubtotal' => $this->cart->subtotal(),
         ];

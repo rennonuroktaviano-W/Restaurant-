@@ -40,6 +40,13 @@
         @yield('content')
     </main>
 
+    <footer class="border-t border-stone-200 bg-white">
+        <div class="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-4 py-6 text-center sm:flex-row sm:text-left">
+            <p class="text-sm text-gray-500">&copy; {{ date('Y') }} {{ \App\Models\Setting::where('key', 'business.name')->value('value') ?? config('app.name') }}. Semua hak dilindungi.</p>
+            <p class="text-xs text-gray-400">Menu dapat berubah sewaktu-waktu sesuai ketersediaan dapur.</p>
+        </div>
+    </footer>
+
     <script>
         window.EchoEnabled = @json(config('broadcasting.default') === 'reverb');
     </script>
