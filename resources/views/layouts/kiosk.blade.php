@@ -137,46 +137,22 @@
         window.EchoEnabled = @json(config('broadcasting.default') === 'reverb');
     </script>
 
-    {{-- PWA Service Worker Registration --}}
+    {{-- PWA Service Worker Registration (hanya jika sw.js benar-benar dibuild) --}}
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/build/sw.js')
-                    .then(registration => {
-                        console.log('SW registered:', registration.scope);
+            fetch('/build/sw.js', { method: 'HEAD' })
+                .then(response => {
+                    if (! response.ok) {
+                        return;
+                    }
 
-                        // Check for updates periodically
-                        setInterval(() => {
-                            registration.update();
-                        }, 60 * 60 * 1000); // Every hour
-
-                        // Listen for controller change (new SW activated)
-                        let refreshing = false;
-                        navigator.serviceWorker.addEventListener('controllerchange', () => {
-                            if (refreshing) return;
-                            refreshing = true;
-                            window.location.reload();
-                        });
-                    })
-                    .catch(error => {
-                        console.error('SW registration failed:', error);
+                    window.addEventListener('load', () => {
+                        navigator.serviceWorker.register('/build/sw.js')
+                            .catch(() => {});
                     });
-            });
+                })
+                .catch(() => {});
         }
-
-        // Install prompt handling
-        let deferredPrompt = null;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            // Show custom install button if desired
-            console.log('PWA install prompt available');
-        });
-
-        window.addEventListener('appinstalled', () => {
-            console.log('PWA installed');
-            deferredPrompt = null;
-        });
     </script>
 
     @stack('scripts')
