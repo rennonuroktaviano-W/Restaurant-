@@ -63,6 +63,7 @@ Route::prefix('cart')->name('cart.')->middleware('throttle:kiosk-cart')->group(f
     Route::post('/add', [CartController::class, 'add'])->name('add');
     Route::post('/update/{productId}', [CartController::class, 'update'])->name('update');
     Route::post('/remove/{productId}', [CartController::class, 'remove'])->name('remove');
+    Route::post('/discount', [CartController::class, 'applyDiscount'])->name('discount');
 });
 
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store')->middleware('throttle:kiosk-checkout');
