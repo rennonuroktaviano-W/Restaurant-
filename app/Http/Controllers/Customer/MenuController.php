@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Area;
 use App\Models\Category;
 use App\Models\Discount;
 use App\Models\Product;
@@ -55,6 +56,7 @@ class MenuController extends Controller
             'featured' => $featured,
             'activePromos' => $activePromos,
             'heroImages' => Product::query()->visible()->whereNotNull('image')->orderBy('sort_order')->limit(3)->pluck('image'),
+            'areas' => Area::query()->where('is_active', true)->orderBy('sort_order')->orderBy('name')->get(),
             'hasAddress' => $setting('business.address') !== '',
             'hasPhone' => $setting('business.phone') !== '',
             'address' => $setting('business.address'),

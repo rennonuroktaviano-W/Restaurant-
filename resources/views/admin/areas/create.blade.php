@@ -60,10 +60,43 @@
             </div>
 
             <div class="sm:col-span-2">
-                <label for="address" class="label">Alamat Lokasi</label>
-                <textarea name="address" id="address" rows="2" class="input @error('address') border-red-400 @enderror" placeholder="contoh: Jl. Raya Senggigi, Lombok Utara">{{ old('address') }}</textarea>
-                <p class="mt-1 text-xs text-gray-500">Alamat ini digunakan untuk menautkan lokasi ke Google Maps.</p>
+                <label for="address" class="label">Link Google Maps</label>
+                <input type="url" name="address" id="address" value="{{ old('address') }}" class="input @error('address') border-red-400 @enderror" placeholder="https://www.google.com/maps/search/?api=1&query=-6.9,107.6">
+                <p class="mt-1 text-xs text-gray-500">Tempel link berbagi dari Google Maps untuk lokasi area ini — dipakai tombol "Menuju Restaurant" dan peta di halaman landing.</p>
                 @error('address')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="latitude" class="label">Latitude</label>
+                <input type="number" name="latitude" id="latitude" step="any" value="{{ old('latitude') }}" class="input @error('latitude') border-red-400 @enderror" placeholder="contoh: -6.9043">
+                <p class="mt-1 text-xs text-gray-500">Jika diisi, peta memakai koordinat ini (presisi lebih akurat).</p>
+                @error('latitude')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="longitude" class="label">Longitude</label>
+                <input type="number" name="longitude" id="longitude" step="any" value="{{ old('longitude') }}" class="input @error('longitude') border-red-400 @enderror" placeholder="contoh: 107.6181">
+                @error('longitude')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="open_time" class="label">Jam Buka</label>
+                <input type="time" name="open_time" id="open_time" value="{{ old('open_time') }}" class="input @error('open_time') border-red-400 @enderror">
+                @error('open_time')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="close_time" class="label">Jam Tutup</label>
+                <input type="time" name="close_time" id="close_time" value="{{ old('close_time') }}" class="input @error('close_time') border-red-400 @enderror">
+                @error('close_time')
                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                 @enderror
             </div>

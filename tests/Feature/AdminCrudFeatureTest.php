@@ -45,6 +45,36 @@ class AdminCrudFeatureTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_update_area_address_geo_and_hours(): void
+    {
+        $area = Area::factory()->create();
+
+        $this->actAsFresh($this->adminUser())
+            ->put(route('admin.areas.update', $area), [
+                'name' => 'Restoran Utama',
+                'slug' => 'restoran-utama',
+                'type' => 'restaurant',
+                'description' => 'Area dining utama',
+                'address' => 'https://www.google.com/maps/search/?api=1&query=-6.9043,107.6181',
+                'latitude' => -6.9043,
+                'longitude' => 107.6181,
+                'open_time' => '11:00',
+                'close_time' => '22:00',
+                'is_active' => true,
+                'sort_order' => 0,
+            ])
+            ->assertRedirect(route('admin.areas.index'));
+
+        $this->assertDatabaseHas('areas', [
+            'id' => $area->id,
+            'address' => 'https://www.google.com/maps/search/?api=1&query=-6.9043,107.6181',
+            'latitude' => -6.9043,
+            'longitude' => 107.6181,
+            'open_time' => '11:00',
+            'close_time' => '22:00',
+        ]);
+    }
+
     public function test_creating_category_with_soft_deleted_slug_gets_suffixed_slug(): void
     {
         $deleted = Category::factory()->create(['slug' => 'makanan']);

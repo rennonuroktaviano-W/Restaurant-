@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Area;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -106,6 +107,42 @@ class KioskUiFeatureTest extends TestCase
         $this->get(route('menu.index'))
             ->assertOk()
             ->assertDontSee('>Kasir<');
+    }
+
+    public function test_location_section_shows_all_active_areas_with_maps_button(): void
+    {
+        Area::factory()->create([
+            'name' => 'Restoran Utama',
+            'is_active' => true,
+            'address' => 'https://www.google.com/maps/search/?api=1&query=-6.9043,107.6181',
+            'latitude' => -6.9043,
+            'longitude' => 107.6181,
+            'open_time' => '11:00',
+            'close_time' => '22:00',
+        ]);
+        Area::factory()->create([
+            'name' => 'Villa',
+            'is_active' => true,
+            'address' => 'https://www.google.com/maps/search/?api=1&query=-6.8082,107.6219',
+            'open_time' => '07:00',
+            'close_time' => '23:00',
+        ]);
+        Area::factory()->create([
+            'name' => 'Gudang',
+            'is_active' => false,
+            'address' => 'https://www.google.com/maps/search/?api=1&query=-7.0,110.0',
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Restoran Utama')
+            ->assertSee('Villa')
+            ->assertDontSee('Gudang')
+            ->assertSee('-6.9043,107.6181')
+            ->assertSee('maps.google.com')
+            ->assertSee('Menuju Restaurant')
+            ->assertSee('Buka di Google Maps')
+            ->assertDontSee('Lihat Menu Lengkap');
     }
 
     public function test_cart_actions_accept_ajax_json_requests(): void
