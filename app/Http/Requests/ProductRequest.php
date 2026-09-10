@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Support\Permissions;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProductRequest extends FormRequest
 {
@@ -20,7 +21,7 @@ class ProductRequest extends FormRequest
             'category_id' => ['required', 'exists:categories,id'],
             'sku' => ['required', 'string', 'max:50', 'unique:products,sku,'.$productId],
             'name' => ['required', 'string', 'max:150'],
-            'slug' => ['required', 'string', 'max:160', 'alpha_dash', 'unique:products,slug,'.$productId],
+            'slug' => ['required', 'string', 'max:160', 'alpha_dash', Rule::unique('products')->ignore($productId)->whereNull('deleted_at')],
             'image' => ['nullable', 'image', 'mimetypes:image/jpeg,image/png,image/webp,image/gif,image/avif', 'max:2048'],
             'cost_price' => ['required', 'numeric', 'min:0'],
             'sale_price' => ['required', 'numeric', 'min:0'],

@@ -16,31 +16,46 @@
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
                 <label for="name" class="label">Nama</label>
-                <input id="name" type="text" name="name" value="{{ old('name') }}" required class="input">
+                <input id="name" type="text" name="name" value="{{ old('name') }}" required class="input @error('name') border-red-400 @enderror">
+                @error('name')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
             </div>
 
             <div>
                 <label for="code" class="label">Kode</label>
-                <input id="code" type="text" name="code" value="{{ old('code') }}" required class="input" placeholder="contoh: QRIS, TUNAI">
+                <input id="code" type="text" name="code" value="{{ old('code') }}" required class="input @error('code') border-red-400 @enderror" placeholder="contoh: QRIS, TUNAI">
+                @error('code')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
             </div>
 
             <div>
                 <label for="type" class="label">Tipe</label>
-                <select id="type" name="type" class="select" required>
+                <select id="type" name="type" class="select @error('type') border-red-400 @enderror" required>
                     <option value="cash" {{ old('type') === 'cash' ? 'selected' : '' }}>Tunai</option>
                     <option value="online" {{ old('type') === 'online' ? 'selected' : '' }}>Online</option>
                 </select>
+                @error('type')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
             </div>
 
             <div>
                 <label for="sort_order" class="label">Urutan</label>
-                <input id="sort_order" type="number" name="sort_order" value="{{ old('sort_order', 0) }}" min="0" max="9999" class="input">
+                <input id="sort_order" type="number" name="sort_order" value="{{ old('sort_order', 0) }}" min="0" max="9999" class="input @error('sort_order') border-red-400 @enderror">
+                @error('sort_order')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
             </div>
         </div>
 
         <div class="mt-4">
             <label for="config" class="label">Konfigurasi (JSON)</label>
-            <textarea id="config" name="config" rows="4" class="input font-mono" placeholder='{"provider": "mock"}'>{{ old('config') }}</textarea>
+            <textarea id="config" name="config" rows="4" class="input font-mono @error('config') border-red-400 @enderror" placeholder='{"provider": "mock"}'>{{ old('config') }}</textarea>
+            @error('config')
+                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+            @enderror
             <p class="mt-1 text-xs text-gray-400">Opsional. Untuk pembayaran online digunakan provider gateway (mis. <code>mock</code>).</p>
         </div>
 

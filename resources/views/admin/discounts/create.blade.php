@@ -8,7 +8,7 @@
         <a href="{{ route('admin.discounts.index') }}" class="text-sm font-medium text-brand-600 hover:text-brand-700">&larr; Kembali</a>
     </div>
 
-    <form method="POST" action="{{ route('admin.discounts.store') }}" class="card mx-auto max-w-3xl p-6">
+    <form method="POST" action="{{ route('admin.discounts.store') }}" enctype="multipart/form-data" class="card mx-auto max-w-3xl p-6">
         @csrf
 
         <h1 class="mb-5 text-xl font-bold text-gray-900">Tambah Promo</h1>
@@ -22,6 +22,16 @@
             <div>
                 <label for="code" class="label">Kode</label>
                 <input id="code" type="text" name="code" value="{{ old('code') }}" class="input" placeholder="Opsional (untuk diskon kode)">
+            </div>
+
+            <div>
+                <label for="image" class="label">Gambar Promo</label>
+                <input id="image" type="file" name="image" accept="image/*" class="input">
+            </div>
+
+            <div class="sm:col-span-2">
+                <label for="description" class="label">Deskripsi</label>
+                <textarea id="description" name="description" rows="3" class="input" placeholder="Ditampilkan di halaman beranda (opsional)">{{ old('description') }}</textarea>
             </div>
 
             <div>

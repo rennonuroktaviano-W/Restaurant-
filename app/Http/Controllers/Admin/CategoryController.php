@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -23,10 +24,11 @@ class CategoryController extends Controller
     {
         $categories = Category::query()
             ->withCount('products')
+            ->with(['products' => fn ($q) => $q->with('category')->orderBy('sort_order')->orderBy('name')])
             ->when($request->search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%"))
             ->orderBy('sort_order')
             ->orderBy('name')
-            ->paginate(20)
+            ->paginate(10)
             ->withQueryString();
 
         return view('admin.categories.index', compact('categories'));
@@ -39,11 +41,18 @@ class CategoryController extends Controller
 
     public function store(CategoryRequest $request): RedirectResponse
     {
-        $category = Category::create($request->validated() + ['slug' => $this->uniqueSlug($request->slug)]);
+        $data = $request->validated();
+        $data['slug'] = $this->uniqueSlug($data['slug']);
 
-        if ($request->hasFile('image')) {
-            $category->update(['image' => $request->file('image')->store('categories', 'public')]);
-        }
+        $category = DB::transaction(function () use ($request, $data) {
+            $category = Category::create($data);
+
+            if ($request->hasFile('image')) {
+                $category->update(['image' => $request->file('image')->store('categories', 'public')]);
+            }
+
+            return $category;
+        });
 
         $this->audit->log('create', 'catalog', 'category', $category->id, [], $category->toArray());
 
@@ -59,11 +68,16 @@ class CategoryController extends Controller
     {
         $old = $category->toArray();
 
-        $category->update($request->validated());
+        $data = $request->validated();
+        $data['slug'] = $this->uniqueSlug($data['slug'], $category->id);
 
-        if ($request->hasFile('image')) {
-            $category->update(['image' => $request->file('image')->store('categories', 'public')]);
-        }
+        DB::transaction(function () use ($request, $category, $data) {
+            $category->update($data);
+
+            if ($request->hasFile('image')) {
+                $category->update(['image' => $request->file('image')->store('categories', 'public')]);
+            }
+        });
 
         $this->audit->log('update', 'catalog', 'category', $category->id, $old, $category->fresh()->toArray());
 
@@ -83,13 +97,13 @@ class CategoryController extends Controller
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil dihapus.');
     }
 
-    private function uniqueSlug(string $slug): string
+    private function uniqueSlug(string $slug, ?int $ignoreId = null): string
     {
         $base = Str::slug($slug);
         $candidate = $base;
         $i = 1;
 
-        while (Category::withTrashed()->where('slug', $candidate)->exists()) {
+        while (Category::withTrashed()->where('slug', $candidate)->when($ignoreId, fn ($q, $id) => $q->where('id', '!=', $id))->exists()) {
             $candidate = $base.'-'.$i++;
         }
 

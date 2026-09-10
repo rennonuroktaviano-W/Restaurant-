@@ -6,12 +6,17 @@ use App\Events\OrderStatusUpdated;
 use App\Models\Order;
 use App\Models\OrderCancellation;
 use App\Models\OrderStatusHistory;
+use App\Models\Payment;
+use App\Models\Refund;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 class OrderStatusService
 {
-    public function __construct(protected InventoryService $inventory) {}
+    public function __construct(
+        protected InventoryService $inventory,
+        protected RefundService $refunds,
+    ) {}
 
     public function allowedTransitions(string $from): array
     {
@@ -65,11 +70,38 @@ class OrderStatusService
                 ]);
 
                 $this->inventory->reverse($order);
+
+                $this->refundSettledPayments($order, $actorId);
             }
 
             OrderStatusUpdated::dispatch($order->fresh());
 
             return $order->fresh();
         });
+    }
+
+    private function refundSettledPayments(Order $order, ?int $actorId): void
+    {
+        foreach ($order->payments()->get() as $payment) {
+            if (! in_array($payment->status, [Payment::STATUS_PAID, Payment::STATUS_PARTIALLY_REFUNDED], true)) {
+                continue;
+            }
+
+            $refunded = (float) $payment->refunds()
+                ->where('status', Refund::STATUS_SUCCEEDED)
+                ->sum('amount');
+
+            $outstanding = (float) $payment->amount - $refunded;
+
+            if ($outstanding > 0) {
+                $this->refunds->refund(
+                    $order,
+                    $payment,
+                    $outstanding,
+                    'Dibatalkan di kasir',
+                    $actorId,
+                );
+            }
+        }
     }
 }

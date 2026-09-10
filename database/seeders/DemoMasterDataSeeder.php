@@ -74,12 +74,17 @@ class DemoMasterDataSeeder extends Seeder
             app(DemoProductImages::class)->ensure($product);
         }
 
-        $area = Area::firstOrCreate(
+        $area = Area::updateOrCreate(
             ['slug' => 'restoran-utama'],
             [
                 'name' => 'Restoran Utama',
                 'type' => 'restaurant',
-                'description' => 'Area dining utama',
+                'description' => 'Area dining utama dengan suasana hijau dan nyaman',
+                'address' => 'https://www.google.com/maps/search/?api=1&query=-6.9043,107.6181',
+                'latitude' => -6.9043,
+                'longitude' => 107.6181,
+                'open_time' => '11:00',
+                'close_time' => '22:00',
                 'is_active' => true,
             ]
         );
@@ -91,9 +96,19 @@ class DemoMasterDataSeeder extends Seeder
             );
         }
 
-        $villaArea = Area::firstOrCreate(
+        $villaArea = Area::updateOrCreate(
             ['slug' => 'villa'],
-            ['name' => 'Villa', 'type' => 'villa', 'is_active' => true]
+            [
+                'name' => 'Villa',
+                'type' => 'villa',
+                'description' => 'Kamar villa eksklusif untuk santap di dalam kamar',
+                'address' => 'https://www.google.com/maps/search/?api=1&query=-6.8082,107.6219',
+                'latitude' => -6.8082,
+                'longitude' => 107.6219,
+                'open_time' => '07:00',
+                'close_time' => '23:00',
+                'is_active' => true,
+            ]
         );
 
         for ($i = 1; $i <= 6; $i++) {

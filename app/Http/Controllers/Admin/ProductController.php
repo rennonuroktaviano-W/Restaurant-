@@ -10,6 +10,7 @@ use App\Services\AuditLogger;
 use App\Services\InventoryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -25,7 +26,9 @@ class ProductController extends Controller
     {
         $products = Product::query()
             ->with('category')
-            ->when($request->search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%")->orWhere('sku', 'like', "%{$s}%"))
+            ->when($request->search, fn ($q, $s) => $q->where(function ($query) use ($s) {
+                $query->where('name', 'like', "%{$s}%")->orWhere('sku', 'like', "%{$s}%");
+            }))
             ->when($request->category, fn ($q, $c) => $q->where('category_id', $c))
             ->orderBy('sort_order')
             ->orderBy('name')
@@ -37,22 +40,28 @@ class ProductController extends Controller
         return view('admin.products.index', compact('products', 'categories'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         $categories = Category::orderBy('name')->get();
+        $selectedCategory = $request->filled('category_id') ? (int) $request->category_id : null;
 
-        return view('admin.products.create', compact('categories'));
+        return view('admin.products.create', compact('categories', 'selectedCategory'));
     }
 
     public function store(ProductRequest $request): RedirectResponse
     {
         $data = $request->validated();
+        $data['slug'] = $this->uniqueSlug($data['slug']);
 
-        $product = Product::create($data + ['slug' => $this->uniqueSlug($data['slug'])]);
+        $product = DB::transaction(function () use ($request, $data) {
+            $product = Product::create($data);
 
-        if ($request->hasFile('image')) {
-            $product->update(['image' => $request->file('image')->store('products', 'public')]);
-        }
+            if ($request->hasFile('image')) {
+                $product->update(['image' => $request->file('image')->store('products', 'public')]);
+            }
+
+            return $product;
+        });
 
         $this->audit->log('create', 'catalog', 'product', $product->id, [], $product->fresh()->toArray());
 
@@ -70,12 +79,15 @@ class ProductController extends Controller
     {
         $old = $product->toArray();
         $data = $request->validated();
+        $data['slug'] = $this->uniqueSlug($data['slug'], $product->id);
 
-        $product->update($data + ['slug' => $this->uniqueSlug($data['slug'], $product->id)]);
+        DB::transaction(function () use ($request, $product, $data) {
+            $product->update($data);
 
-        if ($request->hasFile('image')) {
-            $product->update(['image' => $request->file('image')->store('products', 'public')]);
-        }
+            if ($request->hasFile('image')) {
+                $product->update(['image' => $request->file('image')->store('products', 'public')]);
+            }
+        });
 
         $this->audit->log('update', 'catalog', 'product', $product->id, $old, $product->fresh()->toArray());
 

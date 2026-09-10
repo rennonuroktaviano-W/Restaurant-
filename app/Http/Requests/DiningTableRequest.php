@@ -16,7 +16,7 @@ class DiningTableRequest extends FormRequest
     {
         return [
             'area_id' => ['required', 'exists:areas,id'],
-            'table_number' => ['required', 'string', 'max:30', 'unique:dining_tables,table_number,'.$this->route('dining_table')?->id],
+            'table_number' => ['required', 'string', 'max:30', 'unique:dining_tables,table_number,'.$this->route('table')?->id],
             'name' => ['nullable', 'string', 'max:120'],
             'status' => ['sometimes', 'in:available,occupied,reserved'],
             'is_active' => ['sometimes', 'boolean'],

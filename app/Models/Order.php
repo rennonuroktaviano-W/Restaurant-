@@ -52,7 +52,7 @@ class Order extends Model
         self::STATUS_NEW => [self::STATUS_ACCEPTED, self::STATUS_CANCELLED],
         self::STATUS_ACCEPTED => [self::STATUS_COOKING, self::STATUS_CANCELLED],
         self::STATUS_COOKING => [self::STATUS_READY, self::STATUS_CANCELLED],
-        self::STATUS_READY => [self::STATUS_COMPLETED],
+        self::STATUS_READY => [self::STATUS_COMPLETED, self::STATUS_CANCELLED],
         self::STATUS_COMPLETED => [],
         self::STATUS_CANCELLED => [],
     ];

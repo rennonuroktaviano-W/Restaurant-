@@ -28,15 +28,7 @@
                 @enderror
             </div>
 
-            <label class="flex items-center gap-2 text-sm text-ink-600">
-                <input type="checkbox" name="remember" value="1" class="h-4 w-4 rounded border-ink-900/20 text-forest-700 focus:ring-forest-600">
-                Ingat saya
-            </label>
-
-            <div class="flex items-center justify-between gap-3">
-                <span class="text-xs text-ink-400">Belum punya akun? Hubungi admin.</span>
-                <a href="{{ route('password.forgot') }}" class="text-sm font-medium text-forest-700 hover:underline">Lupa password?</a>
-            </div>
+            <p class="text-center text-xs text-ink-400">Belum punya akun? Hubungi admin.</p>
 
             <div>
                 <button type="submit" class="btn btn-primary w-full">Masuk</button>

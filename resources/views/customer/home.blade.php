@@ -165,6 +165,44 @@
             @endif
         </section>
 
+        {{-- Active promos --}}
+        @if ($activePromos->isNotEmpty())
+            <section aria-labelledby="promo-heading" class="scroll-mt-28">
+                <div class="reveal mb-10 flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <p class="eyebrow">Sedang Berlangsung</p>
+                        <h2 id="promo-heading" class="section-title mt-3">Promo Spesial</h2>
+                    </div>
+                </div>
+
+                <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach ($activePromos as $promo)
+                        <article class="card card-pad group relative overflow-hidden">
+                            <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600"></div>
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="min-w-0">
+                                    <h3 class="font-display text-lg font-semibold text-ink-900">{{ $promo->name }}</h3>
+                                    <p class="mt-1 text-sm text-gold-700">{{ $promo->displayLabel() }}</p>
+                                </div>
+                                <span class="badge badge-gold shrink-0">{{ $promo->code ?: 'OTOMATIS' }}</span>
+                            </div>
+                            @if ($promo->description)
+                                <p class="mt-3 line-clamp-2 text-sm leading-relaxed text-ink-500">{{ $promo->description }}</p>
+                            @elseif ($promo->min_amount)
+                                <p class="mt-3 text-sm leading-relaxed text-ink-500">Berlaku untuk pembelian minimal Rp {{ number_format((float) $promo->min_amount, 0, ',', '.') }}.</p>
+                            @endif
+                            @if ($promo->ends_at)
+                                <p class="mt-4 flex items-center gap-2 border-t border-ink-900/10 pt-3 text-xs text-ink-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    Berlaku hingga {{ $promo->ends_at->format('d M Y') }}
+                                </p>
+                            @endif
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
         {{-- Story / dining --}}
         <section id="story" aria-labelledby="story-heading" class="scroll-mt-28">
             <div class="panel-forest overflow-hidden">
@@ -204,71 +242,96 @@
             </div>
         </section>
 
-        {{-- Location / reservation --}}
+        {{-- Location --}}
         <section id="location" aria-labelledby="location-heading" class="scroll-mt-28">
-            <div class="reveal grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
-                <div>
-                    <p class="eyebrow">Kunjungi Kami</p>
-                    <h2 id="location-heading" class="section-title mt-3">Satu tempat untuk semua suasana</h2>
-                    @if ($hasAddress)
-                        <p class="mt-5 max-w-lg text-sm leading-relaxed text-ink-600 sm:text-base">
-                            Temukan kami di alamat berikut untuk menikmati hidangan kami —
-                            baik bersantap di ruangan, kamar, maupun membawa pulang.
-                        </p>
-                    @else
-                        <p class="mt-5 max-w-lg text-sm leading-relaxed text-ink-600 sm:text-base">
-                            Jelajahi menu kami dan pesan langsung dari meja atau kamar Anda.
-                            Dapur akan menyiapkan, dan kami antarkan saat sudah siap.
-                        </p>
-                    @endif
+            <div class="reveal">
+                <p class="eyebrow">Kunjungi Kami</p>
+                <h2 id="location-heading" class="section-title mt-3">Temukan kami di lokasi terdekat</h2>
 
-                    <dl class="mt-8 space-y-4 text-sm">
-                        <div class="flex items-start gap-3">
-                            <span class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest-100 text-forest-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            </span>
-                            <div>
-                                <dt class="font-medium text-ink-800">Lokasi</dt>
-                                <dd class="mt-0.5 text-ink-500">{{ $hasAddress ? $address : 'Resort area — di tengah kawasan' }}</dd>
-                            </div>
-                        </div>
-                        <div class="flex items-start gap-3">
-                            <span class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest-100 text-forest-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            </span>
-                            <div>
-                                <dt class="font-medium text-ink-800">Jam Buka</dt>
-                                <dd class="mt-0.5 text-ink-500">Setiap hari, 11.00 – 22.00 WIB</dd>
-                            </div>
-                        </div>
-                        @if ($hasPhone)
-                            <div class="flex items-start gap-3">
-                                <span class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest-100 text-forest-700">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                                </span>
-                                <div>
-                                    <dt class="font-medium text-ink-800">Reservasi &amp; Info</dt>
-                                    <dd class="mt-0.5 text-ink-500">{{ $phone }}</dd>
+                @if ($areas->isNotEmpty())
+                    <p class="mt-5 max-w-xl text-sm leading-relaxed text-ink-600 sm:text-base">
+                        Kunjungi kedai kami untuk menikmati hidangan — santap di tempat, di kamar, maupun bawa pulang.
+                    </p>
+
+                    <div class="mt-9 grid gap-6 lg:grid-cols-2">
+                        @foreach ($areas as $area)
+                            <article class="card card-pad flex flex-col overflow-hidden">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="min-w-0">
+                                        <h3 class="font-display text-xl font-semibold text-ink-900">{{ $area->name }}</h3>
+                                        @if ($area->description)
+                                            <p class="mt-1 text-sm leading-relaxed text-ink-500">{{ $area->description }}</p>
+                                        @endif
+                                    </div>
+                                    <span class="badge badge-gold shrink-0">{{ $area->type }}</span>
                                 </div>
-                            </div>
-                        @endif
-                    </dl>
 
-                    <div class="mt-9 flex flex-wrap gap-3">
-                        <a href="{{ route('menu.index') }}" class="btn btn-primary">Pesan Sekarang</a>
-                        <a href="{{ route('menu.index') }}" class="btn btn-secondary">Lihat Menu Lengkap</a>
+                                <dl class="mt-5 space-y-3 text-sm">
+                                    @if ($area->address)
+                                        <div class="flex items-start gap-2.5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mt-0.5 h-4 w-4 shrink-0 text-forest-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                            <div class="min-w-0">
+                                                <dt class="font-medium text-ink-800">Lokasi</dt>
+                                                @if (filter_var($area->address, FILTER_VALIDATE_URL))
+                                                    <dd class="mt-0.5">
+                                                        <a href="{{ $area->maps_url }}" target="_blank" rel="noopener" class="font-medium text-forest-700 hover:underline">Buka di Google Maps &rarr;</a>
+                                                    </dd>
+                                                @else
+                                                    <dd class="mt-0.5 text-ink-500">{{ $area->address }}</dd>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
+                                    @if ($area->hours_label)
+                                        <div class="flex items-start gap-2.5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="mt-0.5 h-4 w-4 shrink-0 text-forest-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <div>
+                                                <dt class="font-medium text-ink-800">Jam Buka</dt>
+                                                <dd class="mt-0.5 text-ink-500">Setiap hari, {{ $area->hours_label }}</dd>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </dl>
+
+                                @if ($area->embed_url)
+                                    <div class="media-frame mt-5 h-52 overflow-hidden">
+                                        <iframe src="{{ $area->embed_url }}" title="Peta {{ $area->name }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen class="h-full w-full border-0"></iframe>
+                                    </div>
+                                @endif
+
+                                <div class="mt-5">
+                                    <a href="{{ $area->maps_url }}" target="_blank" rel="noopener" class="btn btn-primary inline-flex w-full items-center justify-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+                                        Menuju Restaurant
+                                    </a>
+                                </div>
+                            </article>
+                        @endforeach
                     </div>
-                </div>
+                @else
+                    <p class="mt-5 max-w-lg text-sm leading-relaxed text-ink-600 sm:text-base">
+                        Temukan kami di alamat berikut untuk menikmati hidangan kami —
+                        baik bersantap di ruangan, kamar, maupun membawa pulang.
+                    </p>
 
-                <div class="media-frame reveal relative min-h-80 overflow-hidden">
-                    @if ($heroImages->isNotEmpty())
-                        <img src="{{ asset('storage/'.$heroImages->last()) }}" alt="Suasana {{ $siteName }}" loading="lazy" class="absolute inset-0 h-full w-full object-cover">
-                    @else
-                        <div class="panel-forest absolute inset-0 flex items-center justify-center">
-                            <p class="max-w-xs text-center font-display text-xl text-cream-100/80">Suasana yang dirancang untuk Anda nikmati perlahan.</p>
-                        </div>
-                    @endif
-                </div>
+                    <div class="mt-8 inline-flex items-center gap-3 rounded-2xl bg-cream-50 px-5 py-4 text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-forest-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span class="text-ink-600">{{ $hasAddress ? $address : 'Resort area — di tengah kawasan' }}</span>
+                    </div>
+
+                    <div class="mt-6">
+                        <a href="{{ $hasAddress ? 'https://www.google.com/maps/search/?api=1&query='.urlencode($address) : '#' }}" target="_blank" rel="noopener" class="btn btn-primary @if (! $hasAddress) pointer-events-none opacity-50 @endif">
+                            Menuju Restaurant
+                        </a>
+                    </div>
+                @endif
+
+                @if ($hasPhone)
+                    <p class="mt-8 flex items-center gap-3 text-sm text-ink-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-forest-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                        Reservasi &amp; Info: <span class="font-medium text-ink-800">{{ $phone }}</span>
+                    </p>
+                @endif
             </div>
         </section>
 

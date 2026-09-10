@@ -24,7 +24,7 @@ class RoomController extends Controller
         $rooms = Room::query()
             ->with('area')
             ->when($request->area, fn ($q, $a) => $q->where('area_id', $a))
-            ->when($request->search, fn ($q, $s) => $q->where('room_number', 'like', "%{$s}%"))
+            ->when($request->search, fn ($q, $s) => $q->where('room_number', 'like', "%{$s}%")->orWhere('name', 'like', "%{$s}%"))
             ->orderBy('area_id')
             ->orderBy('room_number')
             ->paginate(25)

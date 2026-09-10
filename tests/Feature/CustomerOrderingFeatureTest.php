@@ -164,6 +164,31 @@ class CustomerOrderingFeatureTest extends TestCase
         ]);
     }
 
+    public function test_kasir_dapur_kitchen_board_shows_only_orders_with_kitchen_items(): void
+    {
+        $food = $this->product(['is_kitchen' => true, 'name' => 'Nasi Goreng Rahasia', 'sale_price' => 20000]);
+        $drink = $this->product(['is_kitchen' => false, 'name' => 'Es Teh Rahasia', 'sale_price' => 5000]);
+
+        $this->addToCart($food->id);
+        $this->post(route('checkout.store'), ['order_type' => Order::TYPE_TAKE_AWAY])->assertSessionHasNoErrors();
+
+        $foodOrder = Order::firstOrFail();
+        $this->assertTrue($foodOrder->has_kitchen_items);
+
+        $this->addToCart($drink->id);
+        $this->post(route('checkout.store'), ['order_type' => Order::TYPE_TAKE_AWAY])->assertSessionHasNoErrors();
+
+        $drinkOrder = Order::where('id', '!=', $foodOrder->id)->sole();
+        $this->assertFalse((bool) $drinkOrder->has_kitchen_items);
+
+        $this->actingAs($this->kitchenUser())
+            ->get(route('kitchen.dashboard'))
+            ->assertOk()
+            ->assertSee($foodOrder->order_number)
+            ->assertSee('Nasi Goreng Rahasia')
+            ->assertDontSee('Es Teh Rahasia');
+    }
+
     public function test_ac_02_server_recalculates_total_ignoring_browser_values(): void
     {
         $product = $this->product(['sale_price' => 5000]);

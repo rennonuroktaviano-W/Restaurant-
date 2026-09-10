@@ -39,7 +39,10 @@ class AreaController extends Controller
 
     public function store(AreaRequest $request): RedirectResponse
     {
-        $area = Area::create($request->validated() + ['slug' => $this->uniqueSlug($request->slug)]);
+        $data = $request->validated();
+        $data['slug'] = $this->uniqueSlug($data['slug']);
+
+        $area = Area::create($data);
 
         $this->audit->log('create', 'location', 'area', $area->id, [], $area->toArray());
 
@@ -55,7 +58,10 @@ class AreaController extends Controller
     {
         $old = $area->toArray();
 
-        $area->update($request->validated() + ['slug' => $this->uniqueSlug($request->slug, $area->id)]);
+        $data = $request->validated();
+        $data['slug'] = $this->uniqueSlug($data['slug'], $area->id);
+
+        $area->update($data);
 
         $this->audit->log('update', 'location', 'area', $area->id, $old, $area->fresh()->toArray());
 

@@ -26,7 +26,19 @@
             <tbody class="divide-y divide-gray-100">
                 @forelse ($discounts as $discount)
                     <tr>
-                        <td class="px-4 py-3 font-medium text-gray-900">{{ $discount->name }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                @if ($discount->image)
+                                    <img src="{{ asset('storage/'.$discount->image) }}" alt="{{ $discount->name }}" class="h-10 w-16 shrink-0 rounded-md border border-gray-200 object-cover">
+                                @endif
+                                <div>
+                                    <p class="font-medium text-gray-900">{{ $discount->name }}</p>
+                                    @if ($discount->description)
+                                        <p class="max-w-56 truncate text-xs text-gray-500">{{ $discount->description }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
                         <td class="px-4 py-3">
                             @if ($discount->code)
                                 <code class="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700">{{ $discount->code }}</code>

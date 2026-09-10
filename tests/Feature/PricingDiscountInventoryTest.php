@@ -263,7 +263,7 @@ class PricingDiscountInventoryTest extends TestCase
             $status->allowedTransitions(Order::STATUS_ACCEPTED),
         );
         $this->assertSame(
-            [Order::STATUS_COMPLETED],
+            [Order::STATUS_COMPLETED, Order::STATUS_CANCELLED],
             $status->allowedTransitions(Order::STATUS_READY),
         );
     }

@@ -18,7 +18,7 @@
                 <select name="category_id" id="category_id" class="select @error('category_id') border-red-400 @enderror" required>
                     <option value="">Pilih Kategori</option>
                     @foreach ($categories as $category)
-                        <option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>{{ $category->name }}</option>
+                        <option value="{{ $category->id }}" @selected((int) old('category_id', $selectedCategory ?? '') === $category->id)>{{ $category->name }}</option>
                     @endforeach
                 </select>
                 @error('category_id')
