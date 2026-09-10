@@ -73,6 +73,7 @@
                 <form method="POST" action="{{ route('checkout.store') }}" id="checkout-form" class="card p-6">
                     @csrf
                     <input type="hidden" name="idempotency_key" value="{{ session('checkout.key') }}">
+                    <input type="hidden" name="discount_code" value="{{ $discountCode ?? '' }}">
 
                     <div x-data="{ type: '{{ old('order_type', 'take_away') }}', payment: '{{ (string) old('payment_method_id', $paymentMethods->first()?->id ?? '') }}' }">
                         <div class="mb-5">
