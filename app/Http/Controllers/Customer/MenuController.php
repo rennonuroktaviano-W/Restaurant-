@@ -90,6 +90,23 @@ class MenuController extends Controller
         return view('customer.menu', $this->viewData($categories, $products));
     }
 
+    public function show(Product $product): View
+    {
+        if (! $product->is_active || ! $product->is_available) {
+            abort(404);
+        }
+
+        $product->load('category');
+
+        return view('customer.product', [
+            'product' => $product,
+            'cartCount' => $this->cart->count(),
+            'cartQuantities' => $this->cart->all()->pluck('quantity', 'product_id')->toArray(),
+            'drawerLines' => $this->cart->lines(),
+            'drawerSubtotal' => $this->cart->subtotal(),
+        ]);
+    }
+
     public function category(Category $category): View
     {
         $categories = Category::withCount('activeProducts')

@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'title' => 'Menu',
+    'subtitle' => 'Pesan hidangan favoritmu',
+    'welcome' => 'Selamat Datang',
+    'all_menu' => 'Semua Menu',
+    'all_menu_title' => 'Semua Menu',
+    'categories_label' => 'Kategori',
+    'category' => 'Kategori',
+    'search' => 'Cari',
+    'search_placeholder' => 'Cari menu...',
+    'search_results' => 'Hasil pencarian',
+    'clear_search' => 'Bersihkan',
+    'no_results' => 'Menu tidak ditemukan.',
+    'add_to_cart' => 'Tambah',
+    'in_cart' => 'Di keranjang',
+    'sold_out' => 'Habis',
+    'notes_label' => 'Catatan:',
+    'decrease' => 'Kurangi',
+    'increase' => 'Tambah',
+    'price_prefix' => 'Rp',
+    'show' => 'Lihat',
+    'view' => 'Lihat',
+    'index' => 'Detail',
+    'back' => 'Kembali ke Menu',
+];

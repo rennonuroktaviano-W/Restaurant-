@@ -130,6 +130,35 @@
                             <a href="{{ route('menu.index') }}" class="btn btn-secondary">Pesan Lagi</a>
                         @endif
                     @endif
+
+                    {{-- Cancel button for customer --}}
+                    @if (in_array($order->order_status, ['new', 'accepted']) && $order->payment_status !== 'paid')
+                        <form method="POST" action="{{ route('tracking.cancel', $order) }}" x-data="{ open: false }" class="ml-auto lg:ml-0">
+                            @csrf
+                            <button type="button"
+                                    @click="open = true"
+                                    class="btn btn-danger"
+                                    aria-haspopup="dialog">
+                                Batalkan Order
+                            </button>
+                            <template x-if="open" x-teleport="body">
+                                <div class="fixed inset-0 z-40 flex items-center justify-center bg-ink-950/60 p-4" @click.outside="open = false">
+                                    <div class="card w-full max-w-md p-6 animate-in fade-in zoom-in-95">
+                                        <h3 class="font-display text-lg font-semibold text-ink-900">Batalkan Order?</h3>
+                                        <p class="mt-2 text-sm text-ink-600">Apakah Anda yakin ingin membatalkan order <strong>{{ $order->order_number }}</strong>? Tindakan ini tidak dapat diurungkan.</p>
+                                        <div class="mt-4">
+                                            <label for="cancel_reason" class="label">Alasan Pembatalan</label>
+                                            <textarea id="cancel_reason" name="reason" rows="3" class="input" placeholder="Contoh: Berubah rencana, pesan salah, dll" required></textarea>
+                                        </div>
+                                        <div class="mt-5 flex gap-3">
+                                            <button type="button" @click="open = false" class="btn btn-secondary flex-1">Tidak</button>
+                                            <button type="submit" class="btn btn-danger flex-1">Ya, Batalkan</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>
@@ -141,3 +170,70 @@
         @endif
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!window.EchoEnabled || !window.Echo) {
+                console.debug('Reverb not enabled, skipping auto-refresh');
+                return;
+            }
+
+            const orderNumber = '{{ $order->order_number }}';
+            const orderId = '{{ $order->id }}';
+            let reloadTimer = null;
+
+            const scheduleReload = () => {
+                clearTimeout(reloadTimer);
+                reloadTimer = setTimeout(() => {
+                    window.location.reload();
+                }, 800);
+            };
+
+            // Listen on order-specific channel for real-time updates
+            const channel = window.Echo.channel(`order.${orderId}`);
+
+            channel.listen('.order.status.updated', (e) => {
+                console.debug('Order status updated:', e);
+                if (e.order_number === orderNumber) {
+                    scheduleReload();
+                }
+            });
+
+            channel.listen('.order.created', (e) => {
+                console.debug('Order created:', e);
+                if (e.order_number === orderNumber) {
+                    scheduleReload();
+                }
+            });
+
+            channel.listen('.payment.settled', (e) => {
+                console.debug('Payment settled:', e);
+                if (e.order_number === orderNumber) {
+                    scheduleReload();
+                }
+            });
+
+            // Also listen on cooking/kitchen channels as fallback
+            window.Echo.channel('cooking').listen('.order.status.updated', (e) => {
+                if (e.order_number === orderNumber) {
+                    scheduleReload();
+                }
+            });
+
+            window.Echo.channel('kitchen').listen('.order.status.updated', (e) => {
+                if (e.order_number === orderNumber) {
+                    scheduleReload();
+                }
+            });
+
+            // Cleanup on page unload
+            window.addEventListener('beforeunload', () => {
+                clearTimeout(reloadTimer);
+                window.Echo.leave(`order.${orderId}`);
+                window.Echo.leave('cooking');
+                window.Echo.leave('kitchen');
+            });
+        });
+    </script>
+@endpush

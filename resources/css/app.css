@@ -4,51 +4,92 @@
 @source '../../storage/framework/views/*.php';
 @source '../views';
 
+/* ============================================================
+   ADMIN PANEL DESIGN SYSTEM
+   Matches Customer UI: ivory / forest / champagne gold.
+   Uses same design tokens as customer.css for consistency.
+   ============================================================ */
+
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Playfair Display', 'Instrument Sans', Georgia, 'Times New Roman', serif;
 
-    /* Luxury hotel — gold "brand" palette */
-    --color-brand-50: #fbf7ec;
-    --color-brand-100: #f6edda;
-    --color-brand-200: #e9d7ae;
-    --color-brand-300: #dcc17f;
-    --color-brand-400: #d2ae59;
-    --color-brand-500: #c29b3f;
-    --color-brand-600: #a8862f;
-    --color-brand-700: #8a6d26;
+    /* Ivory — warm neutral base (from customer.css) */
+    --color-cream-25: #fffffd;
+    --color-cream-50: #fcfaf6;
+    --color-cream-100: #f5f0e7;
+    --color-cream-200: #ece3d4;
+    --color-cream-300: #dfd3bd;
+    --color-cream-400: #cdbca0;
 
-    /* Dark luxury surfaces (charcoal / night) */
-    --color-night-950: #0e0c0a;
-    --color-night-900: #171310;
-    --color-night-850: #1d1814;
-    --color-night-800: #241e19;
-    --color-night-750: #2b241e;
-    --color-night-700: #372e26;
-    --color-night-600: #4d4136;
+    /* Forest — primary brand (from customer.css) */
+    --color-forest-50: #eef3ef;
+    --color-forest-100: #dbe5de;
+    --color-forest-200: #b7cdbd;
+    --color-forest-300: #8bae96;
+    --color-forest-400: #5c8c6e;
+    --color-forest-500: #3d6f52;
+    --color-forest-600: #2d5a42;
+    --color-forest-700: #244b3b;
+    --color-forest-800: #1e3c31;
+    --color-forest-900: #162c24;
+    --color-forest-950: #0d1c17;
 
-    /* Global gray ramp remapped to warm dark neutrals so every surface,
-       text, border and divider class resolves dark across the app. */
-    --color-gray-50: #241e18;
-    --color-gray-100: #2a241d;
-    --color-gray-200: #332b22;
-    --color-gray-300: #3f362b;
-    --color-gray-400: #82786a;
-    --color-gray-500: #a39b8d;
-    --color-gray-600: #bdb5a8;
-    --color-gray-700: #d3cbc0;
-    --color-gray-800: #e7e0d6;
-    --color-gray-900: #f4efe8;
+    /* Gold — champagne accent (from customer.css) */
+    --color-gold-50: #faf4e8;
+    --color-gold-100: #f3e5c6;
+    --color-gold-200: #e8d099;
+    --color-gold-300: #d7b972;
+    --color-gold-400: #c6a45c;
+    --color-gold-500: #b9914b;
+    --color-gold-600: #9e7838;
+    --color-gold-700: #7e5f2f;
+    --color-gold-800: #5f4624;
+
+    /* Ink — body & headings on light backgrounds (from customer.css) */
+    --color-ink-50: #f6f6f5;
+    --color-ink-100: #e9e9e6;
+    --color-ink-200: #c6c8c3;
+    --color-ink-300: #a2a69e;
+    --color-ink-400: #7d8279;
+    --color-ink-500: #5f645b;
+    --color-ink-600: #454a42;
+    --color-ink-700: #333832;
+    --color-ink-800: #292c27;
+    --color-ink-900: #222522;
+    --color-ink-950: #141614;
+
+    /* Burgundy — danger & failed states (from customer.css) */
+    --color-burgundy-50: #faeeed;
+    --color-burgundy-100: #f3d8d6;
+    --color-burgundy-200: #e5b0ac;
+    --color-burgundy-300: #d1847e;
+    --color-burgundy-400: #b95e57;
+    --color-burgundy-500: #a04842;
+    --color-burgundy-600: #8e3b36;
+    --color-burgundy-700: #712d2a;
+    --color-burgundy-800: #54211f;
+    --color-burgundy-900: #381614;
+
+    /* Admin-specific semantic colors */
+    --color-admin-bg: var(--color-cream-100);
+    --color-admin-surface: var(--color-cream-50);
+    --color-admin-sidebar: var(--color-forest-900);
+    --color-admin-text: var(--color-ink-800);
+    --color-admin-text-muted: var(--color-ink-500);
+    --color-admin-border: var(--color-ink-900/10);
+    --color-admin-border-strong: var(--color-ink-900/20);
 }
 
 @layer base {
     body {
-        @apply bg-night-950 text-stone-200 antialiased;
+        @apply bg-admin-bg font-sans text-admin-text antialiased;
     }
 
     /* WCAG 2.2 - visual focus indicator for keyboard navigation */
     :focus-visible {
-        outline: 2px solid var(--color-brand-400);
+        outline: 2px solid var(--color-forest-600);
         outline-offset: 2px;
     }
 
@@ -63,62 +104,367 @@
             scroll-behavior: auto !important;
         }
     }
-}
-
-@layer components {
-    .btn,
-    .btn-primary,
-    .btn-secondary,
-    .btn-danger,
-    .btn-success {
-        @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
-    }
-
-.btn-primary {
-        @apply bg-brand-600 text-night-950 hover:bg-brand-700 focus:ring-brand-400 focus:ring-offset-night-950;
-    }
-
-    .btn-secondary {
-        @apply border border-night-600 bg-night-800 text-stone-100 hover:bg-night-700 focus:ring-night-600;
-    }
-
-    .btn-danger {
-        @apply bg-red-700 text-white hover:bg-red-600 focus:ring-red-500;
-    }
-
-    .btn-success {
-        @apply bg-emerald-700 text-white hover:bg-emerald-600 focus:ring-emerald-500;
-    }
-
-    .btn-sm {
-        @apply px-2.5 py-1.5 text-xs;
-    }
 
     [x-cloak] {
         display: none !important;
     }
 
+    ::selection {
+        @apply bg-gold-200 text-ink-900;
+    }
+}
+
+@layer components {
+    /* ============================================================
+       BUTTONS - Match customer.css exactly
+       ============================================================ */
+    .btn,
+    .btn-primary,
+    .btn-secondary,
+    .btn-ghost,
+    .btn-danger,
+    .btn-success {
+        @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-600 focus-visible:ring-offset-2 focus-visible:ring-offset-cream-100 disabled:cursor-not-allowed disabled:opacity-50;
+        min-height: 44px;
+    }
+
+    .btn-primary {
+        @apply bg-forest-700 text-cream-50 shadow-sm hover:bg-forest-800 disabled:hover:bg-forest-700;
+    }
+
+    .btn-secondary {
+        @apply border border-ink-900/20 bg-cream-50 text-ink-800 hover:border-ink-900/40 hover:bg-cream-200/60;
+    }
+
+    .btn-ghost {
+        @apply text-ink-700 hover:bg-ink-900/5;
+    }
+
+    .btn-danger {
+        @apply bg-burgundy-600 text-cream-50 hover:bg-burgundy-700;
+    }
+
+    .btn-success {
+        @apply bg-forest-600 text-cream-50 hover:bg-forest-700;
+    }
+
+    .btn-sm {
+        @apply rounded-lg px-3 py-1.5 text-xs;
+        min-height: 36px;
+    }
+
+    .btn-lg {
+        @apply rounded-xl px-8 py-3.5 text-base;
+        min-height: 52px;
+    }
+
+    /* ============================================================
+       TYPOGRAPHY HELPERS - Match customer.css
+       ============================================================ */
+    .eyebrow {
+        @apply text-xs font-semibold tracking-[0.22em] text-gold-600 uppercase;
+    }
+
+    .section-title {
+        @apply font-display text-3xl text-ink-900 sm:text-4xl;
+    }
+
+    .hairline {
+        @apply h-px w-16 bg-gold-500/70;
+    }
+
+    .link-subtle {
+        @apply text-forest-700 underline-offset-4 hover:underline;
+    }
+
+    /* ============================================================
+       CARDS & SURFACES - Match customer.css
+       ============================================================ */
+    .card {
+        @apply rounded-xl border border-ink-900/10 bg-cream-50 shadow-[0_1px_3px_rgba(34,37,34,0.05)];
+    }
+
+    .card-pad {
+        @apply p-6;
+    }
+
+    .card-header {
+        @apply px-6 py-4 border-b border-ink-900/10 bg-cream-100/50;
+    }
+
+    .card-body {
+        @apply p-6;
+    }
+
+    .panel-forest {
+        @apply rounded-2xl border border-forest-800 bg-forest-900 text-cream-100;
+    }
+
+    .media-frame {
+        @apply overflow-hidden rounded-xl border border-ink-900/10 bg-cream-200;
+    }
+
+    /* ============================================================
+       BADGES & CHIPS - Match customer.css
+       ============================================================ */
+    .badge {
+        @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium;
+    }
+
+    .badge-forest {
+        @apply bg-forest-100 text-forest-800;
+    }
+
+    .badge-gold {
+        @apply bg-gold-100 text-gold-700;
+    }
+
+    .badge-burgundy {
+        @apply bg-burgundy-100 text-burgundy-700;
+    }
+
+    .badge-ink {
+        @apply bg-ink-100 text-ink-700;
+    }
+
+    .chip {
+        @apply inline-flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition duration-200;
+        min-height: 44px;
+    }
+
+    .chip-active {
+        @apply border-forest-700 bg-forest-700 text-cream-50;
+    }
+
+    .chip-idle {
+        @apply border-ink-900/15 bg-cream-50 text-ink-700 hover:border-ink-900/30 hover:bg-cream-200/60;
+    }
+
+    /* ============================================================
+       FORMS - Match customer.css
+       ============================================================ */
     .label {
-        @apply mb-1 block text-sm font-medium text-stone-300;
+        @apply mb-1.5 block text-sm font-medium text-ink-700;
     }
 
-    .input {
-        @apply block w-full rounded-lg border border-night-600 bg-night-900 px-3 py-2 text-sm text-stone-100 shadow-sm placeholder:text-stone-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
-    }
-
+    .input,
     .select {
-        @apply block w-full rounded-lg border border-night-600 bg-night-900 px-3 py-2 text-sm text-stone-100 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500;
+        @apply block w-full rounded-lg border border-ink-900/20 bg-cream-50 px-3.5 py-2.5 text-sm text-ink-900 shadow-sm transition placeholder:text-ink-400 focus:border-forest-600 focus:outline-none focus:ring-2 focus:ring-forest-600/20;
+        min-height: 44px;
     }
 
-    .table-w {
+    textarea.input {
+        @apply min-h-24 resize-y;
+    }
+
+    .form-error {
+        @apply mt-1.5 text-sm text-burgundy-600;
+    }
+
+    .form-hint {
+        @apply mt-1.5 text-xs text-ink-500;
+    }
+
+    /* Checkbox & Radio styling */
+    .checkbox,
+    .radio {
+        @apply h-4 w-4 rounded border-ink-900/20 text-forest-700 focus:ring-forest-600;
+    }
+
+    .checkbox:checked,
+    .radio:checked {
+        @apply bg-forest-700 border-forest-700;
+    }
+
+    /* ============================================================
+       TABLES - Admin specific
+       ============================================================ */
+    .table-admin {
         @apply w-full text-left text-sm;
     }
 
-    .badge {
-        @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+    .table-admin thead {
+        @apply bg-cream-100/50 text-xs uppercase text-ink-500;
     }
 
-    .card {
-        @apply rounded-xl border border-night-700 bg-night-850 shadow-sm;
+    .table-admin th {
+        @apply px-4 py-3 font-medium;
+    }
+
+    .table-admin td {
+        @apply px-4 py-3;
+    }
+
+    .table-admin tbody tr {
+        @apply border-b border-ink-900/10 hover:bg-cream-100/30 transition-colors;
+    }
+
+    .table-admin tbody tr:last-child {
+        @apply border-b-0;
+    }
+
+    /* ============================================================
+       STATES - Match customer.css
+       ============================================================ */
+    .skeleton {
+        @apply relative overflow-hidden rounded-lg bg-cream-300/60;
+    }
+
+    .skeleton::after {
+        content: '';
+        @apply absolute inset-0 -translate-x-full animate-pulse bg-gradient-to-r from-transparent via-cream-50/60 to-transparent;
+    }
+
+    .skeleton-card {
+        @apply rounded-xl border border-ink-900/10 bg-cream-50 shadow-[0_1px_3px_rgba(34,37,34,0.05)] overflow-hidden;
+    }
+
+    .skeleton-image {
+        @apply aspect-[4/3] w-full relative overflow-hidden rounded-lg bg-cream-300/60;
+    }
+
+    .skeleton-image::after {
+        content: '';
+        @apply absolute inset-0 -translate-x-full animate-pulse bg-gradient-to-r from-transparent via-cream-50/60 to-transparent;
+    }
+
+    .skeleton-text {
+        @apply h-4 w-3/4 relative overflow-hidden rounded bg-cream-300/60;
+    }
+
+    .skeleton-text::after {
+        content: '';
+        @apply absolute inset-0 -translate-x-full animate-pulse bg-gradient-to-r from-transparent via-cream-50/60 to-transparent;
+    }
+
+    .skeleton-text-short {
+        @apply h-4 w-1/2 relative overflow-hidden rounded bg-cream-300/60;
+    }
+
+    .skeleton-text-short::after {
+        content: '';
+        @apply absolute inset-0 -translate-x-full animate-pulse bg-gradient-to-r from-transparent via-cream-50/60 to-transparent;
+    }
+
+    .empty-state {
+        @apply flex flex-col items-center justify-center rounded-xl border border-dashed border-ink-900/20 bg-cream-50 px-8 py-14 text-center;
+    }
+
+    /* Calm reveal-on-scroll (motion-safe only) */
+    @media (prefers-reduced-motion: no-preference) {
+        .reveal {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .reveal.is-visible {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    /* ============================================================
+       TOASTS / ALERTS - Match customer.css
+       ============================================================ */
+    .toast {
+        @apply flex items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg;
+    }
+
+    .toast-success {
+        @apply border-forest-300 bg-forest-50 text-forest-800;
+    }
+
+    .toast-error {
+        @apply border-burgundy-300 bg-burgundy-50 text-burgundy-700;
+    }
+
+    .toast-info {
+        @apply border-gold-300 bg-gold-50 text-gold-700;
+    }
+
+    /* ============================================================
+       ADMIN SPECIFIC COMPONENTS
+       ============================================================ */
+    /* Sidebar */
+    .sidebar {
+        @apply fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-forest-800 bg-admin-sidebar lg:flex;
+    }
+
+    .sidebar-header {
+        @apply flex h-16 items-center gap-2 border-b border-forest-800 px-6;
+    }
+
+    .sidebar-nav {
+        @apply flex-1 space-y-1 overflow-y-auto px-3 py-4;
+    }
+
+    .sidebar-item {
+        @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors;
+    }
+
+    .sidebar-item-active {
+        @apply bg-forest-800 text-forest-100;
+    }
+
+    .sidebar-item-inactive {
+        @apply text-cream-100/70 hover:bg-forest-800/50 hover:text-cream-100;
+    }
+
+    /* Topbar */
+    .topbar {
+        @apply sticky top-0 z-30 flex h-16 items-center justify-between border-b border-ink-900/10 bg-cream-50 px-4 sm:px-6;
+    }
+
+    /* Modal */
+    .modal-overlay {
+        @apply fixed inset-0 z-40 bg-ink-950/60;
+    }
+
+    .modal-content {
+        @apply fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-ink-900/10 bg-cream-50 shadow-2xl;
+    }
+
+    .modal-header {
+        @apply flex items-center justify-between border-b border-ink-900/10 px-5 py-4;
+    }
+
+    .modal-body {
+        @apply flex-1 overflow-y-auto px-5 py-4;
+    }
+
+    .modal-footer {
+        @apply border-t border-ink-900/10 bg-cream-100/60 px-5 py-4;
+    }
+
+    /* Dropdown */
+    .dropdown-menu {
+        @apply absolute right-0 mt-2 w-48 rounded-xl border border-ink-900/10 bg-cream-50 shadow-lg ring-1 ring-ink-900/5;
+    }
+
+    .dropdown-item {
+        @apply flex items-center gap-2 w-full px-4 py-2 text-sm text-ink-700 hover:bg-cream-200/60;
+    }
+
+    /* Tooltip */
+    .tooltip {
+        @apply absolute z-50 px-3 py-1.5 text-xs font-medium text-cream-50 bg-ink-900 rounded-lg shadow-lg;
+    }
+
+    /* Pagination */
+    .pagination {
+        @apply flex items-center justify-center gap-1;
+    }
+
+    .pagination-link {
+        @apply flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-ink-700 hover:bg-cream-200/60 transition-colors;
+    }
+
+    .pagination-link-active {
+        @apply bg-forest-700 text-cream-50 hover:bg-forest-800;
+    }
+
+    .pagination-ellipsis {
+        @apply flex h-10 w-10 items-center justify-center text-ink-400;
     }
 }

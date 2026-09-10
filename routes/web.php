@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
 Route::prefix('menu')->name('menu.')->group(function () {
     Route::get('/', [MenuController::class, 'index'])->name('index');
     Route::get('/category/{category:slug}', [MenuController::class, 'category'])->name('category');
+    Route::get('/{product}', [MenuController::class, 'show'])->name('show');
 });
 
 Route::get('/', [MenuController::class, 'home'])->name('home');
@@ -63,6 +64,11 @@ Route::get('/track/{order:order_number}', [OrderTrackingController::class, 'show
     ->middleware('throttle:120,1')
     ->missing(fn () => redirect()->route('home')->with('error', 'Order tidak ditemukan.'))
     ->name('tracking.show');
+
+Route::post('/track/{order:order_number}/cancel', [OrderTrackingController::class, 'cancel'])
+    ->middleware('throttle:10,1')
+    ->missing(fn () => redirect()->route('home')->with('error', 'Order tidak ditemukan.'))
+    ->name('tracking.cancel');
 
 Route::get('/payment/mock/{payment}', [PaymentRedirectController::class, 'show'])->name('payment.mock.pay');
 Route::post('/payment/mock/{payment}/process', [PaymentRedirectController::class, 'process'])->name('payment.mock.process');
