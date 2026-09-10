@@ -54,49 +54,6 @@ class ReportController extends Controller
         ]));
     }
 
-    public function export(Request $request): StreamedResponse
-    {
-        Gate::authorize('report.export');
-
-        $filters = $this->filters($request);
-        $orders = $this->baseQuery($filters)->with(['items'])->orderByDesc('ordered_at')->get();
-
-        $callback = function () use ($orders) {
-            $out = fopen('php://output', 'w');
-
-            fwrite($out, "\xEF\xBB\xBF");
-
-            fputcsv($out, [
-                'Order Number', 'Tanggal', 'Tipe', 'Lokasi', 'Status', 'Payment Status',
-                'Subtotal', 'Diskon', 'Pajak', 'Service Charge', 'Total', 'Items', 'Kasir',
-            ]);
-
-            foreach ($orders as $order) {
-                fputcsv($out, [
-                    $order->order_number,
-                    $order->ordered_at?->toDateTimeString(),
-                    $order->order_type,
-                    $order->locationLabel(),
-                    $order->order_status,
-                    $order->payment_status,
-                    number_format((float) $order->subtotal, 2, ',', '.'),
-                    number_format((float) $order->discount_amount, 2, ',', '.'),
-                    number_format((float) $order->tax_amount, 2, ',', '.'),
-                    number_format((float) $order->service_charge_amount, 2, ',', '.'),
-                    number_format((float) $order->grand_total, 2, ',', '.'),
-                    $order->items->sum('quantity'),
-                    $order->creator?->name ?? '-',
-                ]);
-            }
-
-            fclose($out);
-        };
-
-        $filename = 'laporan-'.now()->format('Ymd-His').'.csv';
-
-        return response()->streamDownload($callback, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
-    }
-
     public function excel(Request $request): StreamedResponse
     {
         Gate::authorize('report.export');

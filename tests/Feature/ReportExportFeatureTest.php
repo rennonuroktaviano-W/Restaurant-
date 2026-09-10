@@ -63,34 +63,6 @@ class ReportExportFeatureTest extends TestCase
             ->assertViewHas('cancelledCount', 0);
     }
 
-    public function test_ac_10_csv_export_matches_filtered_orders(): void
-    {
-        $todayA = $this->completedOrder(125000, 0);
-        $todayB = $this->completedOrder(45800, 0);
-        $this->completedOrder(999999, 5);
-
-        $response = $this->admin()->get(route('admin.reports.export', [
-            'date_from' => now()->toDateString(),
-            'date_to' => now()->toDateString(),
-        ]))->assertOk();
-
-        $rows = $this->csvRows($response->streamedContent());
-
-        $this->assertCount(2, $rows);
-
-        $orderNumbers = array_column($rows, 0);
-        $this->assertContains($todayA->order_number, $orderNumbers);
-        $this->assertContains($todayB->order_number, $orderNumbers);
-        $this->assertNotContains('ORD-999999', $orderNumbers);
-
-        $rowFor = fn (Order $order): array => collect($rows)->firstWhere(0, $order->order_number);
-        $expectedA = number_format(125000, 2, ',', '.');
-        $expectedB = number_format(45800, 2, ',', '.');
-
-        $this->assertSame($expectedA, $rowFor($todayA)[10]);
-        $this->assertSame($expectedB, $rowFor($todayB)[10]);
-    }
-
     public function test_report_pdf_is_printable(): void
     {
         $this->completedOrder(75000, 0);
@@ -146,24 +118,7 @@ class ReportExportFeatureTest extends TestCase
     {
         $this->actAsFresh($this->cashierUser());
 
-        $this->get(route('admin.reports.export'))->assertForbidden();
         $this->get(route('admin.reports.excel'))->assertForbidden();
         $this->get(route('admin.reports.pdf'))->assertForbidden();
-    }
-
-    /**
-     * @return array<int, array<int, string>>
-     */
-    private function csvRows(string $content): array
-    {
-        $content = ltrim($content, "\xEF\xBB\xBF");
-
-        $lines = collect(explode("\n", trim($content)))
-            ->filter(fn ($line) => $line !== '')
-            ->values();
-
-        $rows = $lines->skip(1)->map(fn ($line) => str_getcsv($line))->all();
-
-        return $rows;
     }
 }

@@ -92,7 +92,11 @@ class PermissionFeatureTest extends TestCase
         $cashier = $this->cashierUser();
 
         $this->actingAs($cashier)
-            ->get(route('admin.reports.export'))
+            ->get(route('admin.reports.excel'))
+            ->assertForbidden();
+
+        $this->actingAs($cashier)
+            ->get(route('admin.reports.pdf'))
             ->assertForbidden();
     }
 
