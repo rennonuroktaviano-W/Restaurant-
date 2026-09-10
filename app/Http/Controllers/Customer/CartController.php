@@ -7,6 +7,7 @@ use App\Models\Area;
 use App\Models\PaymentMethod;
 use App\Models\Room;
 use App\Services\CartService;
+use App\Services\DiscountService;
 use App\Services\PricingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -37,8 +38,9 @@ class CartController extends Controller
             ->get();
 
         $paymentMethods = PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
+        $discountCode = session('cart.discount_code');
 
-        return view('customer.cart', compact('lines', 'subtotal', 'pricing', 'areas', 'rooms', 'paymentMethods'));
+        return view('customer.cart', compact('lines', 'subtotal', 'pricing', 'areas', 'rooms', 'paymentMethods', 'discountCode'));
     }
 
     public function add(Request $request): RedirectResponse|JsonResponse
@@ -80,6 +82,29 @@ class CartController extends Controller
         }
 
         return redirect()->route('cart.index');
+    }
+
+    public function applyDiscount(Request $request): RedirectResponse
+    {
+        $code = trim((string) $request->input('discount_code', ''));
+
+        if ($code === '') {
+            session()->forget('cart.discount_code');
+
+            return redirect()->route('cart.index')->with('success', 'Kode promo dihapus.');
+        }
+
+        $lines = $this->cart->lines();
+        $subtotal = $this->cart->subtotal();
+        [$discount, $amount] = app(DiscountService::class)->applyCode($code, $lines, $subtotal);
+
+        if (! $discount) {
+            return back()->with('error', 'Kode promo tidak valid atau belum memenuhi minimal pembelian.');
+        }
+
+        session(['cart.discount_code' => $code]);
+
+        return redirect()->route('cart.index')->with('success', 'Kode promo "'.$code.'" berhasil diterapkan!');
     }
 
     public function remove(Request $request, int $productId): RedirectResponse|JsonResponse

@@ -73,6 +73,7 @@
                 <form method="POST" action="{{ route('checkout.store') }}" id="checkout-form" class="card p-6">
                     @csrf
                     <input type="hidden" name="idempotency_key" value="{{ session('checkout.key') }}">
+                    <input type="hidden" name="discount_code" value="{{ $discountCode ?? '' }}">
 
                     <div x-data="{ type: '{{ old('order_type', 'take_away') }}', payment: '{{ (string) old('payment_method_id', $paymentMethods->first()?->id ?? '') }}' }">
                         <div class="mb-5">
@@ -185,6 +186,22 @@
         <aside class="h-fit space-y-4 lg:sticky lg:top-28">
             <div class="card p-6">
                 <h2 class="mb-4 font-display text-lg font-semibold text-ink-900">Ringkasan</h2>
+
+                <form method="POST" action="{{ route('cart.discount') }}" class="mb-4 flex gap-2">
+                    @csrf
+                    <input type="text" name="discount_code" value="{{ $discountCode ?? '' }}" placeholder="Kode promo"
+                           maxlength="50" class="input !py-2 flex-1 uppercase tracking-wider text-sm">
+                    <button type="submit" class="btn !px-4 !py-2 bg-forest-700 text-cream-50 text-sm font-medium hover:bg-forest-800 whitespace-nowrap">
+                        {{ $discountCode ? 'Ganti' : 'Terapkan' }}
+                    </button>
+                </form>
+                @if ($discountCode)
+                    <form method="POST" action="{{ route('cart.discount') }}" class="mb-4">
+                        @csrf
+                        <input type="hidden" name="discount_code" value="">
+                        <button type="submit" class="text-xs text-burgundy-600 hover:underline">Hapus kode: {{ $discountCode }}</button>
+                    </form>
+                @endif
 
                 <dl class="space-y-2 text-sm" data-cart-summary>
                     <div class="flex justify-between">

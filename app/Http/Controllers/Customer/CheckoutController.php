@@ -50,6 +50,7 @@ class CheckoutController extends Controller
         }
 
         session()->forget('checkout.key');
+        session()->forget('cart.discount_code');
 
         $this->cart->clear();
 
