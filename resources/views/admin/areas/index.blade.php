@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', __('admin.areas.title').' - '.config('app.name'))
-@section('header', __('admin.areas.title'))
+@section('title', 'Area - ' . config('app.name'))
+@section('header', 'Area')
 
 @section('content')
     <div class="mb-5 flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-ink-900">{{ __('admin.areas.title') }}</h1>
-        <a href="{{ route('admin.areas.create') }}" class="btn btn-primary">{{ __('admin.add_new', ['item' => __('admin.areas.title')]) }}</a>
+        <h1 class="text-2xl font-bold text-gray-900">Area</h1>
+        <a href="{{ route('admin.areas.create') }}" class="btn btn-primary">Tambah Area</a>
     </div>
 
     <form method="GET" action="{{ route('admin.areas.index') }}" class="mb-5">
@@ -20,8 +20,8 @@
     </form>
 
     <div class="card overflow-hidden">
-        <table class="table-admin">
-            <thead>
+        <table class="table-w">
+            <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
                 <tr>
                     <th class="px-4 py-3 font-medium">Nama</th>
                     <th class="px-4 py-3 font-medium">Lokasi</th>
@@ -32,7 +32,7 @@
                     <th class="px-4 py-3 font-medium">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-ink-900/10">
+            <tbody class="divide-y divide-gray-100">
                 @forelse ($areas as $area)
                     <tr>
                         <td class="px-4 py-3">
@@ -69,25 +69,25 @@
                         <td class="px-4 py-3">{{ $area->rooms_count }}</td>
                         <td class="px-4 py-3">
                             @if ($area->is_active)
-                                <span class="badge badge-forest">{{ __('admin.active') }}</span>
+                                <span class="badge bg-emerald-100 text-emerald-700">Aktif</span>
                             @else
-                                <span class="badge badge-ink">{{ __('admin.inactive') }}</span>
+                                <span class="badge bg-gray-100 text-gray-600">Nonaktif</span>
                             @endif
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('admin.areas.edit', $area) }}" class="btn btn-secondary btn-sm">{{ __('admin.edit') }}</a>
-                                <form method="POST" action="{{ route('admin.areas.destroy', $area) }}" onsubmit="return confirm('{{ __('admin.confirm_delete') }}')">
+                                <a href="{{ route('admin.areas.edit', $area) }}" class="btn btn-secondary !px-3 !py-1 text-xs">Edit</a>
+                                <form method="POST" action="{{ route('admin.areas.destroy', $area) }}" onsubmit="return confirm('Yakin ingin menghapus?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">{{ __('admin.delete') }}</button>
+                                    <button type="submit" class="btn btn-danger !px-3 !py-1 text-xs">Hapus</button>
                                 </form>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-4 py-8 text-center text-sm text-ink-500">{{ __('admin.no_data') }}</td>
+                        <td colspan="7" class="px-4 py-8 text-center text-sm text-gray-500">Tidak ada data area.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -95,6 +95,6 @@
     </div>
 
     <div class="mt-4">
-        {{ $areas->links('partials.pagination') }}
+        {{ $areas->links() }}
     </div>
 @endsection

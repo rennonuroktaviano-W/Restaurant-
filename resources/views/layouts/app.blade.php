@@ -8,8 +8,11 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="min-h-screen bg-admin-bg">
+<body class="min-h-screen bg-night-950" x-data="{ sidebarOpen: false }" @keydown.window.escape="sidebarOpen = false">
     @include('partials.sidebar')
+
+    <div x-show="sidebarOpen" x-transition.opacity aria-hidden="true" @click="sidebarOpen = false"
+        class="fixed inset-0 z-30 bg-night-950/60 lg:hidden"></div>
 
     <div class="lg:pl-64">
         @include('partials.topbar')

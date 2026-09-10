@@ -1,43 +1,44 @@
 @extends('layouts.app')
 
-@section('title', __('admin.users.title').' - '.config('app.name'))
-@section('header', __('admin.users.title'))
+@section('title', 'Pengguna - ' . config('app.name'))
+@section('header', 'Pengguna')
 
 @section('content')
     <div class="mb-5 flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-ink-900">{{ __('admin.users.title') }}</h1>
-        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">{{ __('admin.add_new', ['item' => __('admin.users.title')]) }}</a>
+        <h1 class="text-2xl font-bold text-gray-900">Pengguna</h1>
+        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">Tambah Pengguna</a>
     </div>
 
     <form method="GET" action="{{ route('admin.users.index') }}" class="mb-5">
         <div class="flex flex-wrap items-center gap-2">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('admin.search_placeholder') }}" class="input max-w-xs">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari pengguna..." class="input max-w-xs">
             <select name="role" class="select max-w-xs">
-                <option value="">{{ __('admin.all_roles') }}</option>
+                <option value="">Semua Role</option>
                 @foreach ($roles as $role)
                     <option value="{{ $role->name }}" @selected(request('role') === $role->name)>{{ $role->name }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="btn btn-secondary">{{ __('admin.search') }}</button>
+            <button type="submit" class="btn btn-secondary">Cari</button>
             @if (request('search') || request('role'))
-                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">{{ __('admin.reset') }}</a>
+                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">Reset</a>
             @endif
         </div>
     </form>
 
     <div class="card overflow-hidden">
-        <table class="table-admin">
-            <thead>
+        <table class="table-w">
+            <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
                 <tr>
-                    <th class="px-4 py-3 font-medium">{{ __('admin.name') }}</th>
-                    <th class="px-4 py-3 font-medium">{{ __('admin.email') }}</th>
-                    <th class="px-4 py-3 font-medium">{{ __('admin.phone') }}</th>
-                    <th class="px-4 py-3 font-medium">{{ __('admin.role') }}</th>
-                    <th class="px-4 py-3 font-medium">{{ __('admin.is_active') }}</th>
-                    <th class="px-4 py-3 font-medium">{{ __('admin.actions') }}</th>
+                    <th class="px-4 py-3 font-medium">Nama</th>
+                    <th class="px-4 py-3 font-medium">Email</th>
+                    <th class="px-4 py-3 font-medium">No. HP</th>
+                    <th class="px-4 py-3 font-medium">Role</th>
+                    <th class="px-4 py-3 font-medium">Status</th>
+                    <th class="px-4 py-3 font-medium">Aktif</th>
+                    <th class="px-4 py-3 font-medium">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-ink-900/10">
+            <tbody class="divide-y divide-gray-100">
                 @forelse ($users as $user)
                     <tr>
                         <td class="px-4 py-3">{{ $user->name }}</td>
@@ -45,20 +46,40 @@
                         <td class="px-4 py-3">{{ $user->phone }}</td>
                         <td class="px-4 py-3">{{ $user->getRoleNames()->join(', ') }}</td>
                         <td class="px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                @if ($user->online)
+                                    <span class="bg-emerald-100 p-1 rounded-full">
+                                        <span class="block h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                    </span>
+                                    <span class="badge bg-emerald-100 text-emerald-700">Online</span>
+                                @else
+                                    <span class="bg-gray-200 p-1 rounded-full">
+                                        <span class="block h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                                    </span>
+                                    <span class="badge bg-gray-100 text-gray-600">
+                                        {{ $user->last_seen_at ? 'Offline' : 'Belum pernah' }}
+                                    </span>
+                                @endif
+                            </div>
+                            @if ($user->last_seen_at)
+                                <p class="mt-1 text-xs text-gray-400">{{ $user->last_seen_at->format('d M Y H:i') }}</p>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3">
                             @if ($user->is_active)
-                                <span class="badge badge-forest">{{ __('admin.active') }}</span>
+                                <span class="badge bg-emerald-100 text-emerald-700">Aktif</span>
                             @else
-                                <span class="badge badge-ink">{{ __('admin.inactive') }}</span>
+                                <span class="badge bg-gray-100 text-gray-600">Nonaktif</span>
                             @endif
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-secondary btn-sm">{{ __('admin.edit') }}</a>
+                                <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-secondary !px-3 !py-1 text-xs">Edit</a>
                                 @if ($user->id !== auth()->id())
-                                    <form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('{{ __('admin.confirm_delete') }}')">
+                                    <form method="POST" action="{{ route('admin.users.destroy', $user) }}" onsubmit="return confirm('Yakin ingin menghapus?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm">{{ __('admin.deactivate') }}</button>
+                                        <button type="submit" class="btn btn-danger !px-3 !py-1 text-xs">Nonaktifkan</button>
                                     </form>
                                 @endif
                             </div>
@@ -66,7 +87,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-4 py-8 text-center text-sm text-ink-500">{{ __('admin.no_data') }}</td>
+                        <td colspan="7" class="px-4 py-8 text-center text-sm text-gray-500">Tidak ada data pengguna.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -74,6 +95,6 @@
     </div>
 
     <div class="mt-4">
-        {{ $users->links('partials.pagination') }}
+        {{ $users->links() }}
     </div>
 @endsection

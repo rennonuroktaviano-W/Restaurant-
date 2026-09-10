@@ -255,55 +255,6 @@
         @apply absolute inset-0 -translate-x-full animate-pulse bg-gradient-to-r from-transparent via-cream-50/60 to-transparent;
     }
 
-    .skeleton-card {
-        @apply rounded-xl border border-ink-900/10 bg-cream-50 shadow-[0_1px_3px_rgba(34,37,34,0.05)] overflow-hidden;
-    }
-
-    .skeleton-image {
-        @apply aspect-[4/3] w-full relative overflow-hidden rounded-lg bg-cream-300/60;
-    }
-
-    .skeleton-image::after {
-        content: '';
-        @apply absolute inset-0 -translate-x-full animate-pulse bg-gradient-to-r from-transparent via-cream-50/60 to-transparent;
-    }
-
-    .skeleton-text {
-        @apply h-4 w-3/4 relative overflow-hidden rounded bg-cream-300/60;
-    }
-
-    .skeleton-text::after {
-        content: '';
-        @apply absolute inset-0 -translate-x-full animate-pulse bg-gradient-to-r from-transparent via-cream-50/60 to-transparent;
-    }
-
-    .skeleton-text-short {
-        @apply h-4 w-1/2 relative overflow-hidden rounded bg-cream-300/60;
-    }
-
-    .skeleton-text-short::after {
-        content: '';
-        @apply absolute inset-0 -translate-x-full animate-pulse bg-gradient-to-r from-transparent via-cream-50/60 to-transparent;
-    }
-
-    .skeleton-price {
-        @apply h-6 w-24 relative overflow-hidden rounded bg-cream-300/60 font-display;
-    }
-
-    .skeleton-price::after {
-        content: '';
-        @apply absolute inset-0 -translate-x-full animate-pulse bg-gradient-to-r from-transparent via-cream-50/60 to-transparent;
-    }
-
-    .skeleton-btn {
-        @apply h-10 w-24 relative overflow-hidden rounded-lg bg-cream-300/60;
-    }
-
-    .skeleton-btn::after {
-        content: '';
-        @apply absolute inset-0 -translate-x-full animate-pulse bg-gradient-to-r from-transparent via-cream-50/60 to-transparent;
-    }
-
     .empty-state {
         @apply flex flex-col items-center justify-center rounded-xl border border-dashed border-ink-900/20 bg-cream-50 px-8 py-14 text-center;
     }

@@ -27,13 +27,13 @@
                     <form method="POST" action="{{ route('payment.mock.process', $payment) }}">
                         @csrf
                         <input type="hidden" name="outcome" value="paid">
-                        <button type="submit" class="btn btn-success w-full">Konfirmasi Pembayaran</button>
+                        <button type="submit" class="btn btn-success w-full">Simulasikan Pembayaran Berhasil</button>
                     </form>
 
                     <form method="POST" action="{{ route('payment.mock.process', $payment) }}">
                         @csrf
                         <input type="hidden" name="outcome" value="failed">
-                        <button type="submit" class="btn btn-secondary w-full">Pembayaran Gagal</button>
+                        <button type="submit" class="btn btn-secondary w-full">Simulasikan Gagal</button>
                     </form>
 
                     <form method="POST" action="{{ route('payment.mock.process', $payment) }}">
@@ -44,7 +44,7 @@
                 </div>
 
                 <p class="mt-5 text-center text-xs text-ink-400">
-                    Anda akan diarahkan ke halaman konfirmasi pembayaran setelah menekan tombol di atas.
+                    Mode simulasi: gateway pembayaran tiruan untuk pengembangan/uji coba.
                 </p>
             </div>
         </div>
