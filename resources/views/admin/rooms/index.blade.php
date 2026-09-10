@@ -1,42 +1,42 @@
 @extends('layouts.app')
 
-@section('title', 'Room - ' . config('app.name'))
-@section('header', 'Room')
+@section('title', __('admin.rooms.title').' - '.config('app.name'))
+@section('header', __('admin.rooms.title'))
 
 @section('content')
     <div class="mb-5 flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-gray-900">Room</h1>
-        <a href="{{ route('admin.rooms.create') }}" class="btn btn-primary">Tambah Room</a>
+        <h1 class="text-2xl font-bold text-ink-900">{{ __('admin.rooms.title') }}</h1>
+        <a href="{{ route('admin.rooms.create') }}" class="btn btn-primary">{{ __('admin.add_new', ['item' => __('admin.rooms.title')]) }}</a>
     </div>
 
     <form method="GET" action="{{ route('admin.rooms.index') }}" class="mb-5">
         <div class="flex flex-wrap items-center gap-2">
             <select name="area" class="select max-w-xs">
-                <option value="">Semua Area</option>
+                <option value="">{{ __('admin.all_areas') }}</option>
                 @foreach ($areas as $area)
                     <option value="{{ $area->id }}" @selected(request('area') == $area->id)>{{ $area->name }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="btn btn-secondary">Filter</button>
+            <button type="submit" class="btn btn-secondary">{{ __('admin.filter') }}</button>
             @if (request('area'))
-                <a href="{{ route('admin.rooms.index') }}" class="btn btn-secondary">Reset</a>
+                <a href="{{ route('admin.rooms.index') }}" class="btn btn-secondary">{{ __('admin.reset') }}</a>
             @endif
         </div>
     </form>
 
     <div class="card overflow-hidden">
-        <table class="table-w">
-            <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
+        <table class="table-admin">
+            <thead>
                 <tr>
-                    <th class="px-4 py-3 font-medium">Nomor</th>
-                    <th class="px-4 py-3 font-medium">Nama</th>
-                    <th class="px-4 py-3 font-medium">Area</th>
-                    <th class="px-4 py-3 font-medium">Status</th>
-                    <th class="px-4 py-3 font-medium">Aktif</th>
-                    <th class="px-4 py-3 font-medium">Aksi</th>
+                    <th class="px-4 py-3 font-medium">{{ __('admin.rooms.room_number') }}</th>
+                    <th class="px-4 py-3 font-medium">{{ __('admin.rooms.room_name') }}</th>
+                    <th class="px-4 py-3 font-medium">{{ __('admin.area') }}</th>
+                    <th class="px-4 py-3 font-medium">{{ __('admin.rooms.status') }}</th>
+                    <th class="px-4 py-3 font-medium">{{ __('admin.is_active') }}</th>
+                    <th class="px-4 py-3 font-medium">{{ __('admin.actions') }}</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+            <tbody class="divide-y divide-ink-900/10">
                 @forelse ($rooms as $room)
                     <tr>
                         <td class="px-4 py-3">{{ $room->room_number }}</td>
@@ -44,35 +44,35 @@
                         <td class="px-4 py-3">{{ $room->area->name }}</td>
                         <td class="px-4 py-3">
                             @if ($room->status === 'available')
-                                <span class="badge bg-emerald-100 text-emerald-700">Tersedia</span>
+                                <span class="badge badge-forest">{{ __('admin.rooms.available') }}</span>
                             @elseif ($room->status === 'occupied')
-                                <span class="badge bg-amber-100 text-amber-700">Terisi</span>
+                                <span class="badge badge-gold">{{ __('admin.rooms.occupied') }}</span>
                             @elseif ($room->status === 'reserved')
-                                <span class="badge bg-blue-100 text-blue-700">Dipesan</span>
+                                <span class="badge badge-ink">{{ __('admin.rooms.reserved') }}</span>
                             @endif
                         </td>
                         <td class="px-4 py-3">
                             @if ($room->is_active)
-                                <span class="badge bg-emerald-100 text-emerald-700">Aktif</span>
+                                <span class="badge badge-forest">{{ __('admin.active') }}</span>
                             @else
-                                <span class="badge bg-gray-100 text-gray-600">Nonaktif</span>
+                                <span class="badge badge-ink">{{ __('admin.inactive') }}</span>
                             @endif
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('admin.rooms.qr', $room) }}" class="btn btn-secondary !px-3 !py-1 text-xs">QR</a>
-                                <a href="{{ route('admin.rooms.edit', $room) }}" class="btn btn-secondary !px-3 !py-1 text-xs">Edit</a>
-                                <form method="POST" action="{{ route('admin.rooms.destroy', $room) }}" onsubmit="return confirm('Yakin ingin menghapus?')">
+                                <a href="{{ route('admin.rooms.qr', $room) }}" class="btn btn-secondary btn-sm">{{ __('admin.rooms.qr_code') }}</a>
+                                <a href="{{ route('admin.rooms.edit', $room) }}" class="btn btn-secondary btn-sm">{{ __('admin.edit') }}</a>
+                                <form method="POST" action="{{ route('admin.rooms.destroy', $room) }}" onsubmit="return confirm('{{ __('admin.confirm_delete') }}')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger !px-3 !py-1 text-xs">Hapus</button>
+                                    <button type="submit" class="btn btn-danger btn-sm">{{ __('admin.delete') }}</button>
                                 </form>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500">Tidak ada data room.</td>
+                        <td colspan="6" class="px-4 py-8 text-center text-sm text-ink-500">{{ __('admin.no_data') }}</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -80,6 +80,6 @@
     </div>
 
     <div class="mt-4">
-        {{ $rooms->links() }}
+        {{ $rooms->links('partials.pagination') }}
     </div>
 @endsection

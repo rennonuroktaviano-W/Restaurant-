@@ -22,36 +22,34 @@
 
         <div class="mx-auto w-full max-w-[1280px] px-5 pb-24 pt-32 sm:px-8">
             <div class="max-w-2xl">
-                <p class="eyebrow reveal text-gold-300">Selamat Datang di {{ $siteName }}</p>
+                <p class="eyebrow reveal text-gold-300">{{ __('home.welcome', ['name' => $siteName]) }}</p>
                 <h1 class="reveal mt-5 font-display text-4xl leading-[1.05] font-semibold text-cream-50 sm:text-5xl lg:text-6xl">
-                    Sajian yang dibuat perlahan,<br>
-                    dinikmati tanpa tergesa.
+                    {{ __('home.tagline') }}
                 </h1>
                 <p class="reveal mt-6 max-w-xl text-base leading-relaxed text-cream-200/90 sm:text-lg">
-                    Dari dapur kami ke meja Anda — pilih hidangan, kami siapkan dengan saksama, dan
-                    antar saat sudah siap disantap.
+                    {{ __('home.description') }}
                 </p>
 
                 <div class="reveal mt-9 flex flex-wrap items-center gap-4">
                     <a href="{{ route('menu.index') }}" class="btn-hero !bg-gold-600 !border-gold-600 hover:!bg-gold-500 !text-forest-950">
-                        Lihat Menu
+                        {{ __('home.view_menu') }}
                     </a>
-                    <a href="#signature" class="btn-hero">Menu Unggulan</a>
-                    <a href="{{ route('cart.index') }}" class="btn-hero" aria-label="Buka keranjang">Keranjang</a>
+                    <a href="#signature" class="btn-hero">{{ __('home.featured') }}</a>
+                    <a href="{{ route('cart.index') }}" class="btn-hero" aria-label="{{ __('nav.cart') }}">{{ __('nav.cart') }}</a>
                 </div>
 
                 <dl class="reveal mt-12 flex flex-wrap gap-x-10 gap-y-4 text-sm">
                     <div>
-                        <dt class="text-cream-300/70">Jam Buka</dt>
-                        <dd class="mt-0.5 font-medium text-cream-50">11.00 – 22.00 WIB</dd>
+                        <dt class="text-cream-300/70">{{ __('home.opening_hours') }}</dt>
+                        <dd class="mt-0.5 font-medium text-cream-50">{{ __('home.hours_value') }}</dd>
                     </div>
                     <div>
-                        <dt class="text-cream-300/70">Area</dt>
-                        <dd class="mt-0.5 font-medium text-cream-50">{{ $categories->isNotEmpty() ? $categories->pluck('name')->take(3)->join(' · ') : 'Aneka hidangan' }}</dd>
+                        <dt class="text-cream-300/70">{{ __('home.areas') }}</dt>
+                        <dd class="mt-0.5 font-medium text-cream-50">{{ $categories->isNotEmpty() ? $categories->pluck('name')->take(3)->join(' · ') : __('home.assorted_dishes') }}</dd>
                     </div>
                     @if ($phone)
                         <div>
-                            <dt class="text-cream-300/70">Reservasi</dt>
+                            <dt class="text-cream-300/70">{{ __('home.reservation') }}</dt>
                             <dd class="mt-0.5 font-medium text-cream-50">{{ $phone }}</dd>
                         </div>
                     @endif
@@ -59,8 +57,8 @@
             </div>
         </div>
 
-        <a href="#story" class="absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-cream-300/60 transition hover:text-cream-100 md:flex" aria-label="Gulir ke bawah">
-            <span class="text-[10px] tracking-[0.28em] uppercase">Jelajahi</span>
+        <a href="#story" class="absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-cream-300/60 transition hover:text-cream-100 md:flex" aria-label="{{ __('common.scroll_down') }}">
+            <span class="text-[10px] tracking-[0.28em] uppercase">{{ __('common.explore') }}</span>
             <span class="h-8 w-px bg-gradient-to-b from-cream-300/70 to-transparent"></span>
         </a>
     </section>
@@ -72,14 +70,14 @@
     <div class="space-y-24 py-14 md:space-y-32 md:py-20">
 
         {{-- Strip: why dine with us --}}
-        <section aria-label="Keunggulan" class="reveal grid gap-5 sm:grid-cols-3">
+        <section aria-label="{{ __('home.why_us_title') }}" class="reveal grid gap-5 sm:grid-cols-3">
             <div class="card card-pad flex items-start gap-4">
                 <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-forest-100 text-forest-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4 0-8-3-8-9 0-4 3-6 8-9 5 3 8 5 8 9 0 6-4 9-8 9z"/></svg>
                 </span>
                 <div>
-                    <h3 class="font-display text-lg font-semibold text-ink-900">Bahan Pilihan</h3>
-                    <p class="mt-1 text-sm leading-relaxed text-ink-500">Dipilih setiap pagi, diolah sesuai pesanan untuk rasa yang konsisten.</p>
+                    <h3 class="font-display text-lg font-semibold text-ink-900">{{ __('home.quality_ingredients') }}</h3>
+                    <p class="mt-1 text-sm leading-relaxed text-ink-500">{{ __('home.quality_desc') }}</p>
                 </div>
             </div>
             <div class="card card-pad flex items-start gap-4">
@@ -87,8 +85,8 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                 </span>
                 <div>
-                    <h3 class="font-display text-lg font-semibold text-ink-900">Resep Klasik</h3>
-                    <p class="mt-1 text-sm leading-relaxed text-ink-500">Hidangan yang diracik dengan presisi dari resep teruji dapur kami.</p>
+                    <h3 class="font-display text-lg font-semibold text-ink-900">{{ __('home.classic_recipes') }}</h3>
+                    <p class="mt-1 text-sm leading-relaxed text-ink-500">{{ __('home.classic_desc') }}</p>
                 </div>
             </div>
             <div class="card card-pad flex items-start gap-4">
@@ -96,8 +94,8 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </span>
                 <div>
-                    <h3 class="font-display text-lg font-semibold text-ink-900">Disajikan Tepat Waktu</h3>
-                    <p class="mt-1 text-sm leading-relaxed text-ink-500">Pesan dari meja atau kamar, pantau status, dan santap saat baru matang.</p>
+                    <h3 class="font-display text-lg font-semibold text-ink-900">{{ __('home.served_on_time') }}</h3>
+                    <p class="mt-1 text-sm leading-relaxed text-ink-500">{{ __('home.served_desc') }}</p>
                 </div>
             </div>
         </section>
@@ -106,16 +104,16 @@
         <section id="signature" aria-labelledby="signature-heading" class="scroll-mt-28">
             <div class="reveal mb-10 flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <p class="eyebrow">Menu Unggulan</p>
-                    <h2 id="signature-heading" class="section-title mt-3">Signature Collection</h2>
+                    <p class="eyebrow">{{ __('home.featured') }}</p>
+                    <h2 id="signature-heading" class="section-title mt-3">{{ __('home.signature_collection') }}</h2>
                 </div>
-                <a href="{{ route('menu.index') }}" class="link-subtle text-sm font-medium">Lihat semua menu &rarr;</a>
+                <a href="{{ route('menu.index') }}" class="link-subtle text-sm font-medium">{{ __('home.view_all_menu') }} &rarr;</a>
             </div>
 
             @if ($featured->isEmpty())
                 <div class="empty-state text-center">
-                    <p class="text-sm text-ink-500">Koleksi unggulan sedang disiapkan dapur kami.</p>
-                    <a href="{{ route('menu.index') }}" class="btn btn-primary mt-5">Pesan dari Menu</a>
+                    <p class="text-sm text-ink-500">{{ __('home.featured_preparing') }}</p>
+                    <a href="{{ route('menu.index') }}" class="btn btn-primary mt-5">{{ __('home.order_from_menu') }}</a>
                 </div>
             @else
                 <ol class="divide-y divide-ink-900/10 border-y border-ink-900/15">
@@ -149,13 +147,13 @@
                                     Rp {{ number_format($product->sale_price, 0, ',', '.') }}
                                 </span>
                                 @if ($product->isSoldOut())
-                                    <span class="badge badge-gold">Habis</span>
+                                    <span class="badge badge-gold">{{ __('menu.sold_out') }}</span>
                                 @else
-                                    <form method="POST" action="{{ route('cart.add') }}" aria-label="Tambah {{ $product->name }}" data-cart-ajax>
+                                    <form method="POST" action="{{ route('cart.add') }}" aria-label="{{ __('menu.add_to_cart', ['name' => $product->name]) }}" data-cart-ajax>
                                         @csrf
                                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                                         <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" class="btn btn-secondary btn-sm">+ Tambah</button>
+                                        <button type="submit" class="btn btn-secondary btn-sm">{{ __('menu.add_to_cart') }}</button>
                                     </form>
                                 @endif
                             </div>
@@ -178,47 +176,43 @@
                         <span class="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-gold-500/0 via-gold-500/70 to-gold-500/0"></span>
                     </div>
                     <div class="reveal px-6 py-12 sm:px-10 md:py-14">
-                        <p class="eyebrow text-gold-300">Kisah Kami</p>
+                        <p class="eyebrow text-gold-300">{{ __('home.our_story') }}</p>
                         <h2 id="story-heading" class="mt-3 font-display text-3xl font-semibold text-cream-50 sm:text-4xl">
-                            Setiap piring adalah perayaan rasa yang tenang
+                            {{ __('home.story_title') }}
                         </h2>
                         <p class="mt-5 max-w-xl text-sm leading-relaxed text-cream-200/85 sm:text-base">
-                            Kami percaya hidangan terbaik lahir dari kesabaran — bahan yang dipilih
-                            dengan teliti, bumbu yang meresap sesuai waktunya, dan penyajian yang
-                            menghormati kerja keras di dapur.
+                            {{ __('home.story_desc') }}
                         </p>
                         <ul class="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-cream-100/80">
                             <li class="flex items-center gap-2">
-                                <span class="h-1.5 w-1.5 rounded-full bg-gold-400"></span> Bahan segar harian
+                                <span class="h-1.5 w-1.5 rounded-full bg-gold-400"></span> {{ __('home.fresh_daily') }}
                             </li>
                             <li class="flex items-center gap-2">
-                                <span class="h-1.5 w-1.5 rounded-full bg-gold-400"></span> Resep dapur sendiri
+                                <span class="h-1.5 w-1.5 rounded-full bg-gold-400"></span> {{ __('home.own_recipes') }}
                             </li>
                             <li class="flex items-center gap-2">
-                                <span class="h-1.5 w-1.5 rounded-full bg-gold-400"></span> Disajikan hangat
+                                <span class="h-1.5 w-1.5 rounded-full bg-gold-400"></span> {{ __('home.served_hot') }}
                             </li>
                         </ul>
-                        <a href="{{ route('menu.index') }}" class="btn-hero mt-8 !border-gold-500/40">Cicipi Sekarang</a>
+                        <a href="{{ route('menu.index') }}" class="btn-hero mt-8 !border-gold-500/40">{{ __('home.taste_now') }}</a>
                     </div>
                 </div>
             </div>
         </section>
 
-        {{-- Location / reservation --}}
+{{-- Location / reservation --}}
         <section id="location" aria-labelledby="location-heading" class="scroll-mt-28">
             <div class="reveal grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
                 <div>
-                    <p class="eyebrow">Kunjungi Kami</p>
-                    <h2 id="location-heading" class="section-title mt-3">Satu tempat untuk semua suasana</h2>
+                    <p class="eyebrow">{{ __('home.visit_us') }}</p>
+                    <h2 id="location-heading" class="section-title mt-3">{{ __('home.one_place') }}</h2>
                     @if ($hasAddress)
                         <p class="mt-5 max-w-lg text-sm leading-relaxed text-ink-600 sm:text-base">
-                            Temukan kami di alamat berikut untuk menikmati hidangan kami —
-                            baik bersantap di ruangan, kamar, maupun membawa pulang.
+                            {{ __('home.location_desc') }}
                         </p>
                     @else
                         <p class="mt-5 max-w-lg text-sm leading-relaxed text-ink-600 sm:text-base">
-                            Jelajahi menu kami dan pesan langsung dari meja atau kamar Anda.
-                            Dapur akan menyiapkan, dan kami antarkan saat sudah siap.
+                            {{ __('home.location_default_desc') }}
                         </p>
                     @endif
 
@@ -228,8 +222,8 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             </span>
                             <div>
-                                <dt class="font-medium text-ink-800">Lokasi</dt>
-                                <dd class="mt-0.5 text-ink-500">{{ $hasAddress ? $address : 'Resort area — di tengah kawasan' }}</dd>
+                                <dt class="font-medium text-ink-800">{{ __('home.location') }}</dt>
+                                <dd class="mt-0.5 text-ink-500">{{ $hasAddress ? $address : __('home.location_default') }}</dd>
                             </div>
                         </div>
                         <div class="flex items-start gap-3">
@@ -237,8 +231,8 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </span>
                             <div>
-                                <dt class="font-medium text-ink-800">Jam Buka</dt>
-                                <dd class="mt-0.5 text-ink-500">Setiap hari, 11.00 – 22.00 WIB</dd>
+                                <dt class="font-medium text-ink-800">{{ __('home.opening_hours') }}</dt>
+                                <dd class="mt-0.5 text-ink-500">{{ __('home.hours_value') }}</dd>
                             </div>
                         </div>
                         @if ($hasPhone)
@@ -247,7 +241,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                                 </span>
                                 <div>
-                                    <dt class="font-medium text-ink-800">Reservasi &amp; Info</dt>
+                                    <dt class="font-medium text-ink-800">{{ __('home.reservation') }}</dt>
                                     <dd class="mt-0.5 text-ink-500">{{ $phone }}</dd>
                                 </div>
                             </div>
@@ -255,17 +249,17 @@
                     </dl>
 
                     <div class="mt-9 flex flex-wrap gap-3">
-                        <a href="{{ route('menu.index') }}" class="btn btn-primary">Pesan Sekarang</a>
-                        <a href="{{ route('menu.index') }}" class="btn btn-secondary">Lihat Menu Lengkap</a>
+                        <a href="{{ route('menu.index') }}" class="btn btn-primary">{{ __('home.order_now') }}</a>
+                        <a href="{{ route('menu.index') }}" class="btn btn-secondary">{{ __('home.view_full_menu') }}</a>
                     </div>
                 </div>
 
                 <div class="media-frame reveal relative min-h-80 overflow-hidden">
                     @if ($heroImages->isNotEmpty())
-                        <img src="{{ asset('storage/'.$heroImages->last()) }}" alt="Suasana {{ $siteName }}" loading="lazy" class="absolute inset-0 h-full w-full object-cover">
+                        <img src="{{ asset('storage/'.$heroImages->last()) }}" alt="{{ __('home.ambience', ['name' => $siteName]) }}" loading="lazy" class="absolute inset-0 h-full w-full object-cover">
                     @else
                         <div class="panel-forest absolute inset-0 flex items-center justify-center">
-                            <p class="max-w-xs text-center font-display text-xl text-cream-100/80">Suasana yang dirancang untuk Anda nikmati perlahan.</p>
+                            <p class="max-w-xs text-center font-display text-xl text-cream-100/80">{{ __('home.ambience_desc') }}</p>
                         </div>
                     @endif
                 </div>
@@ -276,16 +270,16 @@
         <section aria-labelledby="cta-heading" class="reveal">
             <div class="panel-forest relative overflow-hidden px-6 py-14 text-center sm:px-10">
                 <div class="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-gold-500/10 blur-2xl"></div>
-                <p class="eyebrow text-gold-300">Siap dipesan</p>
+                <p class="eyebrow text-gold-300">{{ __('home.ready_to_order') }}</p>
                 <h2 id="cta-heading" class="mx-auto mt-3 max-w-2xl font-display text-3xl font-semibold text-cream-50 sm:text-4xl">
-                    Pilih hidangan Anda, dan biarkan kami mengurus sisanya.
+                    {{ __('home.cta_title') }}
                 </h2>
                 <p class="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-cream-200/80 sm:text-base">
-                    Order dapat dilakukan dari meja, kamar, atau untuk dibawa pulang. Pantau statusnya hingga siap dinikmati.
+                    {{ __('home.cta_desc') }}
                 </p>
                 <div class="mt-8 flex flex-wrap justify-center gap-4">
-                    <a href="{{ route('menu.index') }}" class="btn-hero !bg-gold-600 !border-gold-600 hover:!bg-gold-500 !text-forest-950">Mulai Pesan</a>
-                    <a href="{{ route('cart.index') }}" class="btn-hero">Lihat Keranjang</a>
+                    <a href="{{ route('menu.index') }}" class="btn-hero !bg-gold-600 !border-gold-600 hover:!bg-gold-500 !text-forest-950">{{ __('home.start_order') }}</a>
+                    <a href="{{ route('cart.index') }}" class="btn-hero">{{ __('home.view_cart') }}</a>
                 </div>
             </div>
         </section>

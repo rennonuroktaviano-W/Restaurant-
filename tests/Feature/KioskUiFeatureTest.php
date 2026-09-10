@@ -88,24 +88,24 @@ class KioskUiFeatureTest extends TestCase
 
         $this->get(route('cart.index'))
             ->assertOk()
-            ->assertSee('Tipe Order')
-            ->assertSee('Metode Pembayaran')
+            ->assertSee('Order Type')
+            ->assertSee('Payment Method')
             ->assertSee('Kartu Debit')
-            ->assertDontSee('Bayar di Kasir')
-            ->assertDontSee('Lanjut Isi Data');
+            ->assertDontSee('Pay at Cashier')
+            ->assertDontSee('Continue Fill Data');
     }
 
     public function test_customer_layout_has_no_cashier_or_account_links(): void
     {
         $home = $this->get('/');
         $home->assertOk();
-        $home->assertDontSee('>Kasir<');
-        $home->assertDontSee('>Akun<');
-        $home->assertSee('Pengalaman');
+        $home->assertDontSee('>Cashier<');
+        $home->assertDontSee('>Account<');
+        $home->assertSee('Experience');
 
         $this->get(route('menu.index'))
             ->assertOk()
-            ->assertDontSee('>Kasir<');
+            ->assertDontSee('>Cashier<');
     }
 
     public function test_cart_actions_accept_ajax_json_requests(): void

@@ -1,60 +1,60 @@
 @extends('layouts.app')
 
-@section('title', 'Kategori - ' . config('app.name'))
-@section('header', 'Kategori')
+@section('title', __('admin.categories.title').' - '.config('app.name'))
+@section('header', __('admin.categories.title'))
 
 @section('content')
     <div class="mb-5 flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-gray-900">Kategori</h1>
-        <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">Tambah Kategori</a>
+        <h1 class="text-2xl font-bold text-ink-900">{{ __('admin.categories.title') }}</h1>
+        <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">{{ __('admin.add_new', ['item' => __('admin.categories.title')]) }}</a>
     </div>
 
     <form method="GET" action="{{ route('admin.categories.index') }}" class="mb-5">
         <div class="flex items-center gap-2">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari kategori..." class="input max-w-xs">
-            <button type="submit" class="btn btn-secondary">Cari</button>
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="{{ __('admin.search_placeholder') }}" class="input max-w-xs">
+            <button type="submit" class="btn btn-secondary">{{ __('admin.search') }}</button>
             @if (request('search'))
-                <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">Reset</a>
+                <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">{{ __('admin.reset') }}</a>
             @endif
         </div>
     </form>
 
     <div class="card overflow-hidden">
-        <table class="table-w">
-            <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
+        <table class="table-admin">
+            <thead>
                 <tr>
-                    <th class="px-4 py-3 font-medium">Nama</th>
-                    <th class="px-4 py-3 font-medium">Produk</th>
-                    <th class="px-4 py-3 font-medium">Status</th>
-                    <th class="px-4 py-3 font-medium">Aksi</th>
+                    <th class="px-4 py-3 font-medium">{{ __('admin.name') }}</th>
+                    <th class="px-4 py-3 font-medium">{{ __('admin.products') }}</th>
+                    <th class="px-4 py-3 font-medium">{{ __('admin.status') }}</th>
+                    <th class="px-4 py-3 font-medium">{{ __('admin.actions') }}</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+            <tbody class="divide-y divide-ink-900/10">
                 @forelse ($categories as $category)
                     <tr>
                         <td class="px-4 py-3">{{ $category->name }}</td>
                         <td class="px-4 py-3">{{ $category->products_count }}</td>
                         <td class="px-4 py-3">
                             @if ($category->is_active)
-                                <span class="badge bg-emerald-100 text-emerald-700">Aktif</span>
+                                <span class="badge badge-forest">{{ __('admin.active') }}</span>
                             @else
-                                <span class="badge bg-gray-100 text-gray-600">Nonaktif</span>
+                                <span class="badge badge-ink">{{ __('admin.inactive') }}</span>
                             @endif
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('admin.categories.edit', $category) }}" class="btn btn-secondary !px-3 !py-1 text-xs">Edit</a>
-                                <form method="POST" action="{{ route('admin.categories.destroy', $category) }}" onsubmit="return confirm('Yakin ingin menghapus?')">
+                                <a href="{{ route('admin.categories.edit', $category) }}" class="btn btn-secondary btn-sm">{{ __('admin.edit') }}</a>
+                                <form method="POST" action="{{ route('admin.categories.destroy', $category) }}" onsubmit="return confirm('{{ __('admin.confirm_delete') }}')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger !px-3 !py-1 text-xs">Hapus</button>
+                                    <button type="submit" class="btn btn-danger btn-sm">{{ __('admin.delete') }}</button>
                                 </form>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="px-4 py-8 text-center text-sm text-gray-500">Tidak ada data kategori.</td>
+                        <td colspan="4" class="px-4 py-8 text-center text-sm text-ink-500">{{ __('admin.no_data') }}</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -62,6 +62,6 @@
     </div>
 
     <div class="mt-4">
-        {{ $categories->links() }}
+        {{ $categories->links('partials.pagination') }}
     </div>
 @endsection
