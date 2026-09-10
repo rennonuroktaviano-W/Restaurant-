@@ -37,17 +37,17 @@ class DemoMasterDataSeeder extends Seeder
         }
 
         $products = [
-            ['Nasi Goreng', 'NASGOR', 25000, 28000, 'Makanan Utama'],
-            ['Ayam Bakar', 'AYAM', 30000, 35000, 'Makanan Utama'],
-            ['Sate Ayam', 'SATE', 22000, 25000, 'Makanan Utama'],
-            ['Es Teh Manis', 'ESTEH', 5000, 7000, 'Minuman'],
-            ['Es Jeruk', 'ESJER', 6000, 8000, 'Minuman'],
-            ['Kopi Susu', 'KOPISUSU', 12000, 15000, 'Minuman'],
-            ['Pisang Goreng', 'PISGOR', 10000, 12000, 'Dessert'],
-            ['Es Krim', 'ESKRIM', 15000, 18000, 'Dessert'],
+            ['Nasi Goreng', 'NASGOR', 25000, 28000, 'Makanan Utama', true],
+            ['Ayam Bakar', 'AYAM', 30000, 35000, 'Makanan Utama', true],
+            ['Sate Ayam', 'SATE', 22000, 25000, 'Makanan Utama', true],
+            ['Es Teh Manis', 'ESTEH', 5000, 7000, 'Minuman', true],
+            ['Es Jeruk', 'ESJER', 6000, 8000, 'Minuman', true],
+            ['Kopi Susu', 'KOPISUSU', 12000, 15000, 'Minuman', true],
+            ['Pisang Goreng', 'PISGOR', 10000, 12000, 'Dessert', true],
+            ['Es Krim', 'ESKRIM', 15000, 18000, 'Dessert', true],
         ];
 
-        foreach ($products as [$name, $sku, $cost, $price, $categoryName]) {
+        foreach ($products as [$name, $sku, $cost, $price, $categoryName, $isKitchen]) {
             $category = Category::where('slug', 'makanan-utama')->first();
             if ($categoryName === 'Minuman') {
                 $category = Category::where('slug', 'minuman')->first();
@@ -55,7 +55,7 @@ class DemoMasterDataSeeder extends Seeder
                 $category = Category::where('slug', 'dessert')->first();
             }
 
-            $product = Product::firstOrCreate(
+            $product = Product::updateOrCreate(
                 ['sku' => $sku],
                 [
                     'category_id' => $category->id,
@@ -67,6 +67,7 @@ class DemoMasterDataSeeder extends Seeder
                     'stock' => 100,
                     'is_active' => true,
                     'is_available' => true,
+                    'is_kitchen' => $isKitchen,
                 ]
             );
 

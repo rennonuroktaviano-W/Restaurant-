@@ -121,6 +121,7 @@
                 Echo.channel('kitchen')
                     .listen('.order.created', scheduleReload)
                     .listen('.order.status.updated', scheduleReload);
+{{-- Echo aktif: papan di-reload lewat event. Tanpa Echo, startBoardPolling (di atas) menangani refresh otomatis. --}}
             }
         </script>
     @endpush

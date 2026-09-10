@@ -135,10 +135,15 @@ class Permissions
                 self::MENU_VIEW,
                 self::CATALOG_VIEW,
                 self::ORDER_VIEW,
+                self::ORDER_ACCEPT,
+                self::ORDER_CANCEL,
                 self::ORDER_UPDATE_STATUS,
                 self::KITCHEN_VIEW,
                 self::KITCHEN_UPDATE_STATUS,
+                self::PAYMENT_INITIATE,
+                self::PAYMENT_CONFIRM_CASH,
                 self::INVENTORY_VIEW,
+                self::LOCATION_VIEW,
             ],
         ];
     }

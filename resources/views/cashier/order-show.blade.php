@@ -112,7 +112,7 @@
                         <div class="mt-4 rounded bg-red-50 px-3 py-2 text-xs text-red-700">Pembayaran online telah kadaluarsa. Minta bayar ulang di kasir.</div>
                     @endif
 
-                    <form method="POST" action="{{ route('cashier.orders.pay-cash', $order) }}" class="mt-4 space-y-3" x-data="{ open: false, amount: '{{ $remaining }}' }">
+                    <form method="POST" action="{{ route('cashier.orders.pay-cash', $order) }}" id="pay-cash-{{ $order->id }}" class="mt-4 space-y-3" x-data="{ open: false, amount: '{{ $remaining }}' }">
                         @csrf
                         <div>
                             <label class="label">Metode Tunai</label>
@@ -128,17 +128,19 @@
                         </div>
                         <button type="button" @click="open = true" class="btn btn-success w-full">Bayar Tunai (Rp <span x-text="Number(amount).toLocaleString('id-ID')"></span>)</button>
 
-                        <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="open = false">
-                            <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false">
-                                <h3 class="text-base font-semibold text-stone-100">Konfirmasi Bayar Tunai</h3>
-                                <p class="mt-2 text-sm text-stone-400">Total: Rp {{ number_format($order->grand_total, 0, ',', '.') }} — Diterima: Rp <span x-text="Number(amount).toLocaleString('id-ID')"></span></p>
-                                <p class="mt-1 text-sm text-stone-400">Kembalian: <span class="font-bold text-emerald-400" x-text="'Rp ' + Math.max(0, Number(amount) - {{ $order->grand_total }}).toLocaleString('id-ID')"></span></p>
-                                <div class="mt-4 flex justify-end gap-2">
-                                    <button type="button" @click="open = false" class="btn btn-secondary">Tutup</button>
-                                    <button type="submit" class="btn btn-success">Konfirmasi</button>
+<template x-teleport="body">
+                            <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="open = false">
+                                <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false">
+                                    <h3 class="text-base font-semibold text-stone-100">Konfirmasi Bayar Tunai</h3>
+                                    <p class="mt-2 text-sm text-stone-400">Total: Rp {{ number_format($order->grand_total, 0, ',', '.') }} — Diterima: Rp <span x-text="Number(amount).toLocaleString('id-ID')"></span></p>
+                                    <p class="mt-1 text-sm text-stone-400">Kembalian: <span class="font-bold text-emerald-400" x-text="'Rp ' + Math.max(0, Number(amount) - {{ $order->grand_total }}).toLocaleString('id-ID')"></span></p>
+                                    <div class="mt-4 flex justify-end gap-2">
+                                        <button type="button" @click="open = false" class="btn btn-secondary">Tutup</button>
+                                        <button type="submit" form="pay-cash-{{ $order->id }}" class="btn btn-success">Konfirmasi</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </template>
                     </form>
 
                     @if ($methods->where('type', 'online')->isNotEmpty())
@@ -188,23 +190,25 @@
                     @endif
 
                     @if (in_array(\App\Models\Order::STATUS_CANCELLED, \App\Models\Order::$orderFlow[$order->order_status] ?? [], true))
-                        <form method="POST" action="{{ route('cashier.orders.cancel', $order) }}" x-data="{ open: false }">
+                        <form method="POST" action="{{ route('cashier.orders.cancel', $order) }}" id="cancel-{{ $order->id }}" x-data="{ open: false }">
                             @csrf
                             <button type="button" @click="open = true" class="btn btn-danger">Batalkan</button>
-                            <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="open = false">
-                                <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false">
-                                    <h3 class="text-base font-semibold text-stone-100">Batalkan {{ $order->order_number }}?</h3>
-                                    @if ($totalPaid > 0)
-                                        <p class="mt-2 text-xs text-stone-400">Pembayaran yang sudah lunas akan otomatis di-refund.</p>
-                                    @endif
-                                    <label class="label mt-4">Alasan pembatalan</label>
-                                    <textarea name="reason" required rows="3" class="input w-full" placeholder="Contoh: pelanggan membatalkan pesanan"></textarea>
-                                    <div class="mt-4 flex justify-end gap-2">
-                                        <button type="button" @click="open = false" class="btn btn-secondary">Tutup</button>
-                                        <button type="submit" class="btn btn-danger">Ya, Batalkan</button>
+<template x-teleport="body">
+                                <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="open = false">
+                                    <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false">
+                                        <h3 class="text-base font-semibold text-stone-100">Batalkan {{ $order->order_number }}?</h3>
+                                        @if ($totalPaid > 0)
+                                            <p class="mt-2 text-xs text-stone-400">Pembayaran yang sudah lunas akan otomatis di-refund.</p>
+                                        @endif
+                                        <label class="label mt-4">Alasan pembatalan</label>
+                                        <textarea name="reason" form="cancel-{{ $order->id }}" required rows="3" class="input w-full" placeholder="Contoh: pelanggan membatalkan pesanan"></textarea>
+                                        <div class="mt-4 flex justify-end gap-2">
+                                            <button type="button" @click="open = false" class="btn btn-secondary">Tutup</button>
+                                            <button type="submit" form="cancel-{{ $order->id }}" class="btn btn-danger">Ya, Batalkan</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </template>
                         </form>
                     @endif
                 </div>
