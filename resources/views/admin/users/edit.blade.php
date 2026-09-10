@@ -55,9 +55,12 @@
             <div class="sm:col-span-2">
                 <label class="label">Role</label>
                 <div class="flex flex-wrap gap-4">
+                    @php
+                        $selectedRoles = old('roles', $user->roles()->pluck('name')->all());
+                    @endphp
                     @foreach ($roles as $role)
                         <label class="flex items-center gap-2">
-                            <input type="checkbox" name="roles[]" value="{{ $role->name }}" @checked($user->hasRole($role->name)) class="rounded border-gray-300 text-brand-600 focus:ring-brand-500">
+                            <input type="checkbox" name="roles[]" value="{{ $role->name }}" @checked(in_array($role->name, $selectedRoles, true)) class="rounded border-gray-300 text-brand-600 focus:ring-brand-500">
                             <span class="text-sm text-gray-700">{{ $role->name }}</span>
                         </label>
                     @endforeach

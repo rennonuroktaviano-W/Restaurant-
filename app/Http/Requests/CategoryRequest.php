@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Support\Permissions;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CategoryRequest extends FormRequest
 {
@@ -16,7 +17,7 @@ class CategoryRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:120'],
-            'slug' => ['required', 'string', 'max:140', 'alpha_dash', 'unique:categories,slug,'.$this->route('category')?->id],
+            'slug' => ['required', 'string', 'max:140', 'alpha_dash', Rule::unique('categories')->ignore($this->route('category')?->id)->whereNull('deleted_at')],
             'description' => ['nullable', 'string', 'max:1000'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,webp,gif', 'max:2048'],
             'is_active' => ['sometimes', 'boolean'],

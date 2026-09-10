@@ -7,6 +7,7 @@
     <div class="mb-5 flex items-center justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Kitchen Display</h1>
         <div class="flex items-center gap-3">
+            <button type="button" onclick="window.location.reload()" class="btn btn-secondary !px-3 !py-1 text-xs">Muat Ulang</button>
             <button id="kds-sound-toggle" type="button" class="btn btn-secondary !px-3 !py-1 text-xs" aria-pressed="false">Suara</button>
             <span id="board-clock" class="text-xl font-semibold tabular-nums text-gray-600">{{ now()->format('H:i:s') }}</span>
         </div>
@@ -104,6 +105,11 @@
 
             syncSoundButton();
 
+            window.startBoardPolling({
+                url: @json(route('kitchen.board.freshness')),
+                interval: 15000,
+            });
+
             if (window.EchoEnabled && window.Echo) {
                 let reloadTimer = null;
                 const scheduleReload = () => {
@@ -113,8 +119,8 @@
                 };
 
                 Echo.channel('kitchen')
-                    .listen('.OrderCreated', scheduleReload)
-                    .listen('.OrderStatusUpdated', scheduleReload);
+                    .listen('.order.created', scheduleReload)
+                    .listen('.order.status.updated', scheduleReload);
             }
         </script>
     @endpush

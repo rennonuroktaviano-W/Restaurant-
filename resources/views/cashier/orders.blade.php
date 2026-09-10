@@ -10,7 +10,10 @@
 
     <div class="mb-5 flex items-center justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Semua Order Aktif</h1>
-        <a href="{{ route('cashier.dashboard') }}" class="btn btn-secondary">Dashboard</a>
+        <div class="flex gap-2">
+            <button type="button" class="btn btn-primary" onclick="window.location.reload()">Muat Ulang</button>
+            <a href="{{ route('cashier.dashboard') }}" class="btn btn-secondary">Dashboard</a>
+        </div>
     </div>
 
     <div class="card overflow-hidden">
@@ -53,4 +56,13 @@
             </table>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            window.startBoardPolling({
+                url: @json(route('cashier.dashboard.freshness')),
+                interval: 15000,
+            });
+        </script>
+    @endpush
 @endsection

@@ -139,6 +139,12 @@ class ReportController extends Controller
     private function baseQuery(array $filters)
     {
         return Order::query()
+            ->when($filters['search'], fn ($q, $s) => $q->where(function ($query) use ($s) {
+                $query->where('order_number', 'like', "%{$s}%")
+                    ->orWhere('customer_name', 'like', "%{$s}%")
+                    ->orWhere('customer_phone', 'like', "%{$s}%")
+                    ->orWhere('notes', 'like', "%{$s}%");
+            }))
             ->when($filters['date_from'], fn ($q, $v) => $q->whereDate('ordered_at', '>=', $v))
             ->when($filters['date_to'], fn ($q, $v) => $q->whereDate('ordered_at', '<=', $v))
             ->when($filters['area_id'], fn ($q, $v) => $q->where('area_id', $v))
@@ -153,6 +159,12 @@ class ReportController extends Controller
         return (float) Refund::query()
             ->join('orders', 'orders.id', '=', 'refunds.order_id')
             ->where('refunds.status', Refund::STATUS_SUCCEEDED)
+            ->when($filters['search'], fn ($q, $s) => $q->where(function ($query) use ($s) {
+                $query->where('orders.order_number', 'like', "%{$s}%")
+                    ->orWhere('orders.customer_name', 'like', "%{$s}%")
+                    ->orWhere('orders.customer_phone', 'like', "%{$s}%")
+                    ->orWhere('orders.notes', 'like', "%{$s}%");
+            }))
             ->when($filters['date_from'], fn ($q, $v) => $q->whereDate('refunds.created_at', '>=', $v))
             ->when($filters['date_to'], fn ($q, $v) => $q->whereDate('refunds.created_at', '<=', $v))
             ->when($filters['area_id'], fn ($q, $v) => $q->where('orders.area_id', $v))
@@ -178,6 +190,7 @@ class ReportController extends Controller
     private function filters(Request $request): array
     {
         return [
+            'search' => $request->search,
             'date_from' => $request->date_from,
             'date_to' => $request->date_to,
             'area_id' => $request->area_id,

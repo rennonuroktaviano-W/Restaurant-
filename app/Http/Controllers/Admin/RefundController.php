@@ -20,19 +20,27 @@ class RefundController extends Controller
     {
         Gate::authorize('payment.refund');
 
-        $refunds = Refund::query()
-            ->with(['order', 'payment', 'creator'])
+        $base = fn ($query) => $query
             ->when($request->q, fn ($q, $s) => $q->where(function ($w) use ($s) {
                 $w->where('reason', 'like', "%{$s}%")
                     ->orWhereHas('order', fn ($o) => $o->where('order_number', 'like', "%{$s}%"));
             }))
             ->when($request->filled('date_from'), fn ($q, $v) => $q->whereDate('created_at', '>=', $v))
-            ->when($request->filled('date_to'), fn ($q, $v) => $q->whereDate('created_at', '<=', $v))
+            ->when($request->filled('date_to'), fn ($q, $v) => $q->whereDate('created_at', '<=', $v));
+
+        $refunds = $base(Refund::query()->with(['order', 'payment', 'creator']))
+            ->when($request->status, fn ($q, $v) => $q->where('status', $v))
             ->orderByDesc('created_at')
             ->paginate(30)
             ->withQueryString();
 
-        return view('admin.refunds.index', compact('refunds'));
+        $succeeded = $base(Refund::query())->where('status', Refund::STATUS_SUCCEEDED);
+
+        $succeededTotal = (float) (clone $succeeded)->sum('amount');
+        $succeededCount = (int) (clone $succeeded)->count();
+        $failedCount = (int) $base(Refund::query())->where('status', Refund::STATUS_FAILED)->count();
+
+        return view('admin.refunds.index', compact('refunds', 'succeededTotal', 'succeededCount', 'failedCount'));
     }
 
     public function create(Payment $payment): View

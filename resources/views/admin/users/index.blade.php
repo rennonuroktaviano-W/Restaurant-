@@ -33,6 +33,7 @@
                     <th class="px-4 py-3 font-medium">Email</th>
                     <th class="px-4 py-3 font-medium">No. HP</th>
                     <th class="px-4 py-3 font-medium">Role</th>
+                    <th class="px-4 py-3 font-medium">Status</th>
                     <th class="px-4 py-3 font-medium">Aktif</th>
                     <th class="px-4 py-3 font-medium">Aksi</th>
                 </tr>
@@ -44,6 +45,26 @@
                         <td class="px-4 py-3">{{ $user->email }}</td>
                         <td class="px-4 py-3">{{ $user->phone }}</td>
                         <td class="px-4 py-3">{{ $user->getRoleNames()->join(', ') }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                @if ($user->online)
+                                    <span class="bg-emerald-100 p-1 rounded-full">
+                                        <span class="block h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                    </span>
+                                    <span class="badge bg-emerald-100 text-emerald-700">Online</span>
+                                @else
+                                    <span class="bg-gray-200 p-1 rounded-full">
+                                        <span class="block h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                                    </span>
+                                    <span class="badge bg-gray-100 text-gray-600">
+                                        {{ $user->last_seen_at ? 'Offline' : 'Belum pernah' }}
+                                    </span>
+                                @endif
+                            </div>
+                            @if ($user->last_seen_at)
+                                <p class="mt-1 text-xs text-gray-400">{{ $user->last_seen_at->format('d M Y H:i') }}</p>
+                            @endif
+                        </td>
                         <td class="px-4 py-3">
                             @if ($user->is_active)
                                 <span class="badge bg-emerald-100 text-emerald-700">Aktif</span>
@@ -66,7 +87,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500">Tidak ada data pengguna.</td>
+                        <td colspan="7" class="px-4 py-8 text-center text-sm text-gray-500">Tidak ada data pengguna.</td>
                     </tr>
                 @endforelse
             </tbody>

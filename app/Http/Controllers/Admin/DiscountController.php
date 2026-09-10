@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -38,9 +39,17 @@ class DiscountController extends Controller
         $items = $data['discount_items'] ?? [];
         unset($data['discount_items']);
 
-        $discount = Discount::create($data);
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('discounts', 'public');
+        }
 
-        $this->syncItems($discount, $items);
+        $discount = DB::transaction(function () use ($data, $items) {
+            $discount = Discount::create($data);
+
+            $this->syncItems($discount, $items);
+
+            return $discount;
+        });
 
         $this->audit->log('create', 'pricing', 'discount', $discount->id, [], $discount->toArray());
 
@@ -59,8 +68,14 @@ class DiscountController extends Controller
         $items = $data['discount_items'] ?? [];
         unset($data['discount_items']);
 
-        $discount->update($data);
-        $this->syncItems($discount, $items);
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('discounts', 'public');
+        }
+
+        DB::transaction(function () use ($discount, $data, $items) {
+            $discount->update($data);
+            $this->syncItems($discount, $items);
+        });
 
         $this->audit->log('update', 'pricing', 'discount', $discount->id, $old, $discount->fresh()->toArray());
 
@@ -80,6 +95,8 @@ class DiscountController extends Controller
     {
         return $request->validate([
             'name' => ['required', 'string', 'max:120'],
+            'description' => ['nullable', 'string', 'max:1000'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,webp', 'max:2048'],
             'code' => ['nullable', 'string', 'max:50', 'unique:discounts,code,'.$request->route('discount')?->id],
             'type' => ['required', Rule::in(['percentage', 'fixed'])],
             'value' => ['required', 'numeric', 'min:0'],

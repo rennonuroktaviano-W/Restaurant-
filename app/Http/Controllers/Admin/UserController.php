@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
@@ -23,11 +25,31 @@ class UserController extends Controller
     {
         $users = User::query()
             ->with('roles')
-            ->when($request->search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%")->orWhere('email', 'like', "%{$s}%"))
+            ->when($request->search, fn ($q, $s) => $q->where(function ($query) use ($s) {
+                $query->where('name', 'like', "%{$s}%")->orWhere('email', 'like', "%{$s}%");
+            }))
             ->when($request->role, fn ($q, $r) => $q->role($r))
             ->orderBy('name')
             ->paginate(20)
             ->withQueryString();
+
+        $onlineIds = DB::table('sessions')
+            ->where('last_activity', '>=', now()->subMinutes(5)->getTimestamp())
+            ->whereNotNull('user_id')
+            ->pluck('user_id')
+            ->all();
+
+        $lastSeen = DB::table('sessions')
+            ->whereNotNull('user_id')
+            ->selectRaw('user_id, max(last_activity) as last')
+            ->groupBy('user_id')
+            ->pluck('last', 'user_id')
+            ->map(fn ($ts) => Carbon::createFromTimestamp((int) $ts));
+
+        $users->getCollection()->each(function ($user) use ($onlineIds, $lastSeen) {
+            $user->setAttribute('online', in_array($user->id, $onlineIds, true));
+            $user->setAttribute('last_seen_at', $lastSeen->get($user->id));
+        });
 
         $roles = Role::all();
 

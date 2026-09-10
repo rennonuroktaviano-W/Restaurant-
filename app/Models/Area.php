@@ -10,7 +10,7 @@ class Area extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'slug', 'type', 'description', 'is_active', 'sort_order'];
+    protected $fillable = ['name', 'slug', 'type', 'description', 'address', 'is_active', 'sort_order'];
 
     protected function casts(): array
     {
@@ -28,5 +28,12 @@ class Area extends Model
     public function rooms()
     {
         return $this->hasMany(Room::class);
+    }
+
+    public function getMapsUrlAttribute(): string
+    {
+        return $this->address
+            ? 'https://www.google.com/maps/search/?api=1&query='.urlencode($this->address)
+            : '#';
     }
 }

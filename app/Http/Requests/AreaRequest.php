@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Support\Permissions;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class AreaRequest extends FormRequest
 {
@@ -16,9 +17,10 @@ class AreaRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:120'],
-            'slug' => ['required', 'string', 'max:140', 'alpha_dash', 'unique:areas,slug,'.$this->route('area')?->id],
+            'slug' => ['required', 'string', 'max:140', 'alpha_dash', Rule::unique('areas')->ignore($this->route('area')?->id)->whereNull('deleted_at')],
             'type' => ['required', 'in:restaurant,pool,room,villa,other'],
             'description' => ['nullable', 'string', 'max:1000'],
+            'address' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['sometimes', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:9999'],
         ];

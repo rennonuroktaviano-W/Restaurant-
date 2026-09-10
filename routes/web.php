@@ -15,7 +15,9 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShiftController;
+use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
@@ -81,6 +83,7 @@ Route::post('/webhook/payment/mock', [MockWebhookController::class, 'handle'])
 
 Route::middleware(['auth', 'active', 'role:cashier|manager|admin'])->prefix('cashier')->name('cashier.')->group(function () {
     Route::get('/', [CashierController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard/freshness', [CashierController::class, 'freshness'])->name('dashboard.freshness');
     Route::get('/orders', [CashierController::class, 'orders'])->name('orders');
     Route::get('/orders/{order}', [CashierController::class, 'show'])->name('orders.show');
 
@@ -99,11 +102,12 @@ Route::middleware(['auth', 'active', 'role:cashier|manager|admin'])->prefix('cas
 
 Route::middleware(['auth', 'active', 'role:kitchen|manager|admin'])->prefix('kitchen')->name('kitchen.')->group(function () {
     Route::get('/', [KitchenController::class, 'dashboard'])->name('dashboard');
+    Route::get('/board/freshness', [KitchenController::class, 'freshness'])->name('board.freshness');
     Route::post('/orders/{order}/status', [KitchenOrderActionController::class, 'updateStatus'])->name('orders.status');
     Route::post('/orders/{order}/cancel', [KitchenOrderActionController::class, 'cancel'])->name('orders.cancel');
 });
 
-Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'active', 'role:admin|manager'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
 
     Route::resource('categories', CategoryController::class);
@@ -135,10 +139,15 @@ Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(fu
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
     Route::post('/inventory/{product}/adjust', [InventoryController::class, 'adjust'])->name('inventory.adjust');
     Route::get('/inventory/movements', [InventoryController::class, 'movements'])->name('inventory.movements');
+    Route::get('/inventory/stock-in', [InventoryController::class, 'stockInForm'])->name('inventory.stock-in.form');
+    Route::post('/inventory/stock-in', [InventoryController::class, 'stockIn'])->name('inventory.stock-in.store');
+    Route::get('/inventory/stock-out', [InventoryController::class, 'stockOutForm'])->name('inventory.stock-out.form');
+    Route::post('/inventory/stock-out', [InventoryController::class, 'stockOut'])->name('inventory.stock-out.store');
+    Route::get('/inventory/transfer', [InventoryController::class, 'transferForm'])->name('inventory.transfer.form');
+    Route::post('/inventory/transfer', [InventoryController::class, 'transfer'])->name('inventory.transfer.store');
 
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
-    Route::get('/reports/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
+    Route::resource('warehouses', WarehouseController::class)->except('show');
+    Route::resource('suppliers', SupplierController::class)->except('show');
 
     Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
 
@@ -148,4 +157,10 @@ Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(fu
 
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+});
+
+Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+    Route::get('/reports/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
 });

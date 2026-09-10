@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -34,7 +35,9 @@ class AuditLogController extends Controller
 
         $modules = AuditLog::query()->distinct()->pluck('module');
         $actions = AuditLog::query()->distinct()->pluck('action');
+        $targetTypes = AuditLog::query()->distinct()->whereNotNull('target_type')->pluck('target_type');
+        $users = User::query()->role(['admin', 'manager', 'cashier', 'kitchen'])->orderBy('name')->get();
 
-        return view('admin.audit-logs.index', compact('logs', 'modules', 'actions'));
+        return view('admin.audit-logs.index', compact('logs', 'modules', 'actions', 'targetTypes', 'users'));
     }
 }

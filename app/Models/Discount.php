@@ -16,7 +16,7 @@ class Discount extends Model
     public const TYPE_FIXED = 'fixed';
 
     protected $fillable = [
-        'name', 'code', 'type', 'value', 'min_amount', 'max_amount',
+        'name', 'description', 'image', 'code', 'type', 'value', 'min_amount', 'max_amount',
         'is_automatic', 'starts_at', 'ends_at', 'is_active',
     ];
 
@@ -53,5 +53,12 @@ class Discount extends Model
         }
 
         return true;
+    }
+
+    public function displayLabel(): string
+    {
+        return $this->type === self::TYPE_PERCENTAGE
+            ? "Diskon {$this->value}%"
+            : 'Hemat Rp '.number_format((float) $this->value, 0, ',', '.');
     }
 }

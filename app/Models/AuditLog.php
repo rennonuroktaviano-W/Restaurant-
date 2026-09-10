@@ -29,4 +29,14 @@ class AuditLog extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function getChangesAttribute(): array
+    {
+        return collect(array_unique(array_merge(array_keys($this->old_values ?? []), array_keys($this->new_values ?? []))))
+            ->mapWithKeys(fn (string $key) => [$key => [
+                'old' => $this->old_values[$key] ?? null,
+                'new' => $this->new_values[$key] ?? null,
+            ]])
+            ->toArray();
+    }
 }

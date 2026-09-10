@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\OrderCreated;
 use App\Models\Order;
 use App\Models\OrderStatusHistory;
 use App\Models\Product;
@@ -118,6 +119,8 @@ class CheckoutService
             ]);
 
             $this->inventory->reserve($order, $products);
+
+            OrderCreated::dispatch($order);
 
             return ['order' => $order, 'created' => true];
         });

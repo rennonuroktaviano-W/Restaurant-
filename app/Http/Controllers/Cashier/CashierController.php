@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cashier;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\PaymentMethod;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -35,6 +36,32 @@ class CashierController extends Controller
         $methods = PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
 
         return view('cashier.dashboard', compact('newOrders', 'activeOrders', 'readyOrders', 'methods'));
+    }
+
+    public function freshness(): JsonResponse
+    {
+        Gate::authorize('order.view');
+
+        $new = Order::query()
+            ->where('order_status', Order::STATUS_NEW)
+            ->where('payment_status', '!=', Order::PAYMENT_FAILED)
+            ->orderBy('ordered_at')
+            ->pluck('payment_status', 'id');
+
+        $active = Order::query()
+            ->whereIn('order_status', [Order::STATUS_ACCEPTED, Order::STATUS_COOKING])
+            ->orderBy('accepted_at')
+            ->orderBy('ordered_at')
+            ->pluck('order_status', 'id');
+
+        $ready = Order::query()
+            ->where('order_status', Order::STATUS_READY)
+            ->orderBy('ready_at')
+            ->pluck('payment_status', 'id');
+
+        $signature = md5(json_encode([$new, $active, $ready]));
+
+        return response()->json(['signature' => $signature]);
     }
 
     public function orders(): View

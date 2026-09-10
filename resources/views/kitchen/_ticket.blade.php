@@ -51,19 +51,17 @@
             <form method="POST" action="{{ route('kitchen.orders.cancel', $order) }}" x-data="{ open: false }">
                 @csrf
                 <button type="button" @click="open = true" class="btn btn-danger btn-sm">Batal</button>
-                <template x-teleport="body">
-                    <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="open = false">
-                        <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false">
-                            <h3 class="text-base font-semibold text-stone-100">Batalkan {{ $order->order_number }}?</h3>
-                            <label class="label mt-4">Alasan pembatalan</label>
-                            <textarea name="reason" required minlength="5" rows="3" class="input w-full" placeholder="Minimal 5 karakter"></textarea>
-                            <div class="mt-4 flex justify-end gap-2">
-                                <button type="button" @click="open = false" class="btn btn-secondary">Tutup</button>
-                                <button type="submit" class="btn btn-danger">Ya, Batalkan</button>
-                            </div>
+                <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="open = false">
+                    <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false">
+                        <h3 class="text-base font-semibold text-stone-100">Batalkan {{ $order->order_number }}?</h3>
+                        <label class="label mt-4">Alasan pembatalan</label>
+                        <textarea name="reason" required minlength="5" rows="3" class="input w-full" placeholder="Minimal 5 karakter"></textarea>
+                        <div class="mt-4 flex justify-end gap-2">
+                            <button type="button" @click="open = false" class="btn btn-secondary">Tutup</button>
+                            <button type="submit" class="btn btn-danger">Ya, Batalkan</button>
                         </div>
                     </div>
-                </template>
+                </div>
             </form>
         @endif
     </div>

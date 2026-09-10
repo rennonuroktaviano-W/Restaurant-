@@ -17,16 +17,31 @@ class DashboardController extends Controller
     {
         Gate::authorize('report.view');
         $monthStart = now()->startOfMonth();
+        $prevMonthStart = now()->subMonthNoOverflow()->startOfMonth();
+        $prevMonthEnd = $monthStart->copy()->subSecond();
 
         $grossSales = (float) Order::where('order_status', Order::STATUS_COMPLETED)
             ->where('completed_at', '>=', $monthStart)
+            ->sum('grand_total');
+
+        $grossSalesPrev = (float) Order::where('order_status', Order::STATUS_COMPLETED)
+            ->whereBetween('completed_at', [$prevMonthStart, $prevMonthEnd])
             ->sum('grand_total');
 
         $orderCount = Order::where('order_status', Order::STATUS_COMPLETED)
             ->where('completed_at', '>=', $monthStart)
             ->count();
 
+        $orderCountPrev = Order::where('order_status', Order::STATUS_COMPLETED)
+            ->whereBetween('completed_at', [$prevMonthStart, $prevMonthEnd])
+            ->count();
+
         $avgOrderValue = $orderCount > 0 ? round($grossSales / $orderCount, 2) : 0;
+        $avgOrderValuePrev = $orderCountPrev > 0 ? round($grossSalesPrev / $orderCountPrev, 2) : 0;
+
+        $saleTrend = $this->trend($grossSales, $grossSalesPrev);
+        $orderTrend = $this->trend($orderCount, $orderCountPrev);
+        $avgTrend = $this->trend($avgOrderValue, $avgOrderValuePrev);
 
         $statusDistribution = Order::query()
             ->select('order_status', DB::raw('count(*) as total'))
@@ -48,7 +63,7 @@ class DashboardController extends Controller
             ->join('payment_methods', 'payment_methods.id', '=', 'payments.payment_method_id')
             ->where('payments.status', Payment::STATUS_PAID)
             ->where('payments.paid_at', '>=', $monthStart)
-            ->select('payment_methods.name', DB::raw('sum(payments.amount) as total'))
+            ->select('payment_methods.name', DB::raw('count(*) as count'), DB::raw('sum(payments.amount) as total'))
             ->groupBy('payment_methods.name')
             ->orderByDesc('total')
             ->limit(5)
@@ -67,13 +82,28 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'grossSales',
+            'grossSalesPrev',
             'orderCount',
+            'orderCountPrev',
             'avgOrderValue',
+            'avgOrderValuePrev',
+            'saleTrend',
+            'orderTrend',
+            'avgTrend',
             'statusDistribution',
             'topProducts',
             'paymentMix',
             'recentOrders',
             'lowStock',
         ));
+    }
+
+    private function trend(float|int $current, float|int $previous): ?float
+    {
+        if ($previous <= 0) {
+            return $current > 0 ? null : 0.0;
+        }
+
+        return round((($current - $previous) / $previous) * 100, 1);
     }
 }

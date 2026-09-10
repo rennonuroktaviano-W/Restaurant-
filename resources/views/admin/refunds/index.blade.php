@@ -7,7 +7,7 @@
     <h1 class="mb-5 text-2xl font-bold text-gray-900">Refund</h1>
 
     <div class="card mb-6 overflow-hidden">
-        <form method="GET" action="{{ route('admin.refunds.index') }}" class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-5">
+        <form method="GET" action="{{ route('admin.refunds.index') }}" class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-6">
             <div class="lg:col-span-3">
                 <label class="label">Pencarian</label>
                 <input type="search" name="q" value="{{ request('q') }}" placeholder="Nomor order atau alasan..." class="input">
@@ -20,11 +20,34 @@
                 <label class="label">Sampai Tanggal</label>
                 <input type="date" name="date_to" value="{{ request('date_to') }}" class="input">
             </div>
+            <div>
+                <label class="label">Status</label>
+                <select name="status" class="select">
+                    <option value="">Semua</option>
+                    <option value="succeeded" @selected(request('status') === 'succeeded')>Berhasil</option>
+                    <option value="failed" @selected(request('status') === 'failed')>Gagal</option>
+                </select>
+            </div>
             <div class="flex items-end gap-2">
                 <button type="submit" class="btn btn-primary">Filter</button>
                 <a href="{{ route('admin.refunds.index') }}" class="btn btn-secondary">Reset</a>
             </div>
         </form>
+    </div>
+
+    <div class="mb-6 grid gap-4 sm:grid-cols-3">
+        <div class="card p-5">
+            <p class="text-sm text-gray-500">Total Refund Berhasil</p>
+            <p class="mt-2 text-2xl font-bold text-red-600">Rp {{ number_format($succeededTotal, 0, ',', '.') }}</p>
+        </div>
+        <div class="card p-5">
+            <p class="text-sm text-gray-500">Refund Berhasil</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900">{{ $succeededCount }}</p>
+        </div>
+        <div class="card p-5">
+            <p class="text-sm text-gray-500">Refund Gagal</p>
+            <p class="mt-2 text-2xl font-bold text-gray-900">{{ $failedCount }}</p>
+        </div>
     </div>
 
     <div class="card overflow-hidden">
@@ -52,14 +75,16 @@
                             <td class="px-4 py-3 text-sm font-medium text-gray-900">Rp {{ number_format($refund->amount, 0, ',', '.') }}</td>
                             <td class="px-4 py-3 text-sm text-gray-700">
                                 @if ($refund->reason_code)
-                                    <span class="badge mr-1 bg-gray-100 text-gray-600">{{ $refund->reason_code }}</span>
+                                    <span class="badge mr-1 bg-gray-100 text-gray-600">
+                                        {{ ['customer' => 'Pelanggan', 'damaged' => 'Rusak', 'other' => 'Lainnya'][$refund->reason_code] ?? $refund->reason_code }}
+                                    </span>
                                 @endif
                                 {{ $refund->reason }}
                             </td>
                             <td class="px-4 py-3 text-sm text-gray-600">{{ $refund->creator?->name ?? '-' }}</td>
                             <td class="px-4 py-3">
                                 <span class="badge {{ $refund->status === 'succeeded' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">
-                                    {{ $refund->status }}
+                                    {{ $refund->status === 'succeeded' ? 'Berhasil' : 'Gagal' }}
                                 </span>
                             </td>
                         </tr>

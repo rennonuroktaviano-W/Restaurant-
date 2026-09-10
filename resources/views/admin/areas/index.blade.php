@@ -9,13 +9,23 @@
         <a href="{{ route('admin.areas.create') }}" class="btn btn-primary">Tambah Area</a>
     </div>
 
+    <form method="GET" action="{{ route('admin.areas.index') }}" class="mb-5">
+        <div class="flex items-center gap-2">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari area..." class="input max-w-xs">
+            <button type="submit" class="btn btn-secondary">Cari</button>
+            @if (request('search'))
+                <a href="{{ route('admin.areas.index') }}" class="btn btn-secondary">Reset</a>
+            @endif
+        </div>
+    </form>
+
     <div class="card overflow-hidden">
         <table class="table-w">
             <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
                 <tr>
                     <th class="px-4 py-3 font-medium">Nama</th>
-                    <th class="px-4 py-3 font-medium">Slug</th>
                     <th class="px-4 py-3 font-medium">Tipe</th>
+                    <th class="px-4 py-3 font-medium">Lokasi</th>
                     <th class="px-4 py-3 font-medium">Meja</th>
                     <th class="px-4 py-3 font-medium">Room</th>
                     <th class="px-4 py-3 font-medium">Status</th>
@@ -25,9 +35,24 @@
             <tbody class="divide-y divide-gray-100">
                 @forelse ($areas as $area)
                     <tr>
-                        <td class="px-4 py-3">{{ $area->name }}</td>
-                        <td class="px-4 py-3">{{ $area->slug }}</td>
-                        <td class="px-4 py-3">{{ $area->type }}</td>
+                        <td class="px-4 py-3">
+                            <span class="font-medium text-gray-900">{{ $area->name }}</span>
+                            <span class="block text-xs text-gray-500">/{{ $area->slug }}</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="badge bg-brand-100 text-brand-700">{{ $area->type }}</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            @if ($area->address)
+                                <span class="block max-w-[220px] truncate text-sm text-gray-600" title="{{ $area->address }}">{{ $area->address }}</span>
+                                <a href="{{ $area->maps_url }}" target="_blank" rel="noopener" class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:underline">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    Buka di Maps
+                                </a>
+                            @else
+                                <span class="text-sm text-gray-500">-</span>
+                            @endif
+                        </td>
                         <td class="px-4 py-3">{{ $area->dining_tables_count }}</td>
                         <td class="px-4 py-3">{{ $area->rooms_count }}</td>
                         <td class="px-4 py-3">

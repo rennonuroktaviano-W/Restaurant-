@@ -5,10 +5,13 @@
 
 @section('content')
     <div class="mb-5 flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-gray-900">Antrian Order</h1>
+        <div class="flex items-center gap-3">
+            <a href="{{ url('/') }}" class="btn btn-secondary" aria-label="Kembali ke beranda">&larr;</a>
+            <h1 class="text-2xl font-bold text-gray-900">Antrian Order</h1>
+        </div>
         <div class="flex gap-2">
             <a href="{{ route('cashier.history') }}" class="btn btn-secondary">Riwayat</a>
-            <a href="{{ route('cashier.shift') }}" class="btn btn-secondary">Shift</a>
+            <button type="button" class="btn btn-primary" onclick="window.location.reload()">Muat Ulang</button>
         </div>
     </div>
 
@@ -58,6 +61,11 @@
 
     @push('scripts')
         <script>
+            window.startBoardPolling({
+                url: @json(route('cashier.dashboard.freshness')),
+                interval: 15000,
+            });
+
             if (window.EchoEnabled && window.Echo) {
                 let reloadTimer = null;
                 const scheduleReload = () => {
@@ -66,12 +74,12 @@
                 };
 
                 Echo.channel('order.new')
-                    .listen('.OrderCreated', scheduleReload)
-                    .listen('.OrderStatusUpdated', scheduleReload);
+                    .listen('.order.created', scheduleReload)
+                    .listen('.order.status.updated', scheduleReload);
 
-                Echo.channel('cooking').listen('.OrderStatusUpdated', scheduleReload);
-                Echo.channel('kitchen').listen('.OrderStatusUpdated', scheduleReload);
-                Echo.channel('order').listen('.PaymentSettled', scheduleReload);
+                Echo.channel('cooking').listen('.order.status.updated', scheduleReload);
+                Echo.channel('kitchen').listen('.order.status.updated', scheduleReload);
+                Echo.channel('order').listen('.payment.settled', scheduleReload);
             }
         </script>
     @endpush

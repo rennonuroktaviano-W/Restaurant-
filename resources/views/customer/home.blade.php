@@ -165,6 +165,44 @@
             @endif
         </section>
 
+        {{-- Active promos --}}
+        @if ($activePromos->isNotEmpty())
+            <section aria-labelledby="promo-heading" class="scroll-mt-28">
+                <div class="reveal mb-10 flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <p class="eyebrow">Sedang Berlangsung</p>
+                        <h2 id="promo-heading" class="section-title mt-3">Promo Spesial</h2>
+                    </div>
+                </div>
+
+                <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach ($activePromos as $promo)
+                        <article class="card card-pad group relative overflow-hidden">
+                            <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600"></div>
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="min-w-0">
+                                    <h3 class="font-display text-lg font-semibold text-ink-900">{{ $promo->name }}</h3>
+                                    <p class="mt-1 text-sm text-gold-700">{{ $promo->displayLabel() }}</p>
+                                </div>
+                                <span class="badge badge-gold shrink-0">{{ $promo->code ?: 'OTOMATIS' }}</span>
+                            </div>
+                            @if ($promo->description)
+                                <p class="mt-3 line-clamp-2 text-sm leading-relaxed text-ink-500">{{ $promo->description }}</p>
+                            @elseif ($promo->min_amount)
+                                <p class="mt-3 text-sm leading-relaxed text-ink-500">Berlaku untuk pembelian minimal Rp {{ number_format((float) $promo->min_amount, 0, ',', '.') }}.</p>
+                            @endif
+                            @if ($promo->ends_at)
+                                <p class="mt-4 flex items-center gap-2 border-t border-ink-900/10 pt-3 text-xs text-ink-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    Berlaku hingga {{ $promo->ends_at->format('d M Y') }}
+                                </p>
+                            @endif
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
         {{-- Story / dining --}}
         <section id="story" aria-labelledby="story-heading" class="scroll-mt-28">
             <div class="panel-forest overflow-hidden">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Discount;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Services\CartService;
@@ -36,10 +37,23 @@ class MenuController extends Controller
 
         $setting = fn (string $key) => (string) (Setting::where('key', $key)->value('value') ?? '');
 
+        $activePromos = Discount::query()
+            ->where('is_active', true)
+            ->with('items')
+            ->where(function ($q) {
+                $q->whereNull('starts_at')->orWhere('starts_at', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('ends_at')->orWhere('ends_at', '>=', now());
+            })
+            ->orderBy('ends_at')
+            ->get();
+
         return view('customer.home', [
             'siteName' => $setting('business.name') ?: config('app.name'),
             'categories' => $categories,
             'featured' => $featured,
+            'activePromos' => $activePromos,
             'heroImages' => Product::query()->visible()->whereNotNull('image')->orderBy('sort_order')->limit(3)->pluck('image'),
             'hasAddress' => $setting('business.address') !== '',
             'hasPhone' => $setting('business.phone') !== '',

@@ -8,12 +8,16 @@
         <h1 class="text-2xl font-bold text-gray-900">Laporan Penjualan</h1>
         <div class="flex gap-2">
             <a href="{{ route('admin.reports.export', request()->query()) }}" class="btn btn-secondary">Export CSV</a>
-            <a href="{{ route('admin.reports.pdf', request()->query()) }}" class="btn btn-primary">Cetak PDF</a>
+            <a href="{{ route('admin.reports.pdf', request()->query()) }}" class="btn btn-primary">Cetak</a>
         </div>
     </div>
 
     <div class="card mb-6 p-5">
         <form method="GET" action="{{ route('admin.reports.index') }}" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+                <label class="label">Pencarian</label>
+                <input type="search" name="search" value="{{ $filters['search'] }}" placeholder="Nomor order / nama pelanggan..." class="input">
+            </div>
             <div>
                 <label class="label">Dari Tanggal</label>
                 <input type="date" name="date_from" value="{{ $filters['date_from'] }}" class="input">
@@ -74,34 +78,69 @@
         </form>
     </div>
 
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
         <div class="card p-4">
-            <p class="text-xs text-gray-500">Penjualan Kotor</p>
-            <p class="mt-1 text-lg font-bold text-gray-900">Rp {{ number_format($grossSales, 0, ',', '.') }}</p>
+            <div class="flex items-center gap-2">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2"/></svg>
+                </span>
+                <p class="text-xs text-gray-500">Penjualan Kotor</p>
+            </div>
+            <p class="mt-2 text-lg font-bold text-gray-900">Rp {{ number_format($grossSales, 0, ',', '.') }}</p>
         </div>
         <div class="card p-4">
-            <p class="text-xs text-gray-500">Refund</p>
-            <p class="mt-1 text-lg font-bold text-red-600">- Rp {{ number_format($refundTotal, 0, ',', '.') }}</p>
+            <div class="flex items-center gap-2">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h2m4 0h2M9 21h6a2 2 0 002-2V7a2 2 0 00-2-2h-1V3m-6 2h8"/></svg>
+                </span>
+                <p class="text-xs text-gray-500">Refund</p>
+            </div>
+            <p class="mt-2 text-lg font-bold text-red-600">- Rp {{ number_format($refundTotal, 0, ',', '.') }}</p>
         </div>
         <div class="card p-4">
-            <p class="text-xs text-gray-500">Penjualan Bersih</p>
-            <p class="mt-1 text-lg font-bold text-emerald-700">Rp {{ number_format($netSales, 0, ',', '.') }}</p>
+            <div class="flex items-center gap-2">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5 0h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </span>
+                <p class="text-xs text-gray-500">Penjualan Bersih</p>
+            </div>
+            <p class="mt-2 text-lg font-bold text-emerald-700">Rp {{ number_format($netSales, 0, ',', '.') }}</p>
         </div>
         <div class="card p-4">
-            <p class="text-xs text-gray-500">Order Selesai</p>
-            <p class="mt-1 text-lg font-bold text-gray-900">{{ $orderCount }}</p>
+            <div class="flex items-center gap-2">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/></svg>
+                </span>
+                <p class="text-xs text-gray-500">Order Selesai</p>
+            </div>
+            <p class="mt-2 text-lg font-bold text-gray-900">{{ $orderCount }}</p>
         </div>
         <div class="card p-4">
-            <p class="text-xs text-gray-500">Dibatalkan</p>
-            <p class="mt-1 text-lg font-bold text-gray-900">{{ $cancelledCount }}</p>
+            <div class="flex items-center gap-2">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
+                </span>
+                <p class="text-xs text-gray-500">Dibatalkan</p>
+            </div>
+            <p class="mt-2 text-lg font-bold text-gray-900">{{ $cancelledCount }}</p>
         </div>
         <div class="card p-4">
-            <p class="text-xs text-gray-500">Rata-rata Order</p>
-            <p class="mt-1 text-lg font-bold text-gray-900">Rp {{ number_format($avgOrderValue, 0, ',', '.') }}</p>
+            <div class="flex items-center gap-2">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"/></svg>
+                </span>
+                <p class="text-xs text-gray-500">Rata-rata Order</p>
+            </div>
+            <p class="mt-2 text-lg font-bold text-gray-900">Rp {{ number_format($avgOrderValue, 0, ',', '.') }}</p>
         </div>
         <div class="card p-4">
-            <p class="text-xs text-gray-500">Metode Teratas</p>
-            <p class="mt-1 truncate text-lg font-bold text-gray-900">{{ $paymentMix->first()?->name ?? '-' }}</p>
+            <div class="flex items-center gap-2">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 text-purple-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h2m4 0h2m-8 6h6a2 2 0 002-2v-4H5v4a2 2 0 002 2z"/></svg>
+                </span>
+                <p class="text-xs text-gray-500">Metode Teratas</p>
+            </div>
+            <p class="mt-2 truncate text-lg font-bold text-gray-900">{{ $paymentMix->first()?->name ?? '-' }}</p>
         </div>
     </div>
 
@@ -109,12 +148,29 @@
         <div class="card overflow-hidden">
             <div class="border-b border-gray-200 px-5 py-4"><h2 class="text-base font-semibold text-gray-900">Status Order</h2></div>
             <div class="p-5">
-                <ul class="space-y-2">
+                <ul class="space-y-3">
+                    @php
+                        $max = $statusDistribution->isNotEmpty() ? max($statusDistribution->values()->all()) : 0;
+                        $barColors = [
+                            'new' => 'bg-amber-500',
+                            'accepted' => 'bg-blue-500',
+                            'cooking' => 'bg-orange-500',
+                            'ready' => 'bg-brand-500',
+                            'completed' => 'bg-emerald-500',
+                            'cancelled' => 'bg-red-500',
+                        ];
+                    @endphp
                     @foreach (\App\Models\Order::$flowLabels as $value => $label)
                         @if (isset($statusDistribution[$value]))
-                            <li class="flex justify-between rounded-lg bg-gray-50 px-3 py-2 text-sm">
-                                <span class="text-gray-700">{{ $label }}</span>
-                                <span class="font-semibold text-gray-900">{{ $statusDistribution[$value] }}</span>
+                            @php $pct = $max > 0 ? round(($statusDistribution[$value] / $max) * 100) : 0; @endphp
+                            <li>
+                                <div class="mb-1 flex justify-between text-sm">
+                                    <span class="text-gray-700">{{ $label }}</span>
+                                    <span class="font-semibold text-gray-900">{{ $statusDistribution[$value] }}</span>
+                                </div>
+                                <div class="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                                    <div class="h-full rounded-full {{ $barColors[$value] ?? 'bg-gray-400' }}" style="width: {{ $pct }}%"></div>
+                                </div>
                             </li>
                         @endif
                     @endforeach

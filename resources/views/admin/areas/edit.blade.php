@@ -61,6 +61,15 @@
             </div>
 
             <div class="sm:col-span-2">
+                <label for="address" class="label">Alamat Lokasi</label>
+                <textarea name="address" id="address" rows="2" class="input @error('address') border-red-400 @enderror" placeholder="contoh: Jl. Raya Senggigi, Lombok Utara">{{ old('address', $area->address) }}</textarea>
+                <p class="mt-1 text-xs text-gray-500">Alamat ini digunakan untuk menautkan lokasi ke Google Maps.</p>
+                @error('address')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="sm:col-span-2">
                 <label class="flex items-center gap-2">
                     <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $area->is_active)) class="rounded border-gray-300 text-brand-600 focus:ring-brand-500">
                     <span class="text-sm text-gray-700">Aktif</span>
