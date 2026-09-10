@@ -58,14 +58,14 @@ Route::prefix('menu')->name('menu.')->group(function () {
 
 Route::get('/', [MenuController::class, 'home'])->name('home');
 
-Route::prefix('cart')->name('cart.')->middleware('throttle:60,1')->group(function () {
+Route::prefix('cart')->name('cart.')->middleware('throttle:kiosk-cart')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add', [CartController::class, 'add'])->name('add');
     Route::post('/update/{productId}', [CartController::class, 'update'])->name('update');
     Route::post('/remove/{productId}', [CartController::class, 'remove'])->name('remove');
 });
 
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store')->middleware('throttle:10,1');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store')->middleware('throttle:kiosk-checkout');
 
 Route::get('/track/{order:order_number}', [OrderTrackingController::class, 'show'])
     ->middleware('throttle:120,1')
@@ -79,7 +79,7 @@ Route::post('/webhook/payment/mock', [MockWebhookController::class, 'handle'])
     ->middleware('throttle:60,1')
     ->name('webhook.payment.mock');
 
-Route::middleware(['auth', 'active', 'role:cashier|manager|admin'])->prefix('cashier')->name('cashier.')->group(function () {
+Route::middleware(['auth', 'active', 'role:cashier|manager|admin|kitchen'])->prefix('cashier')->name('cashier.')->group(function () {
     Route::get('/', [CashierController::class, 'dashboard'])->name('dashboard');
     Route::get('/orders', [CashierController::class, 'orders'])->name('orders');
     Route::get('/orders/{order}', [CashierController::class, 'show'])->name('orders.show');

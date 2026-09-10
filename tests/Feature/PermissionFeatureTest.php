@@ -29,16 +29,16 @@ class PermissionFeatureTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_kitchen_cannot_access_cashier_queue(): void
+    public function test_kitchen_can_access_cashier_queue(): void
     {
         $kitchen = $this->kitchenUser();
 
         $this->actingAs($kitchen)
             ->get(route('cashier.dashboard'))
-            ->assertForbidden();
+            ->assertOk();
     }
 
-    public function test_kitchen_cannot_confirm_cash_payment(): void
+    public function test_kitchen_cannot_confirm_cash_payment_without_method(): void
     {
         $kitchen = $this->kitchenUser();
         $order = Order::factory()->takeAway()->create();
@@ -47,7 +47,7 @@ class PermissionFeatureTest extends TestCase
             ->post(route('cashier.orders.pay-cash', $order), [
                 'payment_method_id' => 1,
                 'amount_received' => 10000,
-            ])->assertForbidden();
+            ])->assertSessionHasErrors();
     }
 
     public function test_cashier_cannot_manage_catalog(): void

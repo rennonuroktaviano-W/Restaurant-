@@ -48,7 +48,7 @@
         @endif
 
         @if ($zone !== 'ready')
-            <form method="POST" action="{{ route('kitchen.orders.cancel', $order) }}" x-data="{ open: false }">
+            <form method="POST" action="{{ route('kitchen.orders.cancel', $order) }}" id="kitchen-cancel-{{ $order->id }}" x-data="{ open: false }">
                 @csrf
                 <button type="button" @click="open = true" class="btn btn-danger btn-sm">Batal</button>
                 <template x-teleport="body">
@@ -56,10 +56,10 @@
                         <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false">
                             <h3 class="text-base font-semibold text-stone-100">Batalkan {{ $order->order_number }}?</h3>
                             <label class="label mt-4">Alasan pembatalan</label>
-                            <textarea name="reason" required minlength="5" rows="3" class="input w-full" placeholder="Minimal 5 karakter"></textarea>
+                            <textarea name="reason" form="kitchen-cancel-{{ $order->id }}" required minlength="5" rows="3" class="input w-full" placeholder="Minimal 5 karakter"></textarea>
                             <div class="mt-4 flex justify-end gap-2">
                                 <button type="button" @click="open = false" class="btn btn-secondary">Tutup</button>
-                                <button type="submit" class="btn btn-danger">Ya, Batalkan</button>
+                                <button type="submit" form="kitchen-cancel-{{ $order->id }}" class="btn btn-danger">Ya, Batalkan</button>
                             </div>
                         </div>
                     </div>

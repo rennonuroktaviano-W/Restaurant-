@@ -113,8 +113,10 @@
                 };
 
                 Echo.channel('kitchen')
-                    .listen('.OrderCreated', scheduleReload)
-                    .listen('.OrderStatusUpdated', scheduleReload);
+                    .listen('.order.created', scheduleReload)
+                    .listen('.order.status.updated', scheduleReload);
+            } else {
+                setInterval(() => window.location.reload(), 15000);
             }
         </script>
     @endpush

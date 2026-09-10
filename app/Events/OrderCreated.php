@@ -39,6 +39,7 @@ class OrderCreated implements ShouldBroadcast
     {
         return [
             new Channel('order.new'),
+            new Channel('kitchen'),
             new Channel('order.'.$this->order->id),
         ];
     }

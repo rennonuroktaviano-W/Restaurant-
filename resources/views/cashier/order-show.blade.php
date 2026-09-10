@@ -112,7 +112,7 @@
                         <div class="mt-4 rounded bg-red-50 px-3 py-2 text-xs text-red-700">Pembayaran online telah kadaluarsa. Minta bayar ulang di kasir.</div>
                     @endif
 
-                    <form method="POST" action="{{ route('cashier.orders.pay-cash', $order) }}" class="mt-4 space-y-3" x-data="{ open: false, amount: '{{ $remaining }}' }">
+                    <form method="POST" action="{{ route('cashier.orders.pay-cash', $order) }}" id="pay-cash-{{ $order->id }}" class="mt-4 space-y-3" x-data="{ open: false, amount: '{{ $remaining }}' }">
                         @csrf
                         <div>
                             <label class="label">Metode Tunai</label>
@@ -136,7 +136,7 @@
                                     <p class="mt-1 text-sm text-stone-400">Kembalian: <span class="font-bold text-emerald-400" x-text="'Rp ' + Math.max(0, Number(amount) - {{ $order->grand_total }}).toLocaleString('id-ID')"></span></p>
                                     <div class="mt-4 flex justify-end gap-2">
                                         <button type="button" @click="open = false" class="btn btn-secondary">Tutup</button>
-                                        <button type="submit" class="btn btn-success">Konfirmasi</button>
+                                        <button type="submit" form="pay-cash-{{ $order->id }}" class="btn btn-success">Konfirmasi</button>
                                     </div>
                                 </div>
                             </div>
@@ -190,7 +190,7 @@
                     @endif
 
                     @if (in_array(\App\Models\Order::STATUS_CANCELLED, \App\Models\Order::$orderFlow[$order->order_status] ?? [], true))
-                        <form method="POST" action="{{ route('cashier.orders.cancel', $order) }}" x-data="{ open: false }">
+                        <form method="POST" action="{{ route('cashier.orders.cancel', $order) }}" id="cancel-{{ $order->id }}" x-data="{ open: false }">
                             @csrf
                             <button type="button" @click="open = true" class="btn btn-danger">Batalkan</button>
                             <template x-teleport="body">
@@ -198,10 +198,10 @@
                                     <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false">
                                         <h3 class="text-base font-semibold text-stone-100">Batalkan {{ $order->order_number }}?</h3>
                                         <label class="label mt-4">Alasan pembatalan</label>
-                                        <textarea name="reason" required rows="3" class="input w-full" placeholder="Contoh: pelanggan membatalkan pesanan"></textarea>
+                                        <textarea name="reason" form="cancel-{{ $order->id }}" required rows="3" class="input w-full" placeholder="Contoh: pelanggan membatalkan pesanan"></textarea>
                                         <div class="mt-4 flex justify-end gap-2">
                                             <button type="button" @click="open = false" class="btn btn-secondary">Tutup</button>
-                                            <button type="submit" class="btn btn-danger">Ya, Batalkan</button>
+                                            <button type="submit" form="cancel-{{ $order->id }}" class="btn btn-danger">Ya, Batalkan</button>
                                         </div>
                                     </div>
                                 </div>
