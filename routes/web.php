@@ -18,10 +18,8 @@ use App\Http\Controllers\Admin\ShiftController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WarehouseController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
-use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Cashier\CashierController;
 use App\Http\Controllers\Cashier\OrderActionController;
 use App\Http\Controllers\Cashier\ReceiptController;
@@ -39,15 +37,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/login', [LoginController::class, 'create'])->middleware('guest')->name('login');
 Route::post('/login', [LoginController::class, 'store'])->middleware('guest')->name('login.store');
 Route::post('/logout', LogoutController::class)->middleware('auth')->name('logout');
-
-Route::middleware('guest')->group(function () {
-    Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])->name('password.forgot');
-    Route::post('/forgot-password', [ForgotPasswordController::class, 'store'])
-        ->middleware('throttle:5,60')
-        ->name('password.forgot.store');
-    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'create'])->name('password.reset.form');
-    Route::post('/reset-password', [ResetPasswordController::class, 'store'])->name('password.reset.store');
-});
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');

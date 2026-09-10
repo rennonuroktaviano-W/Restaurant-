@@ -35,7 +35,7 @@ class LoginController extends Controller
             ]);
         }
 
-        if (! Auth::attempt($credentials + ['is_active' => true], $request->boolean('remember'))) {
+        if (! Auth::attempt($credentials + ['is_active' => true])) {
             RateLimiter::hit($this->throttleKey($request), 60);
 
             $request->session()->regenerate();
