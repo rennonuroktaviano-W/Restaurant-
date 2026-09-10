@@ -152,5 +152,6 @@ Route::middleware(['auth', 'active', 'role:admin|manager'])->prefix('admin')->na
 Route::middleware(['auth', 'active'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
+    Route::get('/reports/excel', [ReportController::class, 'excel'])->name('reports.excel');
     Route::get('/reports/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
 });
