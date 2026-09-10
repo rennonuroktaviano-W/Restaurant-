@@ -67,6 +67,13 @@ function patchLine(line) {
     }
 }
 
+function removeMissingRows(ids) {
+    document.querySelectorAll('[data-cart-line-row]').forEach((row) => {
+        const id = Number(row.dataset.cartLineRow);
+        if (!ids.includes(id)) row.remove();
+    });
+}
+
 function drawerLineHTML(line) {
     const id = line.product_id;
     const image = line.image ? `<img src="${window.location.origin}/storage/${line.image}" alt="${line.product_name}" class="h-full w-full object-cover">` : `
