@@ -22,7 +22,7 @@ class ProductRequest extends FormRequest
             'sku' => ['required', 'string', 'max:50', 'unique:products,sku,'.$productId],
             'name' => ['required', 'string', 'max:150'],
             'slug' => ['required', 'string', 'max:160', 'alpha_dash', Rule::unique('products')->ignore($productId)->whereNull('deleted_at')],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,webp,gif', 'max:2048'],
+            'image' => ['nullable', 'image', 'mimetypes:image/jpeg,image/png,image/webp,image/gif,image/avif', 'max:2048'],
             'cost_price' => ['required', 'numeric', 'min:0'],
             'sale_price' => ['required', 'numeric', 'min:0'],
             'stock_type' => ['required', 'in:limited,unlimited'],
@@ -52,7 +52,7 @@ class ProductRequest extends FormRequest
             'stock.required_if' => 'Stok wajib diisi untuk tipe terbatas',
             'stock.min' => 'Stok tidak boleh negatif',
             'image.image' => 'File harus berupa gambar',
-            'image.mimes' => 'Format gambar harus jpeg, png, webp, atau gif',
+            'image.mimetypes' => 'Format gambar harus jpeg, png, webp, gif, atau avif',
             'image.max' => 'Ukuran gambar maksimal 2MB',
         ];
     }
