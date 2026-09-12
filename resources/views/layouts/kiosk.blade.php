@@ -11,6 +11,7 @@
     <title>@yield('title', $siteName)</title>
     @fonts
     @vite(['resources/css/customer.css', 'resources/js/app.js'])
+    <noscript><style>.reveal { opacity: 1 !important; transform: none !important; }</style></noscript>
     @stack('styles')
 </head>
 <body class="flex min-h-screen flex-col bg-cream-100 font-sans text-ink-800 antialiased">
@@ -33,7 +34,6 @@
                 @if ($landingNav)
                     <a href="#signature" class="text-sm font-medium text-ink-700 transition hover:text-forest-700">Menu Unggulan</a>
                     <a href="#story" class="text-sm font-medium text-ink-700 transition hover:text-forest-700">Tentang</a>
-                    <a href="#story" class="text-sm font-medium text-ink-700 transition hover:text-forest-700">Pengalaman</a>
                     <a href="#location" class="text-sm font-medium text-ink-700 transition hover:text-forest-700">Lokasi</a>
                 @endif
             </div>
@@ -68,7 +68,7 @@
                 @if ($landingNav)
                     <a href="#signature" @click="menuOpen = false" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink-800 hover:bg-cream-200/60">Menu Unggulan</a>
                     <a href="#story" @click="menuOpen = false" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink-800 hover:bg-cream-200/60">Tentang</a>
-                    <a href="#story" @click="menuOpen = false" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink-800 hover:bg-cream-200/60">Pengalaman</a>
+                    <a href="#location" @click="menuOpen = false" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink-800 hover:bg-cream-200/60">Lokasi</a>
                 @endif
             </div>
         </div>

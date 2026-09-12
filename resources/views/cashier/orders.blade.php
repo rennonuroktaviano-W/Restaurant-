@@ -38,7 +38,7 @@
                             <td class="px-4 py-3 text-sm text-gray-600">{{ $typeLabels[$order->order_type] ?? $order->order_type }} @if ($order->area) · {{ $order->locationLabel() }} @endif</td>
                             <td class="px-4 py-3"><span class="badge bg-blue-100 text-blue-700">{{ \App\Models\Order::$flowLabels[$order->order_status] ?? $order->order_status }}</span></td>
                             <td class="px-4 py-3">
-                                @if ($order->payments()->where('status', \App\Models\Payment::STATUS_PAID)->exists())
+                                @if ($order->payments->where('status', \App\Models\Payment::STATUS_PAID)->isNotEmpty())
                                     <span class="badge bg-emerald-100 text-emerald-700">Lunas</span>
                                 @else
                                     <span class="badge bg-amber-100 text-amber-700">Belum Bayar</span>

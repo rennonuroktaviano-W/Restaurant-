@@ -78,7 +78,7 @@
 
     <script>
         if (window.EchoEnabled && window.Echo) {
-            Echo.channel('order.new').listen('.OrderCreated', (e) => {
+            Echo.channel('order.new').listen('.order.created', (e) => {
                 if (e.order_number) {
                     const toast = document.createElement('div');
                     toast.className = 'fixed bottom-4 right-4 z-50 rounded-xl bg-forest-800 px-4 py-3 text-sm text-cream-50 shadow-lg';

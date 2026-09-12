@@ -10,6 +10,7 @@
     <title>@yield('title', $siteName)</title>
     @fonts
     @vite(['resources/css/customer.css', 'resources/js/app.js'])
+    <noscript><style>.reveal { opacity: 1 !important; transform: none !important; }</style></noscript>
     @stack('styles')
 </head>
 <body class="flex min-h-screen flex-col bg-cream-100 font-sans text-ink-800 antialiased">
