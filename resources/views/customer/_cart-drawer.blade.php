@@ -23,7 +23,7 @@
                 </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto px-5 py-4">
+            <div class="flex-1 overflow-y-auto px-5 py-4" data-cart-drawer-lines>
                 @if ($lines->isEmpty())
                     <div class="flex h-full flex-col items-center justify-center text-center text-ink-500">
                         <svg xmlns="http://www.w3.org/2000/svg" class="mb-3 h-12 w-12 text-ink-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
