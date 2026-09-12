@@ -123,12 +123,8 @@
                         </p>
                     </div>
 
-                    @if ($order->payment_status !== 'paid' && ! in_array($order->order_status, ['completed', 'cancelled']))
-                        @if ($latestPendingPayment)
-                            <a href="{{ route('payment.mock.pay', $latestPendingPayment) }}" class="btn btn-primary">Lanjutkan Pembayaran</a>
-                        @else
-                            <a href="{{ route('menu.index') }}" class="btn btn-secondary">Pesan Lagi</a>
-                        @endif
+                    @if ($order->payment_status !== 'paid' && ! in_array($order->order_status, ['completed', 'cancelled']) && $latestPendingPayment)
+                        <a href="{{ route('payment.mock.pay', $latestPendingPayment) }}" class="btn btn-primary">Lanjutkan Pembayaran</a>
                     @endif
                 </div>
             </div>
