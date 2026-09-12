@@ -120,7 +120,7 @@ class DemoMasterDataSeeder extends Seeder
         }
 
         PaymentMethod::firstOrCreate(['code' => 'cash'], ['name' => 'Tunai', 'type' => 'cash', 'is_active' => true, 'sort_order' => 1]);
-        PaymentMethod::firstOrCreate(['code' => 'qris'], ['name' => 'QRIS', 'type' => 'online', 'is_active' => true, 'sort_order' => 2, 'config' => ['provider' => 'mock']]);
+        PaymentMethod::updateOrCreate(['code' => 'qris'], ['name' => 'QRIS', 'type' => 'online', 'is_active' => true, 'sort_order' => 2, 'config' => ['provider' => 'qris']]);
         PaymentMethod::firstOrCreate(['code' => 'debit_card'], ['name' => 'Kartu Debit', 'type' => 'online', 'is_active' => true, 'sort_order' => 3, 'config' => ['provider' => 'mock']]);
 
         Discount::firstOrCreate(

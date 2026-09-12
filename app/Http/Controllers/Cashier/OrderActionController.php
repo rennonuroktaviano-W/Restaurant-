@@ -5,14 +5,15 @@ namespace App\Http\Controllers\Cashier;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CancelOrderRequest;
 use App\Http\Requests\CashConfirmRequest;
+use App\Http\Requests\CashOnlineRequest;
 use App\Models\Order;
+use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Services\AuditLogger;
 use App\Services\OrderStatusService;
 use App\Services\PaymentService;
 use App\Services\SettingsService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class OrderActionController extends Controller
@@ -88,27 +89,48 @@ class OrderActionController extends Controller
         return redirect()->route('cashier.receipt.show', $order)->with('success', 'Pembayaran tunai berhasil.');
     }
 
-    public function payOnline(Request $request, Order $order): RedirectResponse
+    public function payOnline(CashOnlineRequest $request, Order $order): RedirectResponse
     {
-        Gate::authorize('payment.initiate');
-
-        $request->validate([
-            'payment_method_id' => ['required', 'exists:payment_methods,id'],
-        ]);
-
         $method = PaymentMethod::findOrFail($request->payment_method_id);
 
         if ($method->type !== 'online') {
             return back()->with('error', 'Metode tersebut bukan pembayaran online.');
         }
 
+        $amount = $method->code === 'qris' ? (float) $request->amount : null;
+
         try {
-            $payment = $this->payments->createOnlineAttempt($order, $method, 'order-'.$order->id.'-attempt-'.now()->format('YmdHis'));
+            $payment = $this->payments->createOnlineAttempt($order, $method, 'order-'.$order->id.'-attempt-'.now()->format('YmdHis'), $amount);
             $initiate = $this->payments->gateway($payment)->initiate($payment);
         } catch (\RuntimeException $e) {
             return back()->with('error', $e->getMessage());
         }
 
         return redirect()->away($initiate['redirect']);
+    }
+
+    public function confirmQris(Order $order): RedirectResponse
+    {
+        Gate::authorize('payment.initiate');
+
+        $payment = $order->payments()
+            ->where('provider', 'qris')
+            ->where('status', Payment::STATUS_PENDING)
+            ->latest()
+            ->first();
+
+        if (! $payment) {
+            return back()->with('error', 'Tidak ada pembayaran QRIS yang menunggu konfirmasi.');
+        }
+
+        try {
+            $payment = $this->payments->confirmQris($payment, auth()->id());
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        $this->audit->log('confirm_qris', 'payment', 'order', $order->id, [], ['payment' => $payment->id, 'amount' => $payment->amount]);
+
+        return redirect()->route('cashier.orders.show', $order)->with('success', 'Pembayaran QRIS dikonfirmasi lunas.');
     }
 }

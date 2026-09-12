@@ -32,6 +32,23 @@ class PaymentRedirectController extends Controller
         return view('customer.payment-mock', compact('payment', 'order'));
     }
 
+    public function qrisShow(Payment $payment): View
+    {
+        if ($payment->status !== Payment::STATUS_PENDING) {
+            return view('customer.payment-result', [
+                'payment' => $payment,
+                'order' => $payment->order,
+            ]);
+        }
+
+        $payment->load('paymentMethod');
+        $order = $payment->order;
+
+        $imagePath = $payment->paymentMethod?->config['image_path'] ?? 'qriss.jpeg';
+
+        return view('customer.payment-qris', compact('payment', 'order', 'imagePath'));
+    }
+
     public function process(Request $request, Payment $payment): RedirectResponse
     {
         $data = $request->validate([

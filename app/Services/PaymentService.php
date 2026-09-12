@@ -15,11 +15,11 @@ class PaymentService
 {
     public function __construct(protected GatewayManager $gateways) {}
 
-    public function createOnlineAttempt(Order $order, PaymentMethod $method, ?string $idempotencyKey = null): Payment
+    public function createOnlineAttempt(Order $order, PaymentMethod $method, ?string $idempotencyKey = null, ?float $amount = null): Payment
     {
         $this->assertSettlable($order);
 
-        return DB::transaction(function () use ($order, $method, $idempotencyKey) {
+        return DB::transaction(function () use ($order, $method, $idempotencyKey, $amount) {
             if ($idempotencyKey) {
                 $existing = Payment::where('idempotency_key', $idempotencyKey)->first();
 
@@ -33,7 +33,7 @@ class PaymentService
                 'payment_method_id' => $method->id,
                 'type' => 'online',
                 'status' => Payment::STATUS_PENDING,
-                'amount' => $order->grand_total,
+                'amount' => $amount ?? $order->grand_total,
                 'provider' => $method->config['provider'] ?? 'mock',
                 'idempotency_key' => $idempotencyKey,
                 'created_by' => auth()->id() ?: $order->created_by,
@@ -112,6 +112,47 @@ class PaymentService
                 'status' => Payment::STATUS_PAID,
                 'paid_at' => now(),
                 'failure_code' => null,
+            ]);
+
+            $payment->order->update(['payment_status' => Order::PAYMENT_PAID]);
+
+            PaymentSettled::dispatch($payment->fresh());
+
+            return $payment->fresh();
+        });
+    }
+
+    /**
+     * Cashier-confirmed QRIS settlement (no async callback exists).
+     */
+    public function confirmQris(Payment $payment, ?int $cashierId = null): Payment
+    {
+        return DB::transaction(function () use ($payment, $cashierId) {
+            $payment->refresh();
+
+            if ($payment->provider !== 'qris') {
+                throw new RuntimeException('Pembayaran bukan QRIS');
+            }
+
+            if ($payment->status === Payment::STATUS_PAID) {
+                return $payment;
+            }
+
+            if ($payment->status !== Payment::STATUS_PENDING) {
+                throw new RuntimeException('Pembayaran tidak dalam status pending');
+            }
+
+            if ($payment->order->isTerminal()) {
+                throw new RuntimeException('Order tidak dapat dibayar pada status ini');
+            }
+
+            $payment->update([
+                'status' => Payment::STATUS_PAID,
+                'paid_at' => now(),
+                'amount_received' => $payment->amount,
+                'change_due' => 0,
+                'failure_code' => null,
+                'created_by' => $cashierId ?? auth()->id() ?: $payment->created_by,
             ]);
 
             $payment->order->update(['payment_status' => Order::PAYMENT_PAID]);

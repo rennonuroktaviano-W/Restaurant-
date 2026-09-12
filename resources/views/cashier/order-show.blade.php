@@ -148,15 +148,30 @@
                             @csrf
                             <div>
                                 <label class="label">Bayar Online</label>
-                                <select name="payment_method_id" class="select" required>
+                                <select name="payment_method_id" class="select" x-data="{ onlineCode: '' }"
+                                        @change="onlineCode = $event.target.selectedOptions[0].dataset.code" required>
                                     @foreach ($methods->where('type', 'online') as $method)
-                                        <option value="{{ $method->id }}">{{ $method->name }}</option>
+                                        <option value="{{ $method->id }}" data-code="{{ $method->code }}">{{ $method->name }}</option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div x-show="onlineCode === 'qris'" x-cloak>
+                                <label class="label">Nominal QRIS</label>
+                                <input type="number" name="amount" min="0" step="0.01" value="{{ $remaining }}"
+                                       class="input" placeholder="Nominal yang dibayar pelanggan">
+                                <p class="mt-1 text-xs text-gray-500">Nominal tampil di halaman QRIS pelanggan.</p>
                             </div>
                             <button type="submit" class="btn btn-primary w-full">Minta Bayar Online</button>
                             <p class="text-xs text-gray-500">Pelanggan akan diarahkan ke halaman pembayaran untuk melunasi sisa.</p>
                         </form>
+
+                        @if ($pendingOnline && $pendingOnline->provider === 'qris')
+                            <form method="POST" action="{{ route('cashier.orders.qris-confirm', $order) }}" class="mt-3">
+                                @csrf
+                                <button type="submit" class="btn btn-success w-full">Konfirmasi Terima QRIS (Rp {{ number_format($pendingOnline->amount, 0, ',', '.') }})</button>
+                            </form>
+                            <a href="{{ route('payment.qris.pay', $pendingOnline) }}" target="_blank" rel="noopener" class="btn btn-secondary mt-2 w-full">Tampilkan QRIS</a>
+                        @endif
                     @endif
                 @endif
             </div>

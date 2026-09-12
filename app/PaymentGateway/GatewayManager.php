@@ -21,6 +21,7 @@ class GatewayManager
     {
         return match ($provider) {
             'mock' => $this->container->make(MockPaymentGateway::class),
+            'qris' => $this->container->make(QrisPaymentGateway::class),
             default => throw new PaymentGatewayNotFoundException("Payment gateway [$provider] is not supported."),
         };
     }

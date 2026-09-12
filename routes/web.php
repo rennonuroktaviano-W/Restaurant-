@@ -72,6 +72,7 @@ Route::post('/track/{order:order_number}/cancel', [OrderTrackingController::clas
 
 Route::get('/payment/mock/{payment}', [PaymentRedirectController::class, 'show'])->name('payment.mock.pay');
 Route::post('/payment/mock/{payment}/process', [PaymentRedirectController::class, 'process'])->name('payment.mock.process');
+Route::get('/payment/qris/{payment}', [PaymentRedirectController::class, 'qrisShow'])->name('payment.qris.pay');
 
 Route::post('/webhook/payment/mock', [MockWebhookController::class, 'handle'])
     ->middleware('throttle:60,1')
@@ -88,6 +89,7 @@ Route::middleware(['auth', 'active', 'role:cashier|manager|admin|kitchen'])->pre
     Route::post('/orders/{order}/cancel', [OrderActionController::class, 'cancel'])->name('orders.cancel');
     Route::post('/orders/{order}/pay-cash', [OrderActionController::class, 'payCash'])->name('orders.pay-cash');
     Route::post('/orders/{order}/pay-online', [OrderActionController::class, 'payOnline'])->name('orders.pay-online');
+    Route::post('/orders/{order}/qris-confirm', [OrderActionController::class, 'confirmQris'])->name('orders.qris-confirm');
 
     Route::get('/receipt/{order}', [ReceiptController::class, 'show'])->name('receipt.show');
     Route::get('/receipt/{order}/print', [ReceiptController::class, 'print'])->name('receipt.print');

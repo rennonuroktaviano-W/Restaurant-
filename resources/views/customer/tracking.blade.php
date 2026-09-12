@@ -124,7 +124,11 @@
                     </div>
 
                     @if ($order->payment_status !== 'paid' && ! in_array($order->order_status, ['completed', 'cancelled']) && $latestPendingPayment)
-                        <a href="{{ route('payment.mock.pay', $latestPendingPayment) }}" class="btn btn-primary">Lanjutkan Pembayaran</a>
+                        @if ($latestPendingPayment->provider === 'qris')
+                            <a href="{{ route('payment.qris.pay', $latestPendingPayment) }}" class="btn btn-primary">Lihat Pembayaran QRIS</a>
+                        @else
+                            <a href="{{ route('payment.mock.pay', $latestPendingPayment) }}" class="btn btn-primary">Lanjutkan Pembayaran</a>
+                        @endif
                     @endif
                 </div>
             </div>
