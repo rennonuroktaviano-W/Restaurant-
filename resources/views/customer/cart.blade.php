@@ -195,6 +195,12 @@
                         {{ $discountCode ? 'Ganti' : 'Terapkan' }}
                     </button>
                 </form>
+                @if ($weeklyPromo)
+                    <p class="mb-4 rounded-lg border border-gold-500/40 bg-gold-100/70 px-3 py-2.5 text-xs leading-relaxed text-gold-800">
+                        Promo mingguan aktif: gunakan kode <strong class="font-semibold uppercase tracking-wider">{{ $weeklyPromo->code }}</strong>
+                        untuk diskon {{ (int) $weeklyPromo->value }}% pada produk tertentu.
+                    </p>
+                @endif
                 @if ($discountCode)
                     <form method="POST" action="{{ route('cart.discount') }}" class="mb-4">
                         @csrf

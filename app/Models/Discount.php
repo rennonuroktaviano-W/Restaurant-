@@ -17,7 +17,7 @@ class Discount extends Model
 
     protected $fillable = [
         'name', 'description', 'image', 'code', 'type', 'value', 'min_amount', 'max_amount',
-        'is_automatic', 'starts_at', 'ends_at', 'is_active',
+        'is_automatic', 'starts_at', 'ends_at', 'is_active', 'is_weekly',
     ];
 
     protected function casts(): array
@@ -28,6 +28,7 @@ class Discount extends Model
             'max_amount' => 'decimal:2',
             'is_automatic' => 'boolean',
             'is_active' => 'boolean',
+            'is_weekly' => 'boolean',
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
         ];
@@ -60,5 +61,24 @@ class Discount extends Model
         return $this->type === self::TYPE_PERCENTAGE
             ? "Diskon {$this->value}%"
             : 'Hemat Rp '.number_format((float) $this->value, 0, ',', '.');
+    }
+
+    public function coversProduct(int $productId, ?int $categoryId = null): bool
+    {
+        $items = $this->items;
+
+        if ($items->isEmpty()) {
+            return true;
+        }
+
+        return $items->contains(function (DiscountItem $item) use ($productId, $categoryId) {
+            if ($item->target_type === 'product') {
+                return (int) $item->target_id === $productId;
+            }
+
+            return $item->target_type === 'category'
+                && $categoryId !== null
+                && (int) $item->target_id === $categoryId;
+        });
     }
 }

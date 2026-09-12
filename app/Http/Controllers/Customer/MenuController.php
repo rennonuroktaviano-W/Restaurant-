@@ -10,12 +10,16 @@ use App\Models\Product;
 use App\Models\Setting;
 use App\Services\CartService;
 use App\Services\LocationTokenService;
+use App\Services\WeeklyPromoService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class MenuController extends Controller
 {
-    public function __construct(protected CartService $cart) {}
+    public function __construct(
+        protected CartService $cart,
+        protected WeeklyPromoService $weeklyPromo,
+    ) {}
 
     public function home(Request $request): View
     {
@@ -65,6 +69,7 @@ class MenuController extends Controller
             'cartQuantities' => $this->cart->all()->pluck('quantity', 'product_id')->toArray(),
             'drawerLines' => $this->cart->lines(),
             'drawerSubtotal' => $this->cart->subtotal(),
+            'weeklyPromo' => $this->weeklyPromo(),
         ]);
     }
 
@@ -104,6 +109,7 @@ class MenuController extends Controller
             'cartQuantities' => $this->cart->all()->pluck('quantity', 'product_id')->toArray(),
             'drawerLines' => $this->cart->lines(),
             'drawerSubtotal' => $this->cart->subtotal(),
+            'weeklyPromo' => $this->weeklyPromo(),
         ]);
     }
 
@@ -149,6 +155,12 @@ class MenuController extends Controller
             'cartQuantities' => $this->cart->all()->pluck('quantity', 'product_id')->toArray(),
             'drawerLines' => $this->cart->lines(),
             'drawerSubtotal' => $this->cart->subtotal(),
+            'weeklyPromo' => $this->weeklyPromo(),
         ];
+    }
+
+    private function weeklyPromo(): ?Discount
+    {
+        return $this->weeklyPromo->ensureCurrent()->load('items');
     }
 }

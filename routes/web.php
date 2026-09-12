@@ -129,6 +129,7 @@ Route::middleware(['auth', 'active', 'role:admin|manager'])->prefix('admin')->na
 
     Route::resource('payment-methods', PaymentMethodController::class)->except('show');
     Route::resource('discounts', DiscountController::class)->except('show');
+    Route::post('/discounts/weekly', [DiscountController::class, 'weekly'])->name('discounts.weekly');
     Route::resource('users', UserController::class)->except('show');
     Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
 

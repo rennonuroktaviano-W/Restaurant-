@@ -64,6 +64,12 @@
                                 </div>
                             @endif
 
+                            @if ($weeklyPromo && $weeklyPromo->coversProduct($product->id, $product->category_id) && ! $product->isSoldOut())
+                                <div class="absolute left-3 top-3 z-10">
+                                    <span class="badge badge-gold">Sedang Diskon {{ (int) $weeklyPromo->value }}%</span>
+                                </div>
+                            @endif
+
                             @if ($product->isSoldOut())
                                 <div class="absolute inset-0 flex items-center justify-center bg-ink-950/50 backdrop-blur-[1px]">
                                     <span class="badge bg-burgundy-700 text-cream-50 !px-4 !py-1.5 text-xs font-bold uppercase tracking-wide">Habis</span>

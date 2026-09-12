@@ -6,7 +6,13 @@
 @section('content')
     <div class="mb-5 flex items-center justify-between">
         <h1 class="text-2xl font-bold text-gray-900">Promo & Diskon</h1>
-        <a href="{{ route('admin.discounts.create') }}" class="btn btn-primary">Tambah Promo</a>
+        <div class="flex items-center gap-2">
+            <form method="POST" action="{{ route('admin.discounts.weekly') }}">
+                @csrf
+                <button type="submit" class="btn btn-secondary">Generate Promo Mingguan</button>
+            </form>
+            <a href="{{ route('admin.discounts.create') }}" class="btn btn-primary">Tambah Promo</a>
+        </div>
     </div>
 
     <div class="card overflow-hidden">
@@ -33,6 +39,9 @@
                                 @endif
                                 <div>
                                     <p class="font-medium text-gray-900">{{ $discount->name }}</p>
+                                    @if ($discount->is_weekly)
+                                        <span class="badge bg-amber-100 text-amber-700">Mingguan</span>
+                                    @endif
                                     @if ($discount->description)
                                         <p class="max-w-56 truncate text-xs text-gray-500">{{ $discount->description }}</p>
                                     @endif

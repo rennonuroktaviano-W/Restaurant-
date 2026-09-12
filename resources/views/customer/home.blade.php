@@ -145,6 +145,9 @@
                                 @endif
                             </div>
                             <div class="flex shrink-0 flex-col items-end gap-2">
+                                @if ($weeklyPromo && $weeklyPromo->coversProduct($product->id, $product->category_id) && ! $product->isSoldOut())
+                                    <span class="badge badge-gold">Sedang Diskon {{ (int) $weeklyPromo->value }}%</span>
+                                @endif
                                 <span class="font-display text-xl font-semibold text-forest-800">
                                     Rp {{ number_format($product->sale_price, 0, ',', '.') }}
                                 </span>

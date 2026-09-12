@@ -9,6 +9,7 @@ use App\Models\Discount;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\Room;
+use App\Services\WeeklyPromoService;
 use App\Support\DemoProductImages;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -135,5 +136,7 @@ class DemoMasterDataSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+
+        app(WeeklyPromoService::class)->ensureCurrent();
     }
 }

@@ -9,6 +9,7 @@ use App\Models\Room;
 use App\Services\CartService;
 use App\Services\DiscountService;
 use App\Services\PricingService;
+use App\Services\WeeklyPromoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,11 @@ use Illuminate\View\View;
 
 class CartController extends Controller
 {
-    public function __construct(protected CartService $cart, protected PricingService $pricing) {}
+    public function __construct(
+        protected CartService $cart,
+        protected PricingService $pricing,
+        protected WeeklyPromoService $weeklyPromo,
+    ) {}
 
     public function index(): View
     {
@@ -39,8 +44,9 @@ class CartController extends Controller
 
         $paymentMethods = PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
         $discountCode = session('cart.discount_code');
+        $weeklyPromo = $this->weeklyPromo->ensureCurrent();
 
-        return view('customer.cart', compact('lines', 'subtotal', 'pricing', 'areas', 'rooms', 'paymentMethods', 'discountCode'));
+        return view('customer.cart', compact('lines', 'subtotal', 'pricing', 'areas', 'rooms', 'paymentMethods', 'discountCode', 'weeklyPromo'));
     }
 
     public function add(Request $request): RedirectResponse|JsonResponse

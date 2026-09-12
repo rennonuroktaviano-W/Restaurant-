@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Discount;
 use App\Models\Product;
 use App\Services\AuditLogger;
+use App\Services\WeeklyPromoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,11 +22,21 @@ class DiscountController extends Controller
         Gate::authorize('discount.manage');
     }
 
-    public function index(): View
+    public function index(WeeklyPromoService $weekly): View
     {
+        $weekly->ensureCurrent();
+
         $discounts = Discount::withCount('items')->orderByDesc('is_active')->orderBy('name')->paginate(20);
 
         return view('admin.discounts.index', compact('discounts'));
+    }
+
+    public function weekly(WeeklyPromoService $weekly): RedirectResponse
+    {
+        $promo = $weekly->regenerate();
+
+        return redirect()->route('admin.discounts.index')
+            ->with('success', "Promo mingguan baru dibuat: kode {$promo->code} — diskon {$promo->value}%.");
     }
 
     public function create(): View

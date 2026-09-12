@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command('orders:expire-payments')->hourly();
+        $schedule->command('promo:weekly')->weeklyOn(1, '00:30');
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
