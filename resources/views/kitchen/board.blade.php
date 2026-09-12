@@ -9,6 +9,9 @@
         <div class="flex items-center gap-3">
             <button type="button" onclick="window.location.reload()" class="btn btn-secondary !px-3 !py-1 text-xs">Muat Ulang</button>
             <button id="kds-sound-toggle" type="button" class="btn btn-secondary !px-3 !py-1 text-xs" aria-pressed="false">Suara</button>
+            <span id="board-conn" class="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-300" role="status">
+                <span class="h-1.5 w-1.5 rounded-full bg-current"></span>Polling
+            </span>
             <span id="board-clock" class="text-xl font-semibold tabular-nums text-gray-600">{{ now()->format('H:i:s') }}</span>
         </div>
     </div>
@@ -111,6 +114,12 @@
             });
 
             if (window.EchoEnabled && window.Echo) {
+                const conn = document.getElementById('board-conn');
+                if (conn) {
+                    conn.className = 'inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2.5 py-1 text-xs font-medium text-emerald-300';
+                    conn.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-current"></span>Live';
+                }
+
                 let reloadTimer = null;
                 const scheduleReload = () => {
                     beep();

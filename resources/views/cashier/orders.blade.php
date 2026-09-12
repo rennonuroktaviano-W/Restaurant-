@@ -45,7 +45,32 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-right text-sm font-semibold text-gray-900">Rp {{ number_format($order->grand_total, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-right"><a href="{{ route('cashier.orders.show', $order) }}" class="btn btn-secondary btn-sm">Detail</a></td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="flex flex-wrap justify-end gap-2">
+                                    @php
+                                        $isPaid = $order->payments->where('status', \App\Models\Payment::STATUS_PAID)->isNotEmpty();
+                                        $pendingOnline = $order->payment_status === \App\Models\Order::PAYMENT_PENDING
+                                            && $order->payments->where('type', 'online')->where('status', \App\Models\Payment::STATUS_PENDING)->isNotEmpty();
+                                    @endphp
+                                    @if ($order->order_status === \App\Models\Order::STATUS_NEW && ! $pendingOnline)
+                                        <form method="POST" action="{{ route('cashier.orders.accept', $order) }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-primary btn-sm">Terima</button>
+                                        </form>
+                                    @endif
+                                    @if ($order->order_status === \App\Models\Order::STATUS_READY)
+                                        @if ($isPaid)
+                                            <form method="POST" action="{{ route('cashier.orders.complete', $order) }}">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm">Selesaikan</button>
+                                            </form>
+                                        @else
+                                            <a href="{{ route('cashier.orders.show', $order) }}" class="btn btn-primary btn-sm">Bayar</a>
+                                        @endif
+                                    @endif
+                                    <a href="{{ route('cashier.orders.show', $order) }}" class="btn btn-secondary btn-sm">Detail</a>
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr>

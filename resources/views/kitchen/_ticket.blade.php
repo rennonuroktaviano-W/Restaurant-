@@ -1,6 +1,11 @@
 @php
     $typeLabels = ['dine_in' => 'Dine In', 'take_away' => 'Take Away', 'room_service' => 'Room Service'];
     $isKitchenZone = $zone === 'new' || $zone === 'cooking';
+    $ageMinutes = $order->ordered_at ? max(0, (int) $order->ordered_at->diffInMinutes(now())) : null;
+    $ageVerb = $zone === 'cooking' ? 'Dimasak' : ($zone === 'ready' ? 'Siap' : 'Menunggu');
+    $ageTone = $ageMinutes === null || $ageMinutes < 15
+        ? 'bg-stone-500/15 text-stone-300'
+        : ($ageMinutes < 30 ? 'bg-amber-500/15 text-amber-300' : 'bg-red-500/15 text-red-300');
 @endphp
 
 <div class="card p-4">
@@ -11,6 +16,14 @@
                 {{ $order->ordered_at?->format('H:i') }} · {{ $typeLabels[$order->order_type] ?? $order->order_type }}
                 @if ($order->area) · {{ $order->area->name }} / {{ $order->locationLabel() }} @endif
             </p>
+            @if ($ageMinutes !== null)
+                <p class="mt-1.5">
+                    <span class="badge {{ $ageTone }}" aria-label="{{ $ageVerb }} {{ $ageMinutes }} menit">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        {{ $ageVerb }} {{ $ageMinutes }} mnt
+                    </span>
+                </p>
+            @endif
             @if ($order->notes)
                 <p class="mt-1 text-xs text-amber-700">Catatan order: {{ $order->notes }}</p>
             @endif
@@ -41,7 +54,7 @@
             <form method="POST" action="{{ route('kitchen.orders.status', $order) }}">
                 @csrf
                 <input type="hidden" name="action" value="{{ $zone === 'new' ? 'start_cooking' : 'mark_ready' }}">
-                <button type="submit" class="btn {{ $zone === 'new' ? 'btn-primary' : 'btn-success' }} btn-sm">
+                <button type="submit" class="btn {{ $zone === 'new' ? 'btn-primary' : 'btn-success' }} btn-sm !min-h-11 !px-4">
                     {{ $zone === 'new' ? 'Mulai Masak' : 'Tandai Siap' }}
                 </button>
             </form>
@@ -50,7 +63,7 @@
         @if ($zone !== 'ready')
             <form method="POST" action="{{ route('kitchen.orders.cancel', $order) }}" id="kitchen-cancel-{{ $order->id }}" x-data="{ open: false }">
                 @csrf
-                <button type="button" @click="open = true" class="btn btn-danger btn-sm">Batal</button>
+                <button type="button" @click="open = true" class="btn btn-danger btn-sm !min-h-11 !px-4">Batal</button>
 <template x-teleport="body">
                     <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="open = false">
                         <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false" role="dialog" aria-modal="true" aria-labelledby="kitchen-cancel-title-{{ $order->id }}">
