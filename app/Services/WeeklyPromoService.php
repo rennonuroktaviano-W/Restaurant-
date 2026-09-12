@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Discount;
 use App\Models\Product;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class WeeklyPromoService
 {
@@ -51,6 +52,17 @@ class WeeklyPromoService
     public function regenerate(): Discount
     {
         return $this->createFor($this->weekRange()[0]);
+    }
+
+    public function targetProductNames(Discount $promo): Collection
+    {
+        $targetIds = $promo->items()
+            ->where('target_type', 'product')
+            ->pluck('target_id');
+
+        return Product::query()
+            ->whereIn('id', $targetIds)
+            ->pluck('name');
     }
 
     protected function createFor(Carbon $weekStart): Discount

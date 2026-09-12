@@ -45,8 +45,11 @@ class CartController extends Controller
         $paymentMethods = PaymentMethod::where('is_active', true)->orderBy('sort_order')->get();
         $discountCode = session('cart.discount_code');
         $weeklyPromo = $this->weeklyPromo->ensureCurrent();
+        $weeklyTargetNames = $weeklyPromo
+            ? $this->weeklyPromo->targetProductNames($weeklyPromo)
+            : collect();
 
-        return view('customer.cart', compact('lines', 'subtotal', 'pricing', 'areas', 'rooms', 'paymentMethods', 'discountCode', 'weeklyPromo'));
+        return view('customer.cart', compact('lines', 'subtotal', 'pricing', 'areas', 'rooms', 'paymentMethods', 'discountCode', 'weeklyPromo', 'weeklyTargetNames'));
     }
 
     public function add(Request $request): RedirectResponse|JsonResponse
@@ -105,7 +108,7 @@ class CartController extends Controller
         [$discount, $amount] = app(DiscountService::class)->applyCode($code, $lines, $subtotal);
 
         if (! $discount) {
-            return back()->with('error', 'Kode promo tidak valid atau belum memenuhi minimal pembelian.');
+            return back()->with('error', $this->rejectionMessage($code));
         }
 
         session(['cart.discount_code' => $code]);
@@ -135,5 +138,20 @@ class CartController extends Controller
             'lines' => $lines,
             'pricing' => $this->pricing->calculate($lines, $subtotal, session('cart.discount_code')),
         ];
+    }
+
+    private function rejectionMessage(string $code): string
+    {
+        $weeklyPromo = $this->weeklyPromo->current();
+
+        if ($weeklyPromo && strtoupper($weeklyPromo->code) === strtoupper($code)) {
+            $names = $this->weeklyPromo->targetProductNames($weeklyPromo);
+
+            if ($names->isNotEmpty()) {
+                return 'Kode '.$weeklyPromo->code.' hanya berlaku untuk: '.$names->join(', ').' — tambahkan produk tersebut ke keranjang.';
+            }
+        }
+
+        return 'Kode promo tidak valid atau belum memenuhi minimal pembelian.';
     }
 }

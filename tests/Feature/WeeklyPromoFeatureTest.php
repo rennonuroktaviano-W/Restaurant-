@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Discount;
 use App\Models\Product;
+use App\Services\CartService;
+use App\Services\PricingService;
 use App\Services\WeeklyPromoService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -118,6 +120,71 @@ class WeeklyPromoFeatureTest extends TestCase
             ->assertOk()
             ->assertSee('Promo mingguan aktif')
             ->assertSee($promo->code);
+    }
+
+    public function test_cart_page_hint_lists_weekly_target_products(): void
+    {
+        $products = Product::factory()->count(3)->create();
+
+        $promo = app(WeeklyPromoService::class)->ensureCurrent();
+        $targetIds = $promo->items()->where('target_type', 'product')->pluck('target_id');
+        $targetNames = $products->whereIn('id', $targetIds)->pluck('name');
+
+        $response = $this->get(route('cart.index'))
+            ->assertOk()
+            ->assertSee('Promo mingguan aktif');
+
+        foreach ($targetNames as $name) {
+            $response->assertSee($name);
+        }
+    }
+
+    public function test_weekly_code_shows_clear_error_without_target_product_in_cart(): void
+    {
+        $products = Product::factory()->count(3)->create(['stock_type' => 'unlimited']);
+
+        $promo = app(WeeklyPromoService::class)->ensureCurrent();
+        $targetIds = $promo->items()->where('target_type', 'product')->pluck('target_id')->map(fn ($id) => (int) $id);
+        $nonTarget = $products->first(fn ($p) => ! $targetIds->contains($p->id));
+
+        $this->assertNotNull($nonTarget);
+        app(CartService::class)->add($nonTarget->id, 1);
+
+        $this->post(route('cart.discount'), ['discount_code' => $promo->code])
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $error = session('error');
+        $this->assertStringContainsString('hanya berlaku', $error);
+        $this->assertStringContainsString($promo->code, $error);
+        $this->assertFalse(session()->has('cart.discount_code'));
+    }
+
+    public function test_weekly_code_applies_when_target_product_in_cart(): void
+    {
+        $products = Product::factory()->count(3)->create(['stock_type' => 'unlimited']);
+
+        $promo = app(WeeklyPromoService::class)->ensureCurrent();
+        $targetId = (int) $promo->items()->where('target_type', 'product')->first()->target_id;
+
+        $cart = app(CartService::class);
+        $cart->add($targetId, 1);
+        $subtotal = $cart->subtotal();
+
+        $this->post(route('cart.discount'), ['discount_code' => $promo->code])
+            ->assertRedirect()
+            ->assertSessionHas('cart.discount_code', $promo->code)
+            ->assertSessionHas('success');
+
+        $lines = $cart->lines();
+        $pricing = app(PricingService::class)->calculate($lines, $subtotal, $promo->code);
+
+        $this->assertSame($promo->code, $pricing['discount_code']);
+        $this->assertEqualsWithDelta(
+            $subtotal * ((int) $promo->value / 100),
+            $pricing['discount_amount'],
+            0.01,
+        );
     }
 
     public function test_admin_discount_index_creates_and_shows_weekly_promo(): void

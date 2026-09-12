@@ -197,8 +197,13 @@
                 </form>
                 @if ($weeklyPromo)
                     <p class="mb-4 rounded-lg border border-gold-500/40 bg-gold-100/70 px-3 py-2.5 text-xs leading-relaxed text-gold-800">
-                        Promo mingguan aktif: gunakan kode <strong class="font-semibold uppercase tracking-wider">{{ $weeklyPromo->code }}</strong>
-                        untuk diskon {{ (int) $weeklyPromo->value }}% pada produk tertentu.
+                        Promo mingguan aktif: kode <strong class="font-semibold uppercase tracking-wider">{{ $weeklyPromo->code }}</strong>
+                        = diskon {{ (int) $weeklyPromo->value }}%
+                        @if ($weeklyTargetNames->isNotEmpty())
+                            untuk <strong class="font-semibold">{{ $weeklyTargetNames->join(' & ') }}</strong>.
+                        @else
+                            pada produk tertentu.
+                        @endif
                     </p>
                 @endif
                 @if ($discountCode)
