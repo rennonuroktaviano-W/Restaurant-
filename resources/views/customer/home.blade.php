@@ -38,6 +38,7 @@
                     </a>
                     <a href="#signature" class="btn-hero">Menu Unggulan</a>
                     <a href="{{ route('cart.index') }}" class="btn-hero" aria-label="Buka keranjang">Keranjang</a>
+                    <a href="{{ route('tracking.lookup') }}" class="btn-hero">Lacak Pesanan</a>
                 </div>
 
                 <dl class="reveal mt-12 flex flex-wrap gap-x-10 gap-y-4 text-sm">

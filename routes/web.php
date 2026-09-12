@@ -60,6 +60,14 @@ Route::prefix('cart')->name('cart.')->middleware('throttle:kiosk-cart')->group(f
 
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store')->middleware('throttle:kiosk-checkout');
 
+Route::get('/lacak-pesanan', [OrderTrackingController::class, 'lookup'])
+    ->middleware('throttle:60,1')
+    ->name('tracking.lookup');
+
+Route::post('/lacak-pesanan', [OrderTrackingController::class, 'find'])
+    ->middleware('throttle:60,1')
+    ->name('tracking.find');
+
 Route::get('/track/{order:order_number}', [OrderTrackingController::class, 'show'])
     ->middleware('throttle:120,1')
     ->missing(fn () => redirect()->route('home')->with('error', 'Order tidak ditemukan.'))

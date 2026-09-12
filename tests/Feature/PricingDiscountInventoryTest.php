@@ -167,6 +167,59 @@ class PricingDiscountInventoryTest extends TestCase
         $this->assertSame('SAVE10', $pricing['discount_code']);
     }
 
+    public function test_discount_code_matching_is_case_insensitive(): void
+    {
+        Discount::create([
+            'name' => 'Code Case',
+            'code' => 'GRATIS10',
+            'type' => 'percentage',
+            'value' => 10,
+            'min_amount' => 50000,
+            'is_automatic' => false,
+            'is_active' => true,
+            'starts_at' => now()->subDay(),
+            'ends_at' => now()->addDays(30),
+        ]);
+
+        $lines = $this->cartLines([[1, 55000.0, 1]]);
+
+        $pricing = app(PricingService::class)->calculate($lines, 55000.0, 'gratis10');
+
+        $this->assertSame(5500.0, round($pricing['discount_amount'], 2));
+        $this->assertSame('GRATIS10', $pricing['discount_code']);
+    }
+
+    public function test_lowercase_code_is_accepted_by_cart_discount_route(): void
+    {
+        Discount::create([
+            'name' => 'Code Route',
+            'code' => 'GRATIS10',
+            'type' => 'percentage',
+            'value' => 10,
+            'min_amount' => 50000,
+            'is_automatic' => false,
+            'is_active' => true,
+            'starts_at' => now()->subDay(),
+            'ends_at' => now()->addDays(30),
+        ]);
+
+        $product = Product::factory()->create([
+            'sale_price' => 55000,
+            'stock_type' => 'unlimited',
+            'stock' => 99,
+        ]);
+
+        $this->post(route('cart.add'), ['product_id' => $product->id, 'quantity' => 1])
+            ->assertRedirect();
+
+        $this->post(route('cart.discount'), ['discount_code' => 'gratis10'])
+            ->assertRedirect(route('cart.index'))
+            ->assertSessionHas('success')
+            ->assertSessionHas('cart.discount_code', 'gratis10');
+
+        $this->get(route('cart.index'))->assertSee('− Rp 5.500', false);
+    }
+
     public function test_discount_targets_only_matching_category(): void
     {
         $category = Category::factory()->create();
