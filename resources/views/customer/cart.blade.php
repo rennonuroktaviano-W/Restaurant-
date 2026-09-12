@@ -70,6 +70,33 @@
                     </ul>
                 </div>
 
+                <div class="card p-6">
+                    <h2 class="font-display text-lg font-semibold text-ink-900">Kode Promo</h2>
+                    <p class="mt-1 text-sm text-ink-500">Punya kode promo? Terapkan sebelum buat order — total di ringkasan dihitung otomatis oleh sistem.</p>
+
+                    <form method="POST" action="{{ route('cart.discount') }}" class="mt-4 flex flex-col gap-2 sm:flex-row">
+                        @csrf
+                        <div class="min-w-0 flex-1">
+                            <label for="discount_code" class="sr-only">Kode promo</label>
+                            <input id="discount_code" type="text" name="discount_code" value="{{ $discountCode ?? '' }}"
+                                   placeholder="cth. HEMAT10" maxlength="50" autocomplete="off"
+                                   class="input uppercase tracking-wider">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full shrink-0 sm:w-auto">
+                            {{ $discountCode ? 'Ganti' : 'Gunakan' }}
+                        </button>
+                    </form>
+
+                    @if ($discountCode)
+                        <form method="POST" action="{{ route('cart.discount') }}" class="mt-2">
+                            @csrf
+                            <input type="hidden" name="discount_code" value="">
+                            <button type="submit" class="text-xs text-burgundy-600 hover:underline">Hapus kode: {{ $discountCode }}</button>
+                        </form>
+                        <p class="form-hint mt-2">Kode "{{ $discountCode }}" tersimpan dan akan dipakai saat checkout.</p>
+                    @endif
+                </div>
+
                 <form method="POST" action="{{ route('checkout.store') }}" id="checkout-form" class="card p-6">
                     @csrf
                     <input type="hidden" name="idempotency_key" value="{{ session('checkout.key') }}">
@@ -187,20 +214,8 @@
             <div class="card p-6">
                 <h2 class="mb-4 font-display text-lg font-semibold text-ink-900">Ringkasan</h2>
 
-                <form method="POST" action="{{ route('cart.discount') }}" class="mb-4 flex gap-2">
-                    @csrf
-                    <input type="text" name="discount_code" value="{{ $discountCode ?? '' }}" placeholder="Kode promo"
-                           maxlength="50" class="input !py-2 flex-1 uppercase tracking-wider text-sm">
-                    <button type="submit" class="btn !px-4 !py-2 bg-forest-700 text-cream-50 text-sm font-medium hover:bg-forest-800 whitespace-nowrap">
-                        {{ $discountCode ? 'Ganti' : 'Terapkan' }}
-                    </button>
-                </form>
                 @if ($discountCode)
-                    <form method="POST" action="{{ route('cart.discount') }}" class="mb-4">
-                        @csrf
-                        <input type="hidden" name="discount_code" value="">
-                        <button type="submit" class="text-xs text-burgundy-600 hover:underline">Hapus kode: {{ $discountCode }}</button>
-                    </form>
+                    <p class="mb-3 rounded-lg bg-forest-50 px-3 py-2 text-xs text-forest-800">Kode promo "{{ $discountCode }}" aktif.</p>
                 @endif
 
                 <dl class="space-y-2 text-sm" data-cart-summary>

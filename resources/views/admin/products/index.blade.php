@@ -26,6 +26,7 @@
     </form>
 
     <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
         <table class="table-w">
             <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
                 <tr>
@@ -51,7 +52,7 @@
                         </td>
                         <td class="px-4 py-3">{{ $product->name }}</td>
                         <td class="px-4 py-3">{{ $product->sku }}</td>
-                        <td class="px-4 py-3">{{ $product->category->name }}</td>
+                        <td class="px-4 py-3">{{ $product->category?->name ?? '—' }}</td>
                         <td class="px-4 py-3">{{ number_format($product->sale_price, 0, ',', '.') }}</td>
                         <td class="px-4 py-3">{{ $product->stock_type === 'limited' ? $product->stock : '∞' }}</td>
                         <td class="px-4 py-3">
@@ -79,6 +80,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
     <div class="mt-4">

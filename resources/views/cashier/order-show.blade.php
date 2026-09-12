@@ -6,7 +6,7 @@
 @section('content')
     @php
         $typeLabels = ['dine_in' => 'Dine In', 'take_away' => 'Take Away', 'room_service' => 'Room Service'];
-        $paymentLabels = ['pending' => 'Belum Bayar', 'paid' => 'Lunas', 'failed' => 'Gagal', 'expired' => 'Kadaluarsa'];
+        $paymentLabels = ['pending' => 'Belum Bayar', 'paid' => 'Lunas', 'failed' => 'Gagal', 'expired' => 'Kadaluarsa', 'cancelled' => 'Dibatalkan'];
         $totalPaid = $order->payments()->where('status', \App\Models\Payment::STATUS_PAID)->sum('amount');
         $remaining = max(0, $order->grand_total - $totalPaid);
         $pendingOnline = $order->payments->first(fn ($p) => $p->type === 'online' && $p->status === \App\Models\Payment::STATUS_PENDING);
@@ -115,23 +115,23 @@
                     <form method="POST" action="{{ route('cashier.orders.pay-cash', $order) }}" id="pay-cash-{{ $order->id }}" class="mt-4 space-y-3" x-data="{ open: false, amount: '{{ $remaining }}' }">
                         @csrf
                         <div>
-                            <label class="label">Metode Tunai</label>
-                            <select name="payment_method_id" class="select" required>
+                            <label class="label" for="pay-cash-method-{{ $order->id }}">Metode Tunai</label>
+                            <select id="pay-cash-method-{{ $order->id }}" name="payment_method_id" class="select" required>
                                 @foreach ($methods->where('type', 'cash') as $method)
                                     <option value="{{ $method->id }}">{{ $method->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div>
-                            <label class="label">Jumlah Diterima</label>
-                            <input type="number" name="amount_received" x-model="amount" min="{{ $remaining }}" step="0.01" class="input" required>
+                            <label class="label" for="pay-cash-amount-{{ $order->id }}">Jumlah Diterima</label>
+                            <input id="pay-cash-amount-{{ $order->id }}" type="number" name="amount_received" x-model="amount" min="{{ $remaining }}" step="0.01" class="input" required>
                         </div>
                         <button type="button" @click="open = true" class="btn btn-success w-full">Bayar Tunai (Rp <span x-text="Number(amount).toLocaleString('id-ID')"></span>)</button>
 
 <template x-teleport="body">
                             <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="open = false">
-                                <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false">
-                                    <h3 class="text-base font-semibold text-stone-100">Konfirmasi Bayar Tunai</h3>
+                                <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false" role="dialog" aria-modal="true" aria-labelledby="pay-cash-title-{{ $order->id }}">
+                                    <h3 id="pay-cash-title-{{ $order->id }}" class="text-base font-semibold text-stone-100">Konfirmasi Bayar Tunai</h3>
                                     <p class="mt-2 text-sm text-stone-400">Total: Rp {{ number_format($order->grand_total, 0, ',', '.') }} — Diterima: Rp <span x-text="Number(amount).toLocaleString('id-ID')"></span></p>
                                     <p class="mt-1 text-sm text-stone-400">Kembalian: <span class="font-bold text-emerald-400" x-text="'Rp ' + Math.max(0, Number(amount) - {{ $order->grand_total }}).toLocaleString('id-ID')"></span></p>
                                     <div class="mt-4 flex justify-end gap-2">
@@ -147,8 +147,8 @@
                         <form method="POST" action="{{ route('cashier.orders.pay-online', $order) }}" class="mt-3 space-y-3">
                             @csrf
                             <div>
-                                <label class="label">Bayar Online</label>
-                                <select name="payment_method_id" class="select" required>
+                                <label class="label" for="pay-online-method-{{ $order->id }}">Bayar Online</label>
+                                <select id="pay-online-method-{{ $order->id }}" name="payment_method_id" class="select" required>
                                     @foreach ($methods->where('type', 'online') as $method)
                                         <option value="{{ $method->id }}">{{ $method->name }}</option>
                                     @endforeach
@@ -195,13 +195,13 @@
                             <button type="button" @click="open = true" class="btn btn-danger">Batalkan</button>
 <template x-teleport="body">
                                 <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" @keydown.escape.window="open = false">
-                                    <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false">
-                                        <h3 class="text-base font-semibold text-stone-100">Batalkan {{ $order->order_number }}?</h3>
+                                    <div class="w-full max-w-md rounded-lg border border-night-600 bg-night-900 p-6 shadow-2xl" @click.outside="open = false" role="dialog" aria-modal="true" aria-labelledby="cancel-title-{{ $order->id }}">
+                                        <h3 id="cancel-title-{{ $order->id }}" class="text-base font-semibold text-stone-100">Batalkan {{ $order->order_number }}?</h3>
                                         @if ($totalPaid > 0)
                                             <p class="mt-2 text-xs text-stone-400">Pembayaran yang sudah lunas akan otomatis di-refund.</p>
                                         @endif
-                                        <label class="label mt-4">Alasan pembatalan</label>
-                                        <textarea name="reason" form="cancel-{{ $order->id }}" required rows="3" class="input w-full" placeholder="Contoh: pelanggan membatalkan pesanan"></textarea>
+                                        <label class="label mt-4" for="cancel-reason-show-{{ $order->id }}">Alasan pembatalan</label>
+                                        <textarea id="cancel-reason-show-{{ $order->id }}" name="reason" form="cancel-{{ $order->id }}" required rows="3" class="input w-full" placeholder="Contoh: pelanggan membatalkan pesanan"></textarea>
                                         <div class="mt-4 flex justify-end gap-2">
                                             <button type="button" @click="open = false" class="btn btn-secondary">Tutup</button>
                                             <button type="submit" form="cancel-{{ $order->id }}" class="btn btn-danger">Ya, Batalkan</button>

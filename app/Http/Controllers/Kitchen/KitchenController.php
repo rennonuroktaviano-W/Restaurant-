@@ -21,19 +21,19 @@ class KitchenController extends Controller
             return view('kitchen.disabled');
         }
 
-        $newOrders = Order::with(['items', 'table', 'room', 'area'])
+        $newOrders = Order::with(['items.product', 'table', 'room', 'area'])
             ->where('has_kitchen_items', true)
             ->whereIn('order_status', [Order::STATUS_NEW, Order::STATUS_ACCEPTED])
             ->orderBy('ordered_at')
             ->get();
 
-        $cooking = Order::with(['items', 'table', 'room', 'area'])
+        $cooking = Order::with(['items.product', 'table', 'room', 'area'])
             ->where('has_kitchen_items', true)
             ->where('order_status', Order::STATUS_COOKING)
             ->orderBy('accepted_at')
             ->get();
 
-        $ready = Order::with(['items', 'table', 'room', 'area'])
+        $ready = Order::with(['items.product', 'table', 'room', 'area'])
             ->where('has_kitchen_items', true)
             ->where('order_status', Order::STATUS_READY)
             ->orderBy('ready_at')

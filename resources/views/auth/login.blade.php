@@ -36,7 +36,9 @@
         </form>
     </div>
 
-    <p class="mt-4 text-center text-xs text-ink-400">
-        Default: admin@pos.local / kitchen@pos.local / cashier@pos.local — lihat seeder.
-    </p>
+    @if (config('app.debug'))
+        <p class="mt-4 text-center text-xs text-ink-400">
+            Default: admin@pos.local / kitchen@pos.local / cashier@pos.local — lihat seeder.
+        </p>
+    @endif
 @endsection

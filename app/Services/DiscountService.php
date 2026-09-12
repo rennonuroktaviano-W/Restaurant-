@@ -54,8 +54,10 @@ class DiscountService
 
     public function applyCode(string $code, Collection $items, float $subtotal): array
     {
+        // Case-insensitive match: the promo input is styled uppercase via CSS
+        // (visual only), so typed lowercase must still resolve on SQLite/MySQL.
         $discount = Discount::query()
-            ->where('code', $code)
+            ->whereRaw('UPPER(code) = UPPER(?)', [$code])
             ->where('is_active', true)
             ->where(function ($q) {
                 $q->whereNull('starts_at')->orWhere('starts_at', '<=', now());

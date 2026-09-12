@@ -11,6 +11,7 @@
     <title>@yield('title', $siteName)</title>
     @fonts
     @vite(['resources/css/customer.css', 'resources/js/app.js'])
+    <noscript><style>.reveal { opacity: 1 !important; transform: none !important; }</style></noscript>
     @stack('styles')
 </head>
 <body class="flex min-h-screen flex-col bg-cream-100 font-sans text-ink-800 antialiased">
@@ -30,10 +31,10 @@
 
             <div class="hidden items-center gap-8 lg:flex">
                 <a href="{{ route('menu.index') }}" class="text-sm font-medium text-ink-700 transition hover:text-forest-700">Menu</a>
+                <a href="{{ route('tracking.lookup') }}" class="text-sm font-medium text-ink-700 transition hover:text-forest-700">Lacak Pesanan</a>
                 @if ($landingNav)
                     <a href="#signature" class="text-sm font-medium text-ink-700 transition hover:text-forest-700">Menu Unggulan</a>
                     <a href="#story" class="text-sm font-medium text-ink-700 transition hover:text-forest-700">Tentang</a>
-                    <a href="#story" class="text-sm font-medium text-ink-700 transition hover:text-forest-700">Pengalaman</a>
                     <a href="#location" class="text-sm font-medium text-ink-700 transition hover:text-forest-700">Lokasi</a>
                 @endif
             </div>
@@ -65,10 +66,11 @@
              class="border-b border-cream-300/70 bg-cream-100/95 backdrop-blur lg:hidden">
             <div class="mx-auto max-w-[1280px] space-y-1 px-5 py-4 sm:px-8">
                 <a href="{{ route('menu.index') }}" @click="menuOpen = false" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink-800 hover:bg-cream-200/60">Menu</a>
+                <a href="{{ route('tracking.lookup') }}" @click="menuOpen = false" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink-800 hover:bg-cream-200/60">Lacak Pesanan</a>
                 @if ($landingNav)
                     <a href="#signature" @click="menuOpen = false" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink-800 hover:bg-cream-200/60">Menu Unggulan</a>
                     <a href="#story" @click="menuOpen = false" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink-800 hover:bg-cream-200/60">Tentang</a>
-                    <a href="#story" @click="menuOpen = false" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink-800 hover:bg-cream-200/60">Pengalaman</a>
+                    <a href="#location" @click="menuOpen = false" class="block rounded-lg px-3 py-2.5 text-sm font-medium text-ink-800 hover:bg-cream-200/60">Lokasi</a>
                 @endif
             </div>
         </div>
@@ -101,6 +103,7 @@
                 <h2 class="text-sm font-semibold tracking-wide text-cream-50 uppercase">Menjelajah</h2>
                 <ul class="mt-4 space-y-2.5 text-sm">
                     <li><a href="{{ route('menu.index') }}" class="text-cream-300/80 transition hover:text-cream-50">Lihat Menu</a></li>
+                    <li><a href="{{ route('tracking.lookup') }}" class="text-cream-300/80 transition hover:text-cream-50">Lacak Pesanan</a></li>
                     <li><a href="{{ route('menu.index') }}" class="text-cream-300/80 transition hover:text-cream-50">Pesan Sekarang</a></li>
                     <li><a href="{{ route('cart.index') }}" class="text-cream-300/80 transition hover:text-cream-50">Keranjang</a></li>
                 </ul>

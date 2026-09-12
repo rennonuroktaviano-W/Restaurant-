@@ -16,19 +16,19 @@ class CashierController extends Controller
     {
         Gate::authorize('order.view');
 
-        $newOrders = Order::with(['items', 'table', 'room', 'area'])
+        $newOrders = Order::with(['items', 'table', 'room', 'area', 'payments'])
             ->where('order_status', Order::STATUS_NEW)
             ->where('payment_status', '!=', Order::PAYMENT_FAILED)
             ->orderBy('ordered_at')
             ->get();
 
-        $activeOrders = Order::with(['items', 'table', 'room', 'area'])
+        $activeOrders = Order::with(['items', 'table', 'room', 'area', 'payments'])
             ->whereIn('order_status', [Order::STATUS_ACCEPTED, Order::STATUS_COOKING])
             ->orderBy('accepted_at')
             ->orderBy('ordered_at')
             ->get();
 
-        $readyOrders = Order::with(['items', 'table', 'room', 'area'])
+        $readyOrders = Order::with(['items', 'table', 'room', 'area', 'payments'])
             ->where('order_status', Order::STATUS_READY)
             ->orderBy('ready_at')
             ->get();

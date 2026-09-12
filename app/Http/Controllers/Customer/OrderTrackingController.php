@@ -12,6 +12,24 @@ use Illuminate\View\View;
 
 class OrderTrackingController extends Controller
 {
+    public function lookup(): View
+    {
+        return view('customer.tracking-lookup');
+    }
+
+    public function find(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'order_number' => ['required', 'string', 'max:32'],
+        ]);
+
+        $number = trim($validated['order_number']);
+
+        // Delegate existence handling to the existing tracking route's
+        // missing() handler — no new lookup/security logic here.
+        return redirect()->route('tracking.show', ['order' => $number]);
+    }
+
     public function show(Order $order): View
     {
         $order->load(['items', 'table', 'room', 'area', 'payments.paymentMethod', 'statusHistories.actor']);

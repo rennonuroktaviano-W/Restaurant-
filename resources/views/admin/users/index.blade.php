@@ -26,15 +26,16 @@
     </form>
 
     <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
         <table class="table-w">
             <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
                 <tr>
                     <th class="px-4 py-3 font-medium">Nama</th>
                     <th class="px-4 py-3 font-medium">Email</th>
                     <th class="px-4 py-3 font-medium">No. HP</th>
-                    <th class="px-4 py-3 font-medium">Role</th>
-                    <th class="px-4 py-3 font-medium">Status</th>
-                    <th class="px-4 py-3 font-medium">Aktif</th>
+                        <th class="px-4 py-3 font-medium">Role</th>
+                        <th class="px-4 py-3 font-medium">Kehadiran</th>
+                        <th class="px-4 py-3 font-medium">Status Akun</th>
                     <th class="px-4 py-3 font-medium">Aksi</th>
                 </tr>
             </thead>
@@ -92,6 +93,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
     <div class="mt-4">

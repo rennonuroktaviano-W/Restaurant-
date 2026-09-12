@@ -45,27 +45,12 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     @foreach ($methods->where('type', 'cash') as $method)
-                        @php
-                            $received = \App\Models\Payment::query()
-                                ->where('created_by', $cashier->id)
-                                ->where('payment_method_id', $method->id)
-                                ->where('type', 'cash')
-                                ->where('status', \App\Models\Payment::STATUS_PAID)
-                                ->whereDate('paid_at', request('date', today()))
-                                ->sum('amount');
-                            $methodRefunds = \App\Models\Payment::query()
-                                ->where('created_by', $cashier->id)
-                                ->where('payment_method_id', $method->id)
-                                ->where('type', 'cash')
-                                ->where('status', \App\Models\Payment::STATUS_REFUNDED)
-                                ->whereDate('paid_at', request('date', today()))
-                                ->sum('amount');
-                        @endphp
+                        @php $row = $reconciliation[$method->id] ?? ['received' => 0, 'refunds' => 0, 'net' => 0]; @endphp
                         <tr>
                             <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $method->name }}</td>
-                            <td class="px-4 py-3 text-right text-sm text-gray-700">Rp {{ number_format($received, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-right text-sm text-red-600">Rp {{ number_format($methodRefunds, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-right text-sm font-semibold text-gray-900">Rp {{ number_format(max(0, $received - $methodRefunds), 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-right text-sm text-gray-700">Rp {{ number_format($row['received'], 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-right text-sm text-red-600">Rp {{ number_format($row['refunds'], 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-right text-sm font-semibold text-gray-900">Rp {{ number_format($row['net'], 0, ',', '.') }}</td>
                         </tr>
                     @endforeach
                 </tbody>

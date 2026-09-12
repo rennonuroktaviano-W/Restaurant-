@@ -39,6 +39,28 @@ class ShiftController extends Controller
             ->where('type', 'cash')
             ->sum('amount');
 
-        return view('cashier.shift', compact('cashier', 'methods', 'totalOrders', 'completed', 'cancelled', 'cashSales', 'cashExpected'));
+        // Per-method cash reconciliation, previously computed inside the Blade
+        // view. Same clauses, prepared here so the view only renders values.
+        $shiftDate = $request->date ?? today();
+        $reconciliation = [];
+
+        foreach ($methods->where('type', 'cash') as $method) {
+            $base = Payment::query()
+                ->where('created_by', $cashier->id)
+                ->where('payment_method_id', $method->id)
+                ->where('type', 'cash')
+                ->whereDate('paid_at', $shiftDate);
+
+            $received = (float) (clone $base)->where('status', Payment::STATUS_PAID)->sum('amount');
+            $refunds = (float) (clone $base)->where('status', Payment::STATUS_REFUNDED)->sum('amount');
+
+            $reconciliation[$method->id] = [
+                'received' => $received,
+                'refunds' => $refunds,
+                'net' => max(0, $received - $refunds),
+            ];
+        }
+
+        return view('cashier.shift', compact('cashier', 'methods', 'totalOrders', 'completed', 'cancelled', 'cashSales', 'cashExpected', 'reconciliation'));
     }
 }
