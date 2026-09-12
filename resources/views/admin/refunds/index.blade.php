@@ -9,20 +9,20 @@
     <div class="card mb-6 overflow-hidden">
         <form method="GET" action="{{ route('admin.refunds.index') }}" class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-6">
             <div class="lg:col-span-3">
-                <label class="label">Pencarian</label>
-                <input type="search" name="q" value="{{ request('q') }}" placeholder="Nomor order atau alasan..." class="input">
+                <label class="label" for="f-refund-q">Pencarian</label>
+                <input id="f-refund-q" type="search" name="q" value="{{ request('q') }}" placeholder="Nomor order atau alasan..." class="input">
             </div>
             <div>
-                <label class="label">Dari Tanggal</label>
-                <input type="date" name="date_from" value="{{ request('date_from') }}" class="input">
+                <label class="label" for="f-refund-from">Dari Tanggal</label>
+                <input id="f-refund-from" type="date" name="date_from" value="{{ request('date_from') }}" class="input">
             </div>
             <div>
-                <label class="label">Sampai Tanggal</label>
-                <input type="date" name="date_to" value="{{ request('date_to') }}" class="input">
+                <label class="label" for="f-refund-to">Sampai Tanggal</label>
+                <input id="f-refund-to" type="date" name="date_to" value="{{ request('date_to') }}" class="input">
             </div>
             <div>
-                <label class="label">Status</label>
-                <select name="status" class="select">
+                <label class="label" for="f-refund-status">Status</label>
+                <select id="f-refund-status" name="status" class="select">
                     <option value="">Semua</option>
                     <option value="succeeded" @selected(request('status') === 'succeeded')>Berhasil</option>
                     <option value="failed" @selected(request('status') === 'failed')>Gagal</option>

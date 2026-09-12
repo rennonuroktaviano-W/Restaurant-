@@ -27,20 +27,20 @@
     <div class="card mb-6 p-5">
         <form method="GET" action="{{ route('admin.reports.index') }}" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-                <label class="label">Pencarian</label>
-                <input type="search" name="search" value="{{ $filters['search'] }}" placeholder="Nomor order / nama pelanggan..." class="input">
+                <label class="label" for="f-report-search">Pencarian</label>
+                <input id="f-report-search" type="search" name="search" value="{{ $filters['search'] }}" placeholder="Nomor order / nama pelanggan..." class="input">
             </div>
             <div>
-                <label class="label">Dari Tanggal</label>
-                <input type="date" name="date_from" value="{{ $filters['date_from'] }}" class="input">
+                <label class="label" for="f-report-from">Dari Tanggal</label>
+                <input id="f-report-from" type="date" name="date_from" value="{{ $filters['date_from'] }}" class="input">
             </div>
             <div>
-                <label class="label">Sampai Tanggal</label>
-                <input type="date" name="date_to" value="{{ $filters['date_to'] }}" class="input">
+                <label class="label" for="f-report-to">Sampai Tanggal</label>
+                <input id="f-report-to" type="date" name="date_to" value="{{ $filters['date_to'] }}" class="input">
             </div>
             <div>
-                <label class="label">Area</label>
-                <select name="area_id" class="select">
+                <label class="label" for="f-report-area">Area</label>
+                <select id="f-report-area" name="area_id" class="select">
                     <option value="">Semua Area</option>
                     @foreach ($areas as $area)
                         <option value="{{ $area->id }}" {{ $filters['area_id'] == $area->id ? 'selected' : '' }}>{{ $area->name }}</option>
@@ -48,8 +48,8 @@
                 </select>
             </div>
             <div>
-                <label class="label">Tipe Order</label>
-                <select name="order_type" class="select">
+                <label class="label" for="f-report-type">Tipe Order</label>
+                <select id="f-report-type" name="order_type" class="select">
                     <option value="">Semua</option>
                     <option value="dine_in" {{ $filters['order_type'] === 'dine_in' ? 'selected' : '' }}>Dine In</option>
                     <option value="take_away" {{ $filters['order_type'] === 'take_away' ? 'selected' : '' }}>Take Away</option>
@@ -57,8 +57,8 @@
                 </select>
             </div>
             <div>
-                <label class="label">Status</label>
-                <select name="status" class="select">
+                <label class="label" for="f-report-status">Status</label>
+                <select id="f-report-status" name="status" class="select">
                     <option value="">Semua</option>
                     @foreach (\App\Models\Order::$flowLabels as $value => $label)
                         <option value="{{ $value }}" {{ $filters['status'] === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -66,8 +66,8 @@
                 </select>
             </div>
             <div>
-                <label class="label">Kasir</label>
-                <select name="cashier_id" class="select">
+                <label class="label" for="f-report-cashier">Kasir</label>
+                <select id="f-report-cashier" name="cashier_id" class="select">
                     <option value="">Semua</option>
                     @foreach ($cashiers as $cashier)
                         <option value="{{ $cashier->id }}" {{ $filters['cashier_id'] == $cashier->id ? 'selected' : '' }}>{{ $cashier->name }}</option>
@@ -75,8 +75,8 @@
                 </select>
             </div>
             <div>
-                <label class="label">Metode Bayar</label>
-                <select name="payment_method_id" class="select">
+                <label class="label" for="f-report-method">Metode Bayar</label>
+                <select id="f-report-method" name="payment_method_id" class="select">
                     <option value="">Semua</option>
                     @foreach ($paymentMethods as $method)
                         <option value="{{ $method->id }}" {{ $filters['payment_method_id'] == $method->id ? 'selected' : '' }}>{{ $method->name }}</option>

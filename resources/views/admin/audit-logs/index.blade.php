@@ -9,12 +9,12 @@
     <div class="card mb-6 overflow-hidden">
         <form method="GET" action="{{ route('admin.audit-logs.index') }}" class="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-6">
             <div class="lg:col-span-2">
-                <label class="label">Pencarian</label>
-                <input type="search" name="q" value="{{ request('q') }}" placeholder="Modul, aksi, target..." class="input">
+                <label class="label" for="f-audit-q">Pencarian</label>
+                <input id="f-audit-q" type="search" name="q" value="{{ request('q') }}" placeholder="Modul, aksi, target..." class="input">
             </div>
             <div>
-                <label class="label">Pengguna</label>
-                <select name="actor" class="select">
+                <label class="label" for="f-audit-actor">Pengguna</label>
+                <select id="f-audit-actor" name="actor" class="select">
                     <option value="">Semua</option>
                     @foreach ($users as $user)
                         <option value="{{ $user->id }}" @selected((string) request('actor') === (string) $user->id)>{{ $user->name }}</option>
@@ -22,8 +22,8 @@
                 </select>
             </div>
             <div>
-                <label class="label">Modul</label>
-                <select name="module" class="select">
+                <label class="label" for="f-audit-module">Modul</label>
+                <select id="f-audit-module" name="module" class="select">
                     <option value="">Semua</option>
                     @foreach ($modules as $module)
                         <option value="{{ $module }}" @selected(request('module') === $module)>{{ $module }}</option>
@@ -31,8 +31,8 @@
                 </select>
             </div>
             <div>
-                <label class="label">Aksi</label>
-                <select name="action" class="select">
+                <label class="label" for="f-audit-action">Aksi</label>
+                <select id="f-audit-action" name="action" class="select">
                     <option value="">Semua</option>
                     @foreach ($actions as $action)
                         <option value="{{ $action }}" @selected(request('action') === $action)>{{ $action }}</option>
@@ -40,8 +40,8 @@
                 </select>
             </div>
             <div>
-                <label class="label">Target</label>
-                <select name="target" class="select">
+                <label class="label" for="f-audit-target">Target</label>
+                <select id="f-audit-target" name="target" class="select">
                     <option value="">Semua</option>
                     @foreach ($targetTypes as $targetType)
                         <option value="{{ $targetType }}" @selected(request('target') === $targetType)>{{ $targetType }}</option>
@@ -49,12 +49,12 @@
                 </select>
             </div>
             <div>
-                <label class="label">Dari Tanggal</label>
-                <input type="date" name="date_from" value="{{ request('date_from') }}" class="input">
+                <label class="label" for="f-audit-from">Dari Tanggal</label>
+                <input id="f-audit-from" type="date" name="date_from" value="{{ request('date_from') }}" class="input">
             </div>
             <div>
-                <label class="label">Sampai Tanggal</label>
-                <input type="date" name="date_to" value="{{ request('date_to') }}" class="input">
+                <label class="label" for="f-audit-to">Sampai Tanggal</label>
+                <input id="f-audit-to" type="date" name="date_to" value="{{ request('date_to') }}" class="input">
             </div>
             <div class="flex items-end gap-2">
                 <button type="submit" class="btn btn-primary">Filter</button>

@@ -20,6 +20,7 @@
     </form>
 
     <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
         <table class="table-w">
             <thead class="bg-gray-50 text-left text-xs uppercase text-gray-500">
                 <tr>
@@ -92,6 +93,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
     <div class="mt-4">

@@ -11,20 +11,20 @@
     <div class="card mb-6 p-5">
         <form method="GET" action="{{ route('cashier.history') }}" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div>
-                <label class="label">Nomor Order</label>
-                <input type="search" name="order_number" value="{{ request('order_number') }}" placeholder="Cari nomor..." class="input">
+                <label class="label" for="f-history-order">Nomor Order</label>
+                <input id="f-history-order" type="search" name="order_number" value="{{ request('order_number') }}" placeholder="Cari nomor..." class="input">
             </div>
             <div>
-                <label class="label">Dari Tanggal</label>
-                <input type="date" name="date_from" value="{{ request('date_from') }}" class="input">
+                <label class="label" for="f-history-from">Dari Tanggal</label>
+                <input id="f-history-from" type="date" name="date_from" value="{{ request('date_from') }}" class="input">
             </div>
             <div>
-                <label class="label">Sampai Tanggal</label>
-                <input type="date" name="date_to" value="{{ request('date_to') }}" class="input">
+                <label class="label" for="f-history-to">Sampai Tanggal</label>
+                <input id="f-history-to" type="date" name="date_to" value="{{ request('date_to') }}" class="input">
             </div>
             <div>
-                <label class="label">Status</label>
-                <select name="status" class="select">
+                <label class="label" for="f-history-status">Status</label>
+                <select id="f-history-status" name="status" class="select">
                     <option value="">Semua</option>
                     @foreach ([\App\Models\Order::STATUS_COMPLETED => 'Selesai', \App\Models\Order::STATUS_CANCELLED => 'Dibatalkan'] as $value => $label)
                         <option value="{{ $value }}" {{ request('status') === $value ? 'selected' : '' }}>{{ $label }}</option>
