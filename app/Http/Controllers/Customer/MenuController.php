@@ -134,8 +134,14 @@ class MenuController extends Controller
 
         if ($location !== null) {
             session(['location.token' => $request->string('location_token')]);
+            session()->flash('location_confirmed', true);
+            $request->session()->put('location.type', $location['type']);
+            $request->session()->put('location.id', $location['id']);
         } else {
             session()->forget('location.token');
+            session()->forget('location.type');
+            session()->forget('location.id');
+            session()->flash('location_invalid', true);
         }
     }
 

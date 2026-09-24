@@ -5,6 +5,43 @@
 @section('content')
     @include('customer._cart-drawer', ['lines' => $drawerLines, 'subtotal' => $drawerSubtotal])
 
+    @php
+        $loc = session('location');
+        $locType = $loc['type'] ?? null;
+        $locId = $loc['id'] ?? null;
+        $locName = '';
+        $locArea = '';
+        if ($locType === \App\Services\LocationTokenService::TYPE_TABLE && $locId) {
+            $table = \App\Models\DiningTable::with('area')->find($locId);
+            if ($table) {
+                $locName = $table->name;
+                $locArea = $table->area?->name ?? '';
+            }
+        } elseif ($locType === \App\Services\LocationTokenService::TYPE_ROOM && $locId) {
+            $room = \App\Models\Room::with('area')->find($locId);
+            if ($room) {
+                $locName = $room->name;
+                $locArea = $room->area?->name ?? '';
+            }
+        }
+    @endphp
+
+    @if ($locType && $locId)
+        <div class="mb-6 p-3 rounded-lg bg-forest-50 border border-forest-200 flex items-center gap-2 text-sm text-forest-700" aria-label="Lokasi pesanan">
+            @if ($locType === \App\Services\LocationTokenService::TYPE_TABLE)
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            @else
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"/></svg>
+            @endif
+            <div>
+                <span class="font-medium">{{ $locName }}</span>
+                @if ($locArea)
+                    <span class="text-forest-500 ml-1">· {{ $locArea }}</span>
+                @endif
+            </div>
+        </div>
+    @endif
+
     <section class="mx-auto max-w-4xl text-center">
         <p class="eyebrow">Selamat datang</p>
         <h1 class="section-title mt-3">Pilih menu favorit Anda</h1>

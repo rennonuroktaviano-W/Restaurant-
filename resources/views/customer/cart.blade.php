@@ -8,6 +8,43 @@
         Kembali ke Menu
     </a>
 
+    @php
+        $loc = session('location');
+        $locType = $loc['type'] ?? null;
+        $locId = $loc['id'] ?? null;
+        $locName = '';
+        $locArea = '';
+        if ($locType === \App\Services\LocationTokenService::TYPE_TABLE && $locId) {
+            $table = \App\Models\DiningTable::with('area')->find($locId);
+            if ($table) {
+                $locName = $table->name;
+                $locArea = $table->area?->name ?? '';
+            }
+        } elseif ($locType === \App\Services\LocationTokenService::TYPE_ROOM && $locId) {
+            $room = \App\Models\Room::with('area')->find($locId);
+            if ($room) {
+                $locName = $room->name;
+                $locArea = $room->area?->name ?? '';
+            }
+        }
+    @endphp
+
+    @if ($locType && $locId)
+        <div class="mb-4 p-3 rounded-lg bg-forest-50 border border-forest-200 flex items-center gap-2 text-sm text-forest-700" aria-label="Lokasi pesanan">
+            @if ($locType === \App\Services\LocationTokenService::TYPE_TABLE)
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            @else
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"/></svg>
+            @endif
+            <div>
+                <span class="font-medium">{{ $locName }}</span>
+                @if ($locArea)
+                    <span class="text-forest-500 ml-1">· {{ $locArea }}</span>
+                @endif
+            </div>
+        </div>
+    @endif
+
     <div class="mt-4 grid gap-6 lg:grid-cols-[1fr_24rem]">
         <div class="space-y-6">
             @if ($lines->isEmpty())
@@ -102,7 +139,23 @@
                     <input type="hidden" name="idempotency_key" value="{{ session('checkout.key') }}">
                     <input type="hidden" name="discount_code" value="{{ $discountCode ?? '' }}">
 
-                    <div x-data="{ type: '{{ old('order_type', 'take_away') }}', payment: '{{ (string) old('payment_method_id', $paymentMethods->first()?->id ?? '') }}' }">
+                    @php
+                        $loc = session('location');
+                        $locType = $loc['type'] ?? null;
+                        $locId = $loc['id'] ?? null;
+                        $qrOrderType = null;
+                        $qrTableId = null;
+                        $qrRoomId = null;
+                        if ($locType === \App\Services\LocationTokenService::TYPE_TABLE && $locId) {
+                            $qrOrderType = 'dine_in';
+                            $qrTableId = $locId;
+                        } elseif ($locType === \App\Services\LocationTokenService::TYPE_ROOM && $locId) {
+                            $qrOrderType = 'room_service';
+                            $qrRoomId = $locId;
+                        }
+                    @endphp
+
+                    <div x-data="{ type: '{{ old('order_type', $qrOrderType ?? 'take_away') }}', payment: '{{ (string) old('payment_method_id', $paymentMethods->first()?->id ?? '') }}' }">
                         <div class="mb-5">
                             <span class="label block">Tipe Order</span>
                             <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Tipe order">
@@ -116,32 +169,51 @@
                                             @click="type = '{{ $value }}'"
                                             :aria-checked="type === '{{ $value }}'"
                                             :class="type === '{{ $value }}' ? 'border-forest-700 bg-forest-700 text-cream-50 shadow-sm' : 'border-ink-900/15 bg-cream-50 text-ink-600 hover:border-forest-600/40'"
-                                            class="rounded-lg border px-3 py-2.5 text-sm font-medium transition">
+                                            class="rounded-lg border px-3 py-2.5 text-sm font-medium transition"
+                                            :disabled="{{ $qrOrderType && $qrOrderType !== $value ? 'true' : 'false' }}">
                                         {{ $label }}
                                     </button>
                                 @endforeach
                             </div>
-                            <input type="hidden" name="order_type" :value="type" value="{{ old('order_type', 'take_away') }}">
+                            <input type="hidden" name="order_type" :value="type" value="{{ old('order_type', $qrOrderType ?? 'take_away') }}">
                         </div>
 
                         <div class="grid gap-4">
                             <div x-show="type === 'dine_in'" x-cloak class="space-y-2">
-                                <label for="table_id" class="label">Pilih Meja</label>
-                                <select id="table_id" name="table_id" class="select">
-                                    <option value="">— Pilih area terlebih dahulu —</option>
-                                    @foreach ($areas as $area)
-                                        <optgroup label="{{ $area->name }}">
-                                            @foreach ($area->diningTables as $table)
-                                                <option value="{{ $table->id }}" {{ old('table_id') == $table->id ? 'selected' : '' }}>
-                                                    {{ $table->name }}
-                                                </option>
-                                            @endforeach
-                                        </optgroup>
-                                    @endforeach
-                                </select>
-                            </div>
+@if ($qrOrderType === 'dine_in' && $qrTableId)
+                                <input type="hidden" name="table_id" value="{{ $qrTableId }}">
+                                @php $qrTableName = \App\Models\DiningTable::find($qrTableId)?->name ?? 'Meja ' . $qrTableId; @endphp
+                                <div class="p-3 rounded-lg bg-forest-50 border border-forest-200 flex items-center gap-2 text-sm text-forest-700" aria-label="Meja dari QR">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    <span class="font-medium">Meja dari QR: {{ $qrTableName }}</span>
+                                </div>
+                            @else
+                                    <label for="table_id" class="label">Pilih Meja</label>
+                                    <select id="table_id" name="table_id" class="select">
+                                        <option value="">— Pilih area terlebih dahulu —</option>
+                                        @foreach ($areas as $area)
+                                            <optgroup label="{{ $area->name }}">
+                                                @foreach ($area->diningTables as $table)
+                                                    <option value="{{ $table->id }}" {{ old('table_id') == $table->id ? 'selected' : '' }}>
+                                                        {{ $table->name }}
+                                                    </option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+                        </div>
 
-                            <div x-show="type === 'room_service'" x-cloak class="space-y-2">
+                        <div x-show="type === 'room_service'" x-cloak class="space-y-2">
+                            @if ($qrOrderType === 'room_service' && $qrRoomId)
+                                <input type="hidden" name="room_id" value="{{ $qrRoomId }}">
+                                @php $qrRoomName = \App\Models\Room::find($qrRoomId)?->name ?? 'Room ' . $qrRoomId; @endphp
+                                <div class="p-3 rounded-lg bg-forest-50 border border-forest-200 flex items-center gap-2 text-sm text-forest-700" aria-label="Room dari QR">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"/></svg>
+                                    <span class="font-medium">Room dari QR: {{ $qrRoomName }}</span>
+                                </div>
+                            @else
                                 <label for="room_id" class="label">Pilih Room</label>
                                 <select id="room_id" name="room_id" class="select">
                                     <option value="">— Pilih room —</option>
@@ -151,7 +223,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                            </div>
+                            @endif
                         </div>
 
                         <div class="mt-4 grid gap-4 sm:grid-cols-2">

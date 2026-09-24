@@ -23,6 +23,35 @@
                 </button>
             </div>
 
+            @php
+                $loc = session('location');
+                $locType = $loc['type'] ?? null;
+                $locId = $loc['id'] ?? null;
+                $locName = '';
+                if ($locType === \App\Services\LocationTokenService::TYPE_TABLE && $locId) {
+                    $table = \App\Models\DiningTable::with('area')->find($locId);
+                    if ($table) {
+                        $locName = $table->name;
+                    }
+                } elseif ($locType === \App\Services\LocationTokenService::TYPE_ROOM && $locId) {
+                    $room = \App\Models\Room::with('area')->find($locId);
+                    if ($room) {
+                        $locName = $room->name;
+                    }
+                }
+            @endphp
+
+            @if ($locType && $locId)
+                <div class="mb-3 px-5 flex items-center gap-2 text-xs text-forest-700 bg-forest-50 rounded-lg border border-forest-200 px-3 py-1.5" aria-label="Lokasi pesanan">
+                    @if ($locType === \App\Services\LocationTokenService::TYPE_TABLE)
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    @else
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"/></svg>
+                    @endif
+                    <span class="font-medium">{{ $locName }}</span>
+                </div>
+            @endif
+
             <div class="flex-1 overflow-y-auto px-5 py-4" data-cart-drawer-lines>
                 @if ($lines->isEmpty())
                     <div class="flex h-full flex-col items-center justify-center text-center text-ink-500">

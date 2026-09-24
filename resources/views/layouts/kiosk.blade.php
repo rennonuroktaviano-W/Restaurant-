@@ -29,6 +29,42 @@
                 <span class="font-display text-lg font-semibold tracking-tight text-ink-900">{{ $siteName }}</span>
             </a>
 
+            @php
+                $loc = session('location');
+                $locType = $loc['type'] ?? null;
+                $locId = $loc['id'] ?? null;
+                $locName = '';
+                $locArea = '';
+                if ($locType === \App\Services\LocationTokenService::TYPE_TABLE && $locId) {
+                    $table = \App\Models\DiningTable::with('area')->find($locId);
+                    if ($table) {
+                        $locName = $table->name;
+                        $locArea = $table->area?->name ?? '';
+                    }
+                } elseif ($locType === \App\Services\LocationTokenService::TYPE_ROOM && $locId) {
+                    $room = \App\Models\Room::with('area')->find($locId);
+                    if ($room) {
+                        $locName = $room->name;
+                        $locArea = $room->area?->name ?? '';
+                    }
+                }
+            @endphp
+
+            @if ($locType && $locId)
+                <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-forest-50 text-forest-700 border border-forest-200 text-sm font-medium" aria-label="Lokasi pesanan">
+                    @if ($locType === \App\Services\LocationTokenService::TYPE_TABLE)
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    @else
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"/></svg>
+                    @endif
+                    <span class="font-medium">{{ $locName }}</span>
+                    @if ($locArea)
+                        <span class="text-forest-500">·</span>
+                        <span>{{ $locArea }}</span>
+                    @endif
+                </div>
+            @endif
+
             <div class="hidden items-center gap-8 lg:flex">
                 <a href="{{ route('menu.index') }}" class="text-sm font-medium text-ink-700 transition hover:text-forest-700">Menu</a>
                 <a href="{{ route('tracking.lookup') }}" class="text-sm font-medium text-ink-700 transition hover:text-forest-700">Lacak Pesanan</a>

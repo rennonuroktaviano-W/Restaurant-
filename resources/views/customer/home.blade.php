@@ -69,6 +69,23 @@
 
 @section('content')
     @include('customer._cart-drawer', ['lines' => $drawerLines, 'subtotal' => $drawerSubtotal])
+    @include('customer._location-confirm')
+
+    @if (session('location_invalid'))
+        <div class="mx-auto max-w-md mb-6 p-4 rounded-lg border border-burgundy-200 bg-burgundy-50" role="alert">
+            <div class="flex items-start gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mt-0.5 h-5 w-5 shrink-0 text-burgundy-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <div>
+                    <h3 class="font-medium text-burgundy-800">QR tidak valid</h3>
+                    <p class="mt-1 text-sm text-burgundy-700">QR meja ini sudah tidak dapat digunakan. Silakan scan QR yang tersedia di meja.</p>
+                    <div class="mt-3 flex gap-2">
+                        <a href="{{ route('home') }}" class="btn btn-secondary">Kembali ke Beranda</a>
+                        <a href="{{ route('menu.index') }}" class="btn btn-primary">Lihat Menu</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <div class="space-y-24 py-14 md:space-y-32 md:py-20">
 
@@ -374,5 +391,18 @@
             }, { threshold: 0.15 });
             reveals.forEach((el) => io.observe(el));
         }
+    </script>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('locationConfirm', () => ({
+                showLocationConfirm: {{ session('location_confirmed') ? 'true' : 'false' }},
+                confirmLocation() {
+                    this.showLocationConfirm = false;
+                    // Clear the flash so it doesn't show again on refresh
+                    window.location.href = window.location.pathname;
+                }
+            }));
+        });
     </script>
 @endpush
